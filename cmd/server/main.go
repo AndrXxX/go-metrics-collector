@@ -1,29 +1,13 @@
 package main
 
 import (
+	"github.com/AndrXxX/go-metrics-collector/internal/repositories"
+	"github.com/AndrXxX/go-metrics-collector/internal/repositories/memStorage"
 	"github.com/gorilla/mux"
 	"net/http"
 	"slices"
 	"strconv"
 )
-
-type Storage interface {
-	Gauge(metric string, value float64)
-	Counter(metric string, value int64)
-}
-
-type MemStorage struct {
-	gauge   map[string]float64
-	counter map[string]int64
-}
-
-func (s *MemStorage) Gauge(metric string, value float64) {
-	s.gauge[metric] = value
-}
-
-func (s *MemStorage) Counter(metric string, value int64) {
-	s.counter[metric] += value
-}
 
 func main() {
 	if err := run(); err != nil {
@@ -32,13 +16,10 @@ func main() {
 }
 
 func run() error {
-	memStorage := MemStorage{
-		gauge:   make(map[string]float64),
-		counter: make(map[string]int64),
-	}
+	storage := memStorage.New()
 	muxServe := http.NewServeMux()
 	rtr := mux.NewRouter()
-	rtr.HandleFunc("/update/{type}/{metric}/{value}", handler(&memStorage))
+	rtr.HandleFunc("/update/{type}/{metric}/{value}", handler(&storage))
 	rtr.HandleFunc("/*", badRequest)
 	muxServe.Handle("/", rtr)
 	return http.ListenAndServe(`:8080`, muxServe)
@@ -48,7 +29,7 @@ func badRequest(w http.ResponseWriter, _ *http.Request) {
 	http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 }
 
-func handler(s Storage) func(http.ResponseWriter, *http.Request) {
+func handler(s repositories.Repository) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
 		if r.Method != http.MethodPost {
