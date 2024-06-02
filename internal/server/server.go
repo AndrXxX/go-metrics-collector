@@ -4,13 +4,13 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/handlers"
 	"github.com/AndrXxX/go-metrics-collector/internal/handlers/counter"
 	"github.com/AndrXxX/go-metrics-collector/internal/handlers/gauge"
-	"github.com/AndrXxX/go-metrics-collector/internal/repositories/memStorage"
+	"github.com/AndrXxX/go-metrics-collector/internal/repositories/memstorage"
 	"github.com/gorilla/mux"
 	"net/http"
 )
 
 func Run() error {
-	storage := memStorage.New()
+	storage := memstorage.New()
 	muxServe := http.NewServeMux()
 	rtr := mux.NewRouter()
 	rtr.HandleFunc("/update/counter/{metric}/{value}", counter.Handler(&storage))
