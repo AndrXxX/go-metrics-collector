@@ -27,6 +27,5 @@ func Handler(s repositories.Repository) func(http.ResponseWriter, *http.Request)
 			return
 		}
 		w.WriteHeader(http.StatusBadRequest)
-		return
 	}
 }
