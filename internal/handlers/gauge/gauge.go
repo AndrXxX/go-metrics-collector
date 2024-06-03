@@ -1,6 +1,7 @@
 package gauge
 
 import (
+	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/repositories"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -24,6 +25,7 @@ func Handler(s repositories.Repository) func(http.ResponseWriter, *http.Request)
 		if converted, err := strconv.ParseFloat(value, 64); err == nil {
 			s.Gauge(metric, converted)
 			w.WriteHeader(http.StatusOK)
+			fmt.Println(s)
 			return
 		}
 		w.WriteHeader(http.StatusBadRequest)
