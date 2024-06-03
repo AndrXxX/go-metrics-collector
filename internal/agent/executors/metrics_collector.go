@@ -4,7 +4,9 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/metrics"
 	"math/rand"
-	rm "runtime/metrics"
+	"reflect"
+	"runtime"
+	"slices"
 	"time"
 )
 
@@ -18,29 +20,34 @@ func (c *metricsCollector) canExecute() bool {
 	return time.Since(c.lastExecuted) >= c.interval
 }
 
-func (c *metricsCollector) buildSamples(list []string) []rm.Sample {
-	result := make([]rm.Sample, 0)
-	for _, name := range list {
-		result = append(result, rm.Sample{Name: name})
-	}
-	return result
-}
-
 func (c *metricsCollector) Execute(result metrics.Metrics) error {
 	if !c.canExecute() {
 		return nil
 	}
-	samples := c.buildSamples(c.config.Metrics)
-	rm.Read(samples)
+	stats := runtime.MemStats{}
+	runtime.ReadMemStats(&stats)
+	values := reflect.ValueOf(stats)
+	types := values.Type()
+	for i := 0; i < values.NumField(); i++ {
+		if !slices.Contains(c.config.Metrics, types.Field(i).Name) {
+			continue
+		}
+		if values.Field(i).CanFloat() {
+			result.Gauge[types.Field(i).Name] = values.Field(i).Float()
+			continue
+		}
+		if values.Field(i).CanInt() {
+			result.Gauge[types.Field(i).Name] = float64(values.Field(i).Int())
+			continue
+		}
+		if values.Field(i).CanUint() {
+			result.Gauge[types.Field(i).Name] = float64(values.Field(i).Uint())
+			continue
+		}
+		println(types.Field(i).Name, values.Field(i).String())
+	}
 	result.Counter["PollCount"]++
 	result.Gauge["RandomValue"] = rand.Float64()
-	for _, sample := range samples {
-		if sample.Value.Kind() == rm.KindFloat64 {
-			result.Gauge[sample.Name] = sample.Value.Float64()
-		} else if sample.Value.Kind() == rm.KindUint64 {
-			result.Gauge[sample.Name] = float64(sample.Value.Uint64())
-		}
-	}
 	c.lastExecuted = time.Now()
 	return nil
 }
