@@ -76,8 +76,10 @@ func TestHandler(t *testing.T) {
 
 			assert.Equal(t, test.want.statusCode, result.StatusCode)
 			assert.Equal(t, test.want.contentType, result.Header.Get("Content-Type"))
-			err := result.Body.Close()
-			require.NoError(t, err)
+			if result.Body != nil {
+				err := result.Body.Close()
+				require.NoError(t, err)
+			}
 		})
 	}
 }
