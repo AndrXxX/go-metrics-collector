@@ -14,7 +14,7 @@ import (
 type metricsCollector struct {
 	interval     time.Duration
 	lastExecuted time.Time
-	config       *config.Config
+	metricsList  *config.MetricsList
 }
 
 func (c *metricsCollector) canExecute() bool {
@@ -30,7 +30,7 @@ func (c *metricsCollector) Execute(result metrics.Metrics) error {
 	values := reflect.ValueOf(stats)
 	types := values.Type()
 	for i := 0; i < values.NumField(); i++ {
-		if !slices.Contains(c.config.Metrics, types.Field(i).Name) {
+		if !slices.Contains(*c.metricsList, types.Field(i).Name) {
 			continue
 		}
 		if values.Field(i).CanFloat() {
@@ -53,10 +53,10 @@ func (c *metricsCollector) Execute(result metrics.Metrics) error {
 	return nil
 }
 
-func NewCollector(interval time.Duration, config *config.Config) Executors {
+func NewCollector(interval time.Duration, ml *config.MetricsList) Executors {
 	return &metricsCollector{
 		interval:     interval,
 		lastExecuted: time.Now(),
-		config:       config,
+		metricsList:  ml,
 	}
 }

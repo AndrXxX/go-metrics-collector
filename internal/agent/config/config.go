@@ -5,8 +5,10 @@ import me "github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 type Config struct {
 	Common    CommonConfig
 	Intervals Intervals
-	Metrics   []string
+	Metrics   MetricsList
 }
+
+type MetricsList []string
 
 type Intervals struct {
 	PollInterval   int64
@@ -23,7 +25,7 @@ func NewConfig() *Config {
 			Host: "http://localhost:8080",
 		},
 		Intervals: Intervals{PollInterval: 2, ReportInterval: 10},
-		Metrics: []string{
+		Metrics: MetricsList{
 			me.Alloc,
 			me.BuckHashSys,
 			me.Frees,

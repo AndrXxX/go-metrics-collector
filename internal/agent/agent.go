@@ -25,7 +25,7 @@ func Run(config *config.Config) error {
 
 func getExecutors(config *config.Config) []executors.Executors {
 	list := make([]executors.Executors, 0)
-	list = append(list, executors.NewCollector(time.Duration(config.Intervals.PollInterval), config))
+	list = append(list, executors.NewCollector(time.Duration(config.Intervals.PollInterval), &config.Metrics))
 	list = append(list, executors.NewUploader(time.Duration(config.Intervals.ReportInterval), config))
 	return list
 }
