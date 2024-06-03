@@ -12,18 +12,17 @@ type metricsUploader struct {
 	interval     time.Duration
 	lastExecuted time.Time
 	config       *config.Config
-	result       *metrics.Metrics
 }
 
 func (c *metricsUploader) canExecute() bool {
 	return time.Since(c.lastExecuted) >= c.interval
 }
 
-func (c *metricsUploader) Execute() error {
+func (c *metricsUploader) Execute(result metrics.Metrics) error {
 	if !c.canExecute() {
 		return nil
 	}
-	for metric, value := range c.result.Gauge {
+	for metric, value := range result.Gauge {
 		url := buildUrl(c.config.Common.Host, "gauge", metric, value)
 		resp, err := http.Post(url, "text/plain", nil)
 		if err != nil {
@@ -31,8 +30,8 @@ func (c *metricsUploader) Execute() error {
 		}
 		fmt.Println(resp.StatusCode, url)
 	}
-	for metric, value := range c.result.Counter {
-		url := buildUrl(c.config.Common.Host, "gauge", metric, value)
+	for metric, value := range result.Counter {
+		url := buildUrl(c.config.Common.Host, "counter", metric, value)
 		resp, err := http.Post(url, "text/plain", nil)
 		if err != nil {
 			return err
@@ -47,11 +46,10 @@ func buildUrl(host string, metricType string, metric string, value any) string {
 	return fmt.Sprintf("%v/update/%v/%v/%v", host, metricType, metric, value)
 }
 
-func NewUploader(interval time.Duration, config *config.Config, result *metrics.Metrics) Executors {
+func NewUploader(interval time.Duration, config *config.Config) Executors {
 	return &metricsUploader{
 		interval:     interval,
 		lastExecuted: time.Now(),
 		config:       config,
-		result:       result,
 	}
 }

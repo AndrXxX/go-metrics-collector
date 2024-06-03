@@ -10,11 +10,11 @@ import (
 
 func Run(config *config.Config) error {
 	m := metrics.NewMetrics()
-	e := getExecutors(config, m)
+	e := getExecutors(config)
 	sleepInterval := getSleepInterval(config)
 	for {
 		for _, executor := range e {
-			err := executor.Execute()
+			err := executor.Execute(*m)
 			if err != nil {
 				return err
 			}
@@ -23,10 +23,10 @@ func Run(config *config.Config) error {
 	}
 }
 
-func getExecutors(config *config.Config, result *metrics.Metrics) []executors.Executors {
+func getExecutors(config *config.Config) []executors.Executors {
 	list := make([]executors.Executors, 0)
-	list = append(list, executors.NewCollector(time.Duration(config.Intervals.PollInterval), config, result))
-	list = append(list, executors.NewUploader(time.Duration(config.Intervals.ReportInterval), config, result))
+	list = append(list, executors.NewCollector(time.Duration(config.Intervals.PollInterval), config))
+	list = append(list, executors.NewUploader(time.Duration(config.Intervals.ReportInterval), config))
 	return list
 }
 
