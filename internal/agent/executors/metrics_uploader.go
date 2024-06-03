@@ -24,17 +24,11 @@ func (c *metricsUploader) Execute(result metrics.Metrics) error {
 	}
 	for metric, value := range result.Gauge {
 		url := buildURL(c.config.Common.Host, "gauge", metric, value)
-		_, err := http.Post(url, "text/plain", nil)
-		if err != nil {
-			return err
-		}
+		_, _ = http.Post(url, "text/plain", nil)
 	}
 	for metric, value := range result.Counter {
 		url := buildURL(c.config.Common.Host, "counter", metric, value)
-		_, err := http.Post(url, "text/plain", nil)
-		if err != nil {
-			return err
-		}
+		_, _ = http.Post(url, "text/plain", nil)
 	}
 	c.lastExecuted = time.Now()
 	return nil
