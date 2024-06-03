@@ -1,6 +1,7 @@
 package counter
 
 import (
+	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/repositories"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -14,13 +15,13 @@ func Handler(s repositories.Repository) func(http.ResponseWriter, *http.Request)
 			return
 		}
 		params := mux.Vars(r)
-		metric := params["metric"]
+		metric := params[vars.METRIC]
 		if metric == "" {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 
-		value := params["value"]
+		value := params[vars.VALUE]
 		if converted, err := strconv.ParseInt(value, 10, 64); err == nil {
 			s.Counter(metric, converted)
 			w.WriteHeader(http.StatusOK)
