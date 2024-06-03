@@ -22,21 +22,21 @@ func (c *metricsUploader) Execute(result metrics.Metrics) error {
 		return nil
 	}
 	for metric, value := range result.Gauge {
-		url := buildURL(*c.host, "gauge", metric, value)
-		resp, _ := http.Post(url, "text/plain", nil)
-		if resp.Body != nil {
-			_ = resp.Body.Close()
-		}
+		c.upload("gauge", metric, value)
 	}
 	for metric, value := range result.Counter {
-		url := buildURL(*c.host, "counter", metric, value)
-		resp, _ := http.Post(url, "text/plain", nil)
-		if resp.Body != nil {
-			_ = resp.Body.Close()
-		}
+		c.upload("counter", metric, value)
 	}
 	c.lastExecuted = time.Now()
 	return nil
+}
+
+func (c *metricsUploader) upload(metricType string, metric string, value any) {
+	url := buildURL(*c.host, metricType, metric, value)
+	resp, _ := http.Post(url, "text/plain", nil)
+	if resp.Body != nil {
+		_ = resp.Body.Close()
+	}
 }
 
 func buildURL(host string, metricType string, metric string, value any) string {
