@@ -3,6 +3,7 @@ package executors
 import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/metrics"
+	me "github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"math/rand"
 	"reflect"
 	"runtime"
@@ -46,8 +47,8 @@ func (c *metricsCollector) Execute(result metrics.Metrics) error {
 		}
 		println(types.Field(i).Name, values.Field(i).String())
 	}
-	result.Counter["PollCount"]++
-	result.Gauge["RandomValue"] = rand.Float64()
+	result.Counter[me.PollCount]++
+	result.Gauge[me.RandomValue] = rand.Float64()
 	c.lastExecuted = time.Now()
 	return nil
 }
