@@ -8,8 +8,9 @@ import (
 	"strconv"
 )
 
-func Handler(s repositories.Repository) func(http.ResponseWriter, *http.Request) {
+func Handler(s repositories.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
 		if r.Method != http.MethodPost {
 			w.WriteHeader(http.StatusMethodNotAllowed)
 			return
