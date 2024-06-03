@@ -2,7 +2,6 @@ package executors
 
 import (
 	"fmt"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/metrics"
 	"net/http"
 	"time"
@@ -11,7 +10,7 @@ import (
 type metricsUploader struct {
 	interval     time.Duration
 	lastExecuted time.Time
-	config       *config.Config
+	host         *string
 }
 
 func (c *metricsUploader) canExecute() bool {
@@ -23,14 +22,14 @@ func (c *metricsUploader) Execute(result metrics.Metrics) error {
 		return nil
 	}
 	for metric, value := range result.Gauge {
-		url := buildURL(c.config.Common.Host, "gauge", metric, value)
+		url := buildURL(*c.host, "gauge", metric, value)
 		resp, _ := http.Post(url, "text/plain", nil)
 		if resp.Body != nil {
 			_ = resp.Body.Close()
 		}
 	}
 	for metric, value := range result.Counter {
-		url := buildURL(c.config.Common.Host, "counter", metric, value)
+		url := buildURL(*c.host, "counter", metric, value)
 		resp, _ := http.Post(url, "text/plain", nil)
 		if resp.Body != nil {
 			_ = resp.Body.Close()
@@ -44,10 +43,10 @@ func buildURL(host string, metricType string, metric string, value any) string {
 	return fmt.Sprintf("%v/update/%v/%v/%v", host, metricType, metric, value)
 }
 
-func NewUploader(interval time.Duration, config *config.Config) Executors {
+func NewUploader(interval time.Duration, host *string) Executors {
 	return &metricsUploader{
 		interval:     interval,
 		lastExecuted: time.Now(),
-		config:       config,
+		host:         host,
 	}
 }
