@@ -1,39 +1,28 @@
 package executors
 
 import (
-	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/metrics"
-	"net/http"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/utils"
 )
 
 type metricsUploader struct {
-	host string
+	rs *utils.RequestSender
 }
 
 func (c *metricsUploader) Execute(result metrics.Metrics) error {
 	for metric, value := range result.Gauge {
-		c.upload("gauge", metric, value)
+		params := utils.URLParams{"metricType": "gauge", "metric": metric, "value": value}
+		_ = c.rs.Post(params, "text/plain")
 	}
 	for metric, value := range result.Counter {
-		c.upload("counter", metric, value)
+		params := utils.URLParams{"metricType": "counter", "metric": metric, "value": value}
+		_ = c.rs.Post(params, "text/plain")
 	}
 	return nil
 }
 
-func (c *metricsUploader) upload(metricType string, metric string, value any) {
-	url := buildURL(c.host, metricType, metric, value)
-	resp, _ := http.Post(url, "text/plain", nil)
-	if resp != nil && resp.Body != nil {
-		_ = resp.Body.Close()
-	}
-}
-
-func buildURL(host string, metricType string, metric string, value any) string {
-	return fmt.Sprintf("%v/update/%v/%v/%v", host, metricType, metric, value)
-}
-
-func NewUploader(host string) Executors {
+func NewUploader(rs *utils.RequestSender) Executors {
 	return &metricsUploader{
-		host: host,
+		rs: rs,
 	}
 }
