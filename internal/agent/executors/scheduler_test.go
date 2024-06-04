@@ -10,7 +10,7 @@ import (
 type testExecutor struct {
 }
 
-func (t *testExecutor) Execute(m metrics.Metrics) error {
+func (t *testExecutor) Execute(_ metrics.Metrics) error {
 	return nil
 }
 
@@ -43,6 +43,23 @@ func TestIntervalScheduler_Add(t *testing.T) {
 			s := &intervalScheduler{list: tt.list}
 			s.Add(tt.args.e, tt.args.interval)
 			assert.Equal(t, tt.want, s.list)
+		})
+	}
+}
+
+func TestNewIntervalScheduler(t *testing.T) {
+	tests := []struct {
+		name string
+		want *intervalScheduler
+	}{
+		{
+			name: "Simple test",
+			want: &intervalScheduler{list: make([]item, 0)},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, NewIntervalScheduler(), "NewIntervalScheduler()")
 		})
 	}
 }
