@@ -7,7 +7,7 @@ import (
 )
 
 type metricsUploader struct {
-	host *string
+	host string
 }
 
 func (c *metricsUploader) Execute(result metrics.Metrics) error {
@@ -21,7 +21,7 @@ func (c *metricsUploader) Execute(result metrics.Metrics) error {
 }
 
 func (c *metricsUploader) upload(metricType string, metric string, value any) {
-	url := buildURL(*c.host, metricType, metric, value)
+	url := buildURL(c.host, metricType, metric, value)
 	resp, _ := http.Post(url, "text/plain", nil)
 	if resp.Body != nil {
 		_ = resp.Body.Close()
@@ -32,7 +32,7 @@ func buildURL(host string, metricType string, metric string, value any) string {
 	return fmt.Sprintf("%v/update/%v/%v/%v", host, metricType, metric, value)
 }
 
-func NewUploader(host *string) Executors {
+func NewUploader(host string) Executors {
 	return &metricsUploader{
 		host: host,
 	}
