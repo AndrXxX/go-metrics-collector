@@ -23,7 +23,7 @@ func (c *metricsUploader) Execute(result metrics.Metrics) error {
 func (c *metricsUploader) upload(metricType string, metric string, value any) {
 	url := buildURL(c.host, metricType, metric, value)
 	resp, _ := http.Post(url, "text/plain", nil)
-	if resp.Body != nil {
+	if resp != nil && resp.Body != nil {
 		_ = resp.Body.Close()
 	}
 }
