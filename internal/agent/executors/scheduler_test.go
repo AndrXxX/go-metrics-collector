@@ -40,7 +40,7 @@ func TestIntervalScheduler_Add(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &IntervalScheduler{list: tt.list}
+			s := &intervalScheduler{list: tt.list}
 			s.Add(tt.args.e, tt.args.interval)
 			assert.Equal(t, tt.want, s.list)
 		})

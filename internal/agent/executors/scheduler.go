@@ -14,16 +14,16 @@ type item struct {
 	lastExecuted time.Time
 }
 
-type IntervalScheduler struct {
+type intervalScheduler struct {
 	list    []item
 	running bool
 }
 
-func (s *IntervalScheduler) Add(e Executors, interval time.Duration) {
+func (s *intervalScheduler) Add(e Executors, interval time.Duration) {
 	s.list = append(s.list, item{e: e, interval: interval})
 }
 
-func (s *IntervalScheduler) Run(m metrics.Metrics) error {
+func (s *intervalScheduler) Run(m metrics.Metrics) error {
 	if s.running {
 		return errors.New("already running")
 	}
@@ -48,8 +48,8 @@ func canExecute(i item) bool {
 	return time.Since(i.lastExecuted) >= i.interval
 }
 
-func NewIntervalScheduler() *IntervalScheduler {
-	return &IntervalScheduler{
+func NewIntervalScheduler() *intervalScheduler {
+	return &intervalScheduler{
 		list: make([]item, 0),
 	}
 }
