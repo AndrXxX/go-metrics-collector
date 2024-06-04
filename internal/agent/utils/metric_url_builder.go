@@ -11,5 +11,15 @@ func NewMetricURLBuilder(host string) *MetricURLBuilder {
 }
 
 func (b *MetricURLBuilder) BuildURL(params URLParams) string {
-	return fmt.Sprintf("%v/update/%v/%v/%v", b.host, params["metricType"], params["metric"], params["value"])
+	url := fmt.Sprintf("%v/update", b.host)
+	if params["metricType"] != nil {
+		url = fmt.Sprintf("%v/%v", url, params["metricType"])
+	}
+	if params["metric"] != nil {
+		url = fmt.Sprintf("%v/%v", url, params["metric"])
+	}
+	if params["value"] != nil {
+		url = fmt.Sprintf("%v/%v", url, params["value"])
+	}
+	return url
 }
