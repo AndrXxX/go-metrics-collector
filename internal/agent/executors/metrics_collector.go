@@ -8,29 +8,19 @@ import (
 	"reflect"
 	"runtime"
 	"slices"
-	"time"
 )
 
 type metricsCollector struct {
-	interval     time.Duration
-	lastExecuted time.Time
-	metricsList  *config.MetricsList
-}
-
-func (c *metricsCollector) canExecute() bool {
-	return time.Since(c.lastExecuted) >= c.interval
+	ml *config.MetricsList
 }
 
 func (c *metricsCollector) Execute(result metrics.Metrics) error {
-	if !c.canExecute() {
-		return nil
-	}
 	stats := runtime.MemStats{}
 	runtime.ReadMemStats(&stats)
 	values := reflect.ValueOf(stats)
 	types := values.Type()
 	for i := 0; i < values.NumField(); i++ {
-		if !slices.Contains(*c.metricsList, types.Field(i).Name) {
+		if !slices.Contains(*c.ml, types.Field(i).Name) {
 			continue
 		}
 		if values.Field(i).CanFloat() {
@@ -49,14 +39,11 @@ func (c *metricsCollector) Execute(result metrics.Metrics) error {
 	}
 	result.Counter[me.PollCount]++
 	result.Gauge[me.RandomValue] = rand.Float64()
-	c.lastExecuted = time.Now()
 	return nil
 }
 
-func NewCollector(interval time.Duration, ml *config.MetricsList) Executors {
+func NewCollector(ml *config.MetricsList) Executors {
 	return &metricsCollector{
-		interval:     interval,
-		lastExecuted: time.Now(),
-		metricsList:  ml,
+		ml: ml,
 	}
 }
