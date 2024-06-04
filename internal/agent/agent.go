@@ -11,7 +11,7 @@ func Run(config *config.Config) error {
 	m := metrics.NewMetrics()
 	scheduler := executors.NewIntervalScheduler()
 	scheduler.Add(executors.NewCollector(&config.Metrics), time.Duration(config.Intervals.PollInterval)*time.Second)
-	scheduler.Add(executors.NewUploader(time.Duration(config.Intervals.ReportInterval), &config.Common.Host), time.Duration(config.Intervals.ReportInterval))
+	scheduler.Add(executors.NewUploader(&config.Common.Host), time.Duration(config.Intervals.ReportInterval)*time.Second)
 	err := scheduler.Run(*m)
 	return err
 }
