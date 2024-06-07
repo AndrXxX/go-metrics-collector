@@ -22,7 +22,7 @@ func Run() error {
 		r.Get(fmt.Sprintf("/gauge/{%v}", vars.METRIC), handlers.GaugeFetcher(&storage))
 		r.Get("/{unknownType}", handlers.BadRequest)
 	})
-	r.Handle("/", http.NotFoundHandler())
+	r.Get("/", handlers.MetricsFetcher(&storage))
 
 	return http.ListenAndServe(":8080", r)
 }
