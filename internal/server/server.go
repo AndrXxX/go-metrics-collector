@@ -15,12 +15,12 @@ func Run() error {
 	r.Route("/update", func(r chi.Router) {
 		r.Post(fmt.Sprintf("/counter/{%v}/{%v}", vars.METRIC, vars.VALUE), handlers.CounterUpdater(&storage))
 		r.Post(fmt.Sprintf("/gauge/{%v}/{%v}", vars.METRIC, vars.VALUE), handlers.GaugeUpdater(&storage))
-		r.Post("/{unknownType}/*", handlers.BadRequest)
+		r.Post(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.METRIC, vars.VALUE), handlers.BadRequest)
 	})
 	r.Route("/value", func(r chi.Router) {
 		r.Get(fmt.Sprintf("/counter/{%v}", vars.METRIC), handlers.CounterFetcher(&storage))
 		r.Get(fmt.Sprintf("/gauge/{%v}", vars.METRIC), handlers.GaugeFetcher(&storage))
-		r.Get("/{unknownType}/*", handlers.BadRequest)
+		r.Get(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.METRIC, vars.VALUE), handlers.BadRequest)
 	})
 	r.Get("/", handlers.MetricsFetcher(&storage))
 
