@@ -28,6 +28,10 @@ func (s *MemStorage) GetGauge(metric string) (value float64, err error) {
 	return 0, errors.New(fmt.Sprintf("value of %s not exists", metric))
 }
 
+func (s *MemStorage) GetGaugeAll() map[string]float64 {
+	return s.gauge
+}
+
 func (s *MemStorage) SetCounter(metric string, value int64) {
 	s.counter[metric] += value
 }
@@ -37,4 +41,8 @@ func (s *MemStorage) GetCounter(metric string) (value int64, err error) {
 		return val, nil
 	}
 	return 0, errors.New(fmt.Sprintf("value of %s not exists", metric))
+}
+
+func (s *MemStorage) GetCounterAll() map[string]int64 {
+	return s.counter
 }
