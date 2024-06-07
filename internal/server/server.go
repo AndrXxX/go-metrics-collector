@@ -19,6 +19,10 @@ func Run() error {
 		r.Post(fmt.Sprintf("/gauge/{%v}/{%v}", vars.METRIC, vars.VALUE), gauge.UpdateHandler(&storage))
 		r.Post("/{unknownType}", handlers.BadRequest)
 	})
+	r.Route("/value", func(r chi.Router) {
+		r.Get(fmt.Sprintf("/counter/{%v}", vars.METRIC), counter.FetchHandler(&storage))
+		r.Get("/{unknownType}", handlers.BadRequest)
+	})
 	r.Handle("/", http.NotFoundHandler())
 
 	return http.ListenAndServe(":8080", r)
