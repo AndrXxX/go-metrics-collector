@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestMemStorage_Counter(t *testing.T) {
+func TestMemStorage_SetCounter(t *testing.T) {
 	type args struct {
 		metric string
 		value  int64
@@ -45,7 +45,7 @@ func TestMemStorage_Counter(t *testing.T) {
 	}
 }
 
-func TestMemStorage_Gauge(t *testing.T) {
+func TestMemStorage_SetGauge(t *testing.T) {
 	type args struct {
 		metric string
 		value  float64
