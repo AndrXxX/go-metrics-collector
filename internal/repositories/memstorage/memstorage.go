@@ -1,5 +1,10 @@
 package memstorage
 
+import (
+	"errors"
+	"fmt"
+)
+
 type MemStorage struct {
 	gauge   map[string]float64
 	counter map[string]int64
@@ -18,4 +23,11 @@ func (s *MemStorage) SetGauge(metric string, value float64) {
 
 func (s *MemStorage) SetCounter(metric string, value int64) {
 	s.counter[metric] += value
+}
+
+func (s *MemStorage) GetCounter(metric string) (value int64, err error) {
+	if val, ok := s.counter[metric]; ok {
+		return val, nil
+	}
+	return 0, errors.New(fmt.Sprintf("value %s not exists", metric))
 }
