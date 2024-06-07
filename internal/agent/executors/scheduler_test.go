@@ -40,7 +40,7 @@ func TestIntervalScheduler_Add(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &intervalScheduler{list: tt.list}
+			s := &IntervalScheduler{list: tt.list}
 			s.Add(tt.args.e, tt.args.interval)
 			assert.Equal(t, tt.want, s.list)
 		})
@@ -50,11 +50,11 @@ func TestIntervalScheduler_Add(t *testing.T) {
 func TestNewIntervalScheduler(t *testing.T) {
 	tests := []struct {
 		name string
-		want *intervalScheduler
+		want *IntervalScheduler
 	}{
 		{
 			name: "Simple test",
-			want: &intervalScheduler{list: make([]item, 0)},
+			want: &IntervalScheduler{list: make([]item, 0)},
 		},
 	}
 	for _, tt := range tests {
