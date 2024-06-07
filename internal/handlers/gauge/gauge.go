@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func Handler(s repositories.Repository) http.HandlerFunc {
+func UpdateHandler(s repositories.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
 		metric := chi.URLParam(r, vars.METRIC)

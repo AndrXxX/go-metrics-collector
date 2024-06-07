@@ -16,7 +16,7 @@ func Run() error {
 	r := chi.NewRouter()
 	r.Route("/update", func(r chi.Router) {
 		r.Post(fmt.Sprintf("/counter/{%v}/{%v}", vars.METRIC, vars.VALUE), counter.UpdateHandler(&storage))
-		r.Post(fmt.Sprintf("/gauge/{%v}/{%v}", vars.METRIC, vars.VALUE), gauge.Handler(&storage))
+		r.Post(fmt.Sprintf("/gauge/{%v}/{%v}", vars.METRIC, vars.VALUE), gauge.UpdateHandler(&storage))
 		r.Post("/{unknownType}", handlers.BadRequest)
 	})
 	r.Handle("/", http.NotFoundHandler())
