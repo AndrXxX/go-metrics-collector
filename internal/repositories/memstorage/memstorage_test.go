@@ -83,6 +83,36 @@ func TestMemStorage_GetCounter(t *testing.T) {
 	}
 }
 
+func TestMemStorage_GetCounterAll(t *testing.T) {
+	tests := []struct {
+		name    string
+		counter map[string]int64
+		want    map[string]int64
+	}{
+		{
+			name:    "Empty counter",
+			counter: map[string]int64{},
+			want:    map[string]int64{},
+		},
+		{
+			name:    "Counter `metric` with value 1",
+			counter: map[string]int64{"metric": 1},
+			want:    map[string]int64{"metric": 1},
+		},
+		{
+			name:    "Counter `metric` with value 1 and `metric2` with value 10",
+			counter: map[string]int64{"metric": 1, "metric2": 10},
+			want:    map[string]int64{"metric": 1, "metric2": 10},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &MemStorage{counter: tt.counter}
+			assert.Equal(t, tt.want, s.GetCounterAll())
+		})
+	}
+}
+
 func TestMemStorage_SetGauge(t *testing.T) {
 	type args struct {
 		metric string
@@ -156,6 +186,36 @@ func TestMemStorage_GetGauge(t *testing.T) {
 			} else {
 				assert.Nil(t, err)
 			}
+		})
+	}
+}
+
+func TestMemStorage_GetGaugeAll(t *testing.T) {
+	tests := []struct {
+		name  string
+		gauge map[string]float64
+		want  map[string]float64
+	}{
+		{
+			name:  "Empty gauge",
+			gauge: map[string]float64{},
+			want:  map[string]float64{},
+		},
+		{
+			name:  "Gauge `metric` with value 1.1",
+			gauge: map[string]float64{"metric": 1.1},
+			want:  map[string]float64{"metric": 1.1},
+		},
+		{
+			name:  "Gauge `metric` with value 1.1 and `metric2` with value 10.5",
+			gauge: map[string]float64{"metric": 1.1, "metric2": 10.5},
+			want:  map[string]float64{"metric": 1.1, "metric2": 10.5},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &MemStorage{gauge: tt.gauge}
+			assert.Equal(t, tt.want, s.GetGaugeAll())
 		})
 	}
 }
