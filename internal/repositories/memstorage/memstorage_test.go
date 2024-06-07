@@ -40,7 +40,45 @@ func TestMemStorage_SetCounter(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &MemStorage{counter: tt.counter}
 			s.SetCounter(tt.args.metric, tt.args.value)
-			assert.Equal(t, tt.counter, tt.want)
+			assert.Equal(t, tt.want, tt.counter)
+		})
+	}
+}
+
+func TestMemStorage_GetCounter(t *testing.T) {
+	type want struct {
+		value int64
+		error bool
+	}
+	tests := []struct {
+		name    string
+		counter map[string]int64
+		metric  string
+		want    want
+	}{
+		{
+			name:    "Get gauge `metric` with value 1 if exist 1",
+			counter: map[string]int64{"metric": 1},
+			metric:  "metric",
+			want:    want{value: 1, error: false},
+		},
+		{
+			name:    "Get gauge `metric` with value 5 if not exist",
+			counter: map[string]int64{},
+			metric:  "metric",
+			want:    want{value: 0, error: true},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &MemStorage{counter: tt.counter}
+			value, err := s.GetCounter(tt.metric)
+			assert.Equal(t, tt.want.value, value)
+			if tt.want.error {
+				assert.NotNil(t, err)
+			} else {
+				assert.Nil(t, err)
+			}
 		})
 	}
 }
@@ -79,7 +117,45 @@ func TestMemStorage_SetGauge(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &MemStorage{gauge: tt.gauge}
 			s.SetGauge(tt.args.metric, tt.args.value)
-			assert.Equal(t, tt.gauge, tt.want)
+			assert.Equal(t, tt.want, tt.gauge)
+		})
+	}
+}
+
+func TestMemStorage_GetGauge(t *testing.T) {
+	type want struct {
+		value float64
+		error bool
+	}
+	tests := []struct {
+		name   string
+		gauge  map[string]float64
+		metric string
+		want   want
+	}{
+		{
+			name:   "Get gauge `metric` if exist 1.1",
+			gauge:  map[string]float64{"metric": 1.1},
+			metric: "metric",
+			want:   want{value: 1.1, error: false},
+		},
+		{
+			name:   "Get gauge `metric` if not exist",
+			gauge:  map[string]float64{},
+			metric: "metric",
+			want:   want{value: 0, error: true},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &MemStorage{gauge: tt.gauge}
+			value, err := s.GetGauge(tt.metric)
+			assert.Equal(t, tt.want.value, value)
+			if tt.want.error {
+				assert.NotNil(t, err)
+			} else {
+				assert.Nil(t, err)
+			}
 		})
 	}
 }
