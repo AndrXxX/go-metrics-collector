@@ -15,7 +15,7 @@ func Run() error {
 	storage := memstorage.New()
 	r := chi.NewRouter()
 	r.Route("/update", func(r chi.Router) {
-		r.Post(fmt.Sprintf("/counter/{%v}/{%v}", vars.METRIC, vars.VALUE), counter.Handler(&storage))
+		r.Post(fmt.Sprintf("/counter/{%v}/{%v}", vars.METRIC, vars.VALUE), counter.UpdateHandler(&storage))
 		r.Post(fmt.Sprintf("/gauge/{%v}/{%v}", vars.METRIC, vars.VALUE), gauge.Handler(&storage))
 		r.Post("/{unknownType}", handlers.BadRequest)
 	})

@@ -12,7 +12,7 @@ import (
 	"testing"
 )
 
-func TestHandler(t *testing.T) {
+func TestUpdateHandler(t *testing.T) {
 	type want struct {
 		contentType string
 		statusCode  int
@@ -66,7 +66,7 @@ func TestHandler(t *testing.T) {
 			}
 
 			w := httptest.NewRecorder()
-			Handler(&storage)(w, request)
+			UpdateHandler(&storage)(w, request)
 			result := w.Result()
 
 			assert.Equal(t, test.want.statusCode, result.StatusCode)
