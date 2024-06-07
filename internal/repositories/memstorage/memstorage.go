@@ -1,7 +1,6 @@
 package memstorage
 
 import (
-	"errors"
 	"fmt"
 )
 
@@ -25,7 +24,7 @@ func (s *MemStorage) GetGauge(metric string) (value float64, err error) {
 	if val, ok := s.gauge[metric]; ok {
 		return val, nil
 	}
-	return 0, errors.New(fmt.Sprintf("value of %s not exists", metric))
+	return 0, fmt.Errorf("value of %s not exists", metric)
 }
 
 func (s *MemStorage) GetGaugeAll() map[string]float64 {
@@ -40,7 +39,7 @@ func (s *MemStorage) GetCounter(metric string) (value int64, err error) {
 	if val, ok := s.counter[metric]; ok {
 		return val, nil
 	}
-	return 0, errors.New(fmt.Sprintf("value of %s not exists", metric))
+	return 0, fmt.Errorf("value of %s not exists", metric)
 }
 
 func (s *MemStorage) GetCounterAll() map[string]int64 {
