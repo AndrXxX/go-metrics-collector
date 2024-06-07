@@ -21,6 +21,7 @@ func Run() error {
 	})
 	r.Route("/value", func(r chi.Router) {
 		r.Get(fmt.Sprintf("/counter/{%v}", vars.METRIC), counter.FetchHandler(&storage))
+		r.Get(fmt.Sprintf("/gauge/{%v}", vars.METRIC), gauge.FetchHandler(&storage))
 		r.Get("/{unknownType}", handlers.BadRequest)
 	})
 	r.Handle("/", http.NotFoundHandler())
