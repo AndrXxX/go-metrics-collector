@@ -7,18 +7,19 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/handlers/counter"
 	"github.com/AndrXxX/go-metrics-collector/internal/handlers/gauge"
 	"github.com/AndrXxX/go-metrics-collector/internal/repositories/memstorage"
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 	"net/http"
 )
 
 func Run() error {
 	storage := memstorage.New()
-	muxServe := http.NewServeMux()
-	rtr := mux.NewRouter()
-	rtr.HandleFunc(fmt.Sprintf("/update/counter/{%v}/{%v}", vars.METRIC, vars.VALUE), counter.Handler(&storage))
-	rtr.HandleFunc(fmt.Sprintf("/update/gauge/{%v}/{%v}", vars.METRIC, vars.VALUE), gauge.Handler(&storage))
-	rtr.HandleFunc(fmt.Sprintf("/update/{unknownType}/{%v}/{%v}", vars.METRIC, vars.VALUE), handlers.BadRequest)
-	rtr.HandleFunc("/", http.NotFound)
-	muxServe.Handle("/", rtr)
-	return http.ListenAndServe(`:8080`, muxServe)
+	r := chi.NewRouter()
+	r.Route("/update", func(r chi.Router) {
+		r.Post(fmt.Sprintf("/counter/{%v}/{%v}", vars.METRIC, vars.VALUE), counter.Handler(&storage))
+		r.Post(fmt.Sprintf("/gauge/{%v}/{%v}", vars.METRIC, vars.VALUE), gauge.Handler(&storage))
+		r.Post("/{unknownType}", handlers.BadRequest)
+	})
+	r.Handle("/", http.NotFoundHandler())
+
+	return http.ListenAndServe(":8080", r)
 }

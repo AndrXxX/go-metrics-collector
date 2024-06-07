@@ -1,9 +1,10 @@
 package gauge
 
 import (
+	"context"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/repositories/memstorage"
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"net/http"
@@ -24,22 +25,12 @@ func TestHandler(t *testing.T) {
 		want    want
 	}{
 		{
-			name:    "StatusMethodNotAllowed test",
-			request: "/update/gauge/test/10",
-			vars:    map[string]string{vars.METRIC: "test", vars.VALUE: "10"},
-			method:  http.MethodGet,
-			want: want{
-				statusCode:  http.StatusMethodNotAllowed,
-				contentType: "text/plain",
-			},
-		},
-		{
 			name:    "StatusNotFound test",
 			request: "/update/gauge/",
 			vars:    map[string]string{},
-			method:  http.MethodGet,
+			method:  http.MethodPost,
 			want: want{
-				statusCode:  http.StatusMethodNotAllowed,
+				statusCode:  http.StatusNotFound,
 				contentType: "text/plain",
 			},
 		},
@@ -68,7 +59,11 @@ func TestHandler(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			request := httptest.NewRequest(test.method, test.request, nil)
-			request = mux.SetURLVars(request, test.vars)
+			rctx := chi.NewRouteContext()
+			request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, rctx))
+			for k, v := range test.vars {
+				rctx.URLParams.Add(k, v)
+			}
 
 			w := httptest.NewRecorder()
 			Handler(&storage)(w, request)
