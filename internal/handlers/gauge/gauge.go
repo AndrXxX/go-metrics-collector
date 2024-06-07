@@ -19,7 +19,7 @@ func UpdateHandler(s repositories.Repository) http.HandlerFunc {
 
 		value := chi.URLParam(r, vars.VALUE)
 		if converted, err := strconv.ParseFloat(value, 64); err == nil {
-			s.Gauge(metric, converted)
+			s.SetGauge(metric, converted)
 			w.WriteHeader(http.StatusOK)
 			return
 		}

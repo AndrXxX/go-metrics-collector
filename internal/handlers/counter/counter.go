@@ -19,7 +19,7 @@ func UpdateHandler(s repositories.Repository) http.HandlerFunc {
 
 		value := chi.URLParam(r, vars.VALUE)
 		if converted, err := strconv.ParseInt(value, 10, 64); err == nil {
-			s.Counter(metric, converted)
+			s.SetCounter(metric, converted)
 			w.WriteHeader(http.StatusOK)
 			return
 		}

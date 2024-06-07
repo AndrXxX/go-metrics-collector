@@ -39,7 +39,7 @@ func TestMemStorage_Counter(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &MemStorage{counter: tt.counter}
-			s.Counter(tt.args.metric, tt.args.value)
+			s.SetCounter(tt.args.metric, tt.args.value)
 			assert.Equal(t, tt.counter, tt.want)
 		})
 	}
@@ -78,7 +78,7 @@ func TestMemStorage_Gauge(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &MemStorage{gauge: tt.gauge}
-			s.Gauge(tt.args.metric, tt.args.value)
+			s.SetGauge(tt.args.metric, tt.args.value)
 			assert.Equal(t, tt.gauge, tt.want)
 		})
 	}

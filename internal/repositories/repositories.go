@@ -1,6 +1,6 @@
 package repositories
 
 type Repository interface {
-	Gauge(metric string, value float64)
-	Counter(metric string, value int64)
+	SetGauge(metric string, value float64)
+	SetCounter(metric string, value int64)
 }
