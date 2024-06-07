@@ -21,6 +21,13 @@ func (s *MemStorage) SetGauge(metric string, value float64) {
 	s.gauge[metric] = value
 }
 
+func (s *MemStorage) GetGauge(metric string) (value float64, err error) {
+	if val, ok := s.gauge[metric]; ok {
+		return val, nil
+	}
+	return 0, errors.New(fmt.Sprintf("value %s not exists", metric))
+}
+
 func (s *MemStorage) SetCounter(metric string, value int64) {
 	s.counter[metric] += value
 }
