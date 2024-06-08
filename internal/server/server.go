@@ -5,11 +5,12 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/handlers"
 	"github.com/AndrXxX/go-metrics-collector/internal/repositories/memstorage"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 )
 
-func Run() error {
+func Run(c *config.Config) error {
 	storage := memstorage.New()
 	r := chi.NewRouter()
 	r.Route("/update", func(r chi.Router) {
@@ -24,5 +25,5 @@ func Run() error {
 	})
 	r.Get("/", handlers.MetricsFetcher(&storage))
 
-	return http.ListenAndServe(":8080", r)
+	return http.ListenAndServe(c.Host, r)
 }
