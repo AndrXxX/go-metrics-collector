@@ -5,7 +5,7 @@ import me "github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 func NewConfig() *Config {
 	return &Config{
 		Common: CommonConfig{
-			Host: "http://localhost:8080",
+			Host: "localhost:8080",
 		},
 		Intervals: Intervals{PollInterval: 2, ReportInterval: 10},
 		Metrics: MetricsList{
