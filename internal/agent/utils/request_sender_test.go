@@ -5,6 +5,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/mocks"
 	"io"
 	"net/http"
+	"reflect"
 	"testing"
 )
 
@@ -58,6 +59,31 @@ func TestRequestSender_Post(t *testing.T) {
 			}
 			if err := s.Post(tt.args.params, tt.args.contentType); (err != nil) != tt.wantErr {
 				t.Errorf("Post() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestNewRequestSender(t *testing.T) {
+	type args struct {
+		ub URLBuilder
+		c  Client
+	}
+	tests := []struct {
+		name string
+		args args
+		want *RequestSender
+	}{
+		{
+			name: "Test New RequestSender #1 (Alloc)",
+			args: args{ub: NewMetricURLBuilder(""), c: http.DefaultClient},
+			want: &RequestSender{ub: NewMetricURLBuilder(""), c: http.DefaultClient},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewRequestSender(tt.args.ub, tt.args.c); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewRequestSender() = %v, want %v", got, tt.want)
 			}
 		})
 	}
