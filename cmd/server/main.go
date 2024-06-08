@@ -8,6 +8,7 @@ import (
 func main() {
 	settings := config.NewConfig()
 	parseFlags(settings)
+	parseEnv(settings)
 	if err := server.Run(settings); err != nil {
 		panic(err)
 	}
