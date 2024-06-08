@@ -6,7 +6,7 @@ import (
 )
 
 type envConfig struct {
-	addr string `env:"RUN_ADDR"`
+	addr string `env:"ADDRESS"`
 }
 
 func parseEnv(c *config.Config) {
