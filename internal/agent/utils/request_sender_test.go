@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -31,6 +32,19 @@ func TestRequestSender_Post(t *testing.T) {
 				c: &mocks.MockClient{
 					PostFunc: func(url, contentType string, body io.Reader) (*http.Response, error) {
 						return nil, nil
+					},
+				},
+			},
+			args:    args{params: map[string]any{}, contentType: ""},
+			wantErr: false,
+		},
+		{
+			name: "Positive test #2 with body",
+			fields: fields{
+				ub: NewMetricURLBuilder("host"),
+				c: &mocks.MockClient{
+					PostFunc: func(url, contentType string, body io.Reader) (*http.Response, error) {
+						return &http.Response{Header: http.Header{}, Body: io.NopCloser(strings.NewReader("test"))}, nil
 					},
 				},
 			},
