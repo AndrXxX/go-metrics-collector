@@ -1,6 +1,9 @@
 package utils
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 func TestMetricURLBuilder_BuildURL(t *testing.T) {
 	tests := []struct {
@@ -49,6 +52,33 @@ func TestMetricURLBuilder_BuildURL(t *testing.T) {
 			b := NewMetricURLBuilder(tt.host)
 			if got := b.BuildURL(tt.params); got != tt.want {
 				t.Errorf("BuildURL() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestNewMetricURLBuilder(t *testing.T) {
+	tests := []struct {
+		host string
+		want *MetricURLBuilder
+	}{
+		{
+			host: "host",
+			want: &MetricURLBuilder{host: "http://host"},
+		},
+		{
+			host: "http://host",
+			want: &MetricURLBuilder{host: "http://host"},
+		},
+		{
+			host: "https://host",
+			want: &MetricURLBuilder{host: "https://host"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.host, func(t *testing.T) {
+			if got := NewMetricURLBuilder(tt.host); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewMetricURLBuilder() = %v, want %v", got, tt.want)
 			}
 		})
 	}
