@@ -5,25 +5,25 @@ import (
 	"github.com/caarlos0/env/v6"
 )
 
-type envConfig struct {
-	addr           string `env:"ADDRESS"`
-	reportInterval int64  `env:"REPORT_INTERVAL"`
-	pollInterval   int64  `env:"POLL_INTERVAL"`
+type EnvConfig struct {
+	Addr           string `env:"ADDRESS"`
+	ReportInterval int64  `env:"REPORT_INTERVAL"`
+	PollInterval   int64  `env:"POLL_INTERVAL"`
 }
 
 func parseEnv(c *config.Config) {
-	cfg := envConfig{
-		addr:           c.Common.Host,
-		reportInterval: c.Intervals.ReportInterval,
-		pollInterval:   c.Intervals.PollInterval,
+	cfg := EnvConfig{
+		Addr:           c.Common.Host,
+		ReportInterval: c.Intervals.ReportInterval,
+		PollInterval:   c.Intervals.PollInterval,
 	}
 	err := env.Parse(&cfg)
 	if err != nil {
 		return
 	}
-	if cfg.addr != "" {
-		c.Common.Host = cfg.addr
+	if cfg.Addr != "" {
+		c.Common.Host = cfg.Addr
 	}
-	c.Intervals.ReportInterval = cfg.reportInterval
-	c.Intervals.PollInterval = cfg.pollInterval
+	c.Intervals.ReportInterval = cfg.ReportInterval
+	c.Intervals.PollInterval = cfg.PollInterval
 }

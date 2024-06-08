@@ -5,17 +5,19 @@ import (
 	"github.com/caarlos0/env/v6"
 )
 
-type envConfig struct {
-	addr string `env:"ADDRESS"`
+type EnvConfig struct {
+	Addr string `env:"ADDRESS"`
 }
 
 func parseEnv(c *config.Config) {
-	var cfg envConfig
+	cfg := EnvConfig{
+		Addr: c.Host,
+	}
 	err := env.Parse(&cfg)
 	if err != nil {
 		return
 	}
-	if cfg.addr != "" {
-		c.Host = cfg.addr
+	if cfg.Addr != "" {
+		c.Host = cfg.Addr
 	}
 }
