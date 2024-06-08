@@ -41,21 +41,21 @@ func Test_metricsUploader_Execute(t *testing.T) {
 			result: metrics.Metrics{
 				Gauge: map[string]float64{me.Alloc: 0.1},
 			},
-			url: "host/update/gauge/Alloc/0.1",
+			url: "http://host/update/gauge/Alloc/0.1",
 		},
 		{
 			name: "Test Gauge me.Alloc: 0.1",
 			result: metrics.Metrics{
 				Gauge: map[string]float64{me.HeapAlloc: 0.6661},
 			},
-			url: "host/update/gauge/HeapAlloc/0.6661",
+			url: "http://host/update/gauge/HeapAlloc/0.6661",
 		},
 		{
 			name: "Test Counter me.PollCount: 555",
 			result: metrics.Metrics{
 				Counter: map[string]int64{me.PollCount: 555},
 			},
-			url: "host/update/counter/PollCount/555",
+			url: "http://host/update/counter/PollCount/555",
 		},
 	}
 	for _, tt := range tests {

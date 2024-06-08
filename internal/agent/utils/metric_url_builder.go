@@ -1,13 +1,19 @@
 package utils
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type MetricURLBuilder struct {
 	host string
 }
 
 func NewMetricURLBuilder(host string) *MetricURLBuilder {
-	return &MetricURLBuilder{host: host}
+	if strings.HasPrefix(host, "http://") || strings.HasPrefix(host, "https://") {
+		return &MetricURLBuilder{host}
+	}
+	return &MetricURLBuilder{host: fmt.Sprintf("http://%s", host)}
 }
 
 func (b *MetricURLBuilder) BuildURL(params URLParams) string {
