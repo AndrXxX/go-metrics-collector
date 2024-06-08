@@ -7,6 +7,7 @@ import (
 
 func main() {
 	c := config.NewConfig()
+	parseFlags(c)
 	if err := agent.Run(c); err != nil {
 		panic(err)
 	}
