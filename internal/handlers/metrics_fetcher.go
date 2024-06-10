@@ -52,7 +52,7 @@ func MetricsFetcher(s repositories.Repository) http.HandlerFunc {
 }
 
 func fetchMetrics(s repositories.Repository) map[string]string {
-	result := make(map[string]string)
+	result := map[string]string{}
 	for k, v := range s.GetCounterAll() {
 		result[k] = fmt.Sprintf("%d", v)
 	}

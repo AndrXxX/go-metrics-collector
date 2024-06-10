@@ -7,7 +7,7 @@ type Metrics struct {
 
 func NewMetrics() *Metrics {
 	return &Metrics{
-		Gauge:   make(map[string]float64),
-		Counter: make(map[string]int64),
+		Gauge:   map[string]float64{},
+		Counter: map[string]int64{},
 	}
 }
