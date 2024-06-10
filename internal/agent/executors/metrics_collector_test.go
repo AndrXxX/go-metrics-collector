@@ -5,7 +5,6 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/metrics"
 	me "github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/stretchr/testify/assert"
-	"reflect"
 	"testing"
 )
 
@@ -28,9 +27,8 @@ func TestNewCollector(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewCollector(tt.ml); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewCollector() = %v, want %v", got, tt.want)
-			}
+			c := NewCollector(tt.ml)
+			assert.Equal(t, tt.want, c)
 		})
 	}
 }
