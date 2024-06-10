@@ -12,6 +12,21 @@ func TestMetricURLBuilder_BuildURL(t *testing.T) {
 		want   string
 	}{
 		{
+			host:   "localhost:8080",
+			params: URLParams{"metricType": "metricType", "metric": "metric", "value": "value"},
+			want:   "http://localhost:8080/update/metricType/metric/value",
+		},
+		{
+			host:   "http://localhost:8080",
+			params: URLParams{"metricType": "metricType", "metric": "metric", "value": "value"},
+			want:   "http://localhost:8080/update/metricType/metric/value",
+		},
+		{
+			host:   "https://localhost:8080",
+			params: URLParams{"metricType": "metricType", "metric": "metric", "value": "value"},
+			want:   "https://localhost:8080/update/metricType/metric/value",
+		},
+		{
 			host:   "host",
 			params: URLParams{"metricType": "metricType", "metric": "metric", "value": "value"},
 			want:   "http://host/update/metricType/metric/value",

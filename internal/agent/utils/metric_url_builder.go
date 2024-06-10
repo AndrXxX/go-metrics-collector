@@ -19,19 +19,22 @@ func NewMetricURLBuilder(host string) *MetricURLBuilder {
 	if u.Scheme == "" {
 		u.Scheme = "http"
 	}
+	if u.Scheme == "localhost" {
+		u.Scheme = "http://localhost"
+	}
 	return &MetricURLBuilder{host: u.String()}
 }
 
 func (b *MetricURLBuilder) BuildURL(params URLParams) string {
-	url := fmt.Sprintf("%v/update", b.host)
+	u := fmt.Sprintf("%v/update", b.host)
 	if params["metricType"] != nil {
-		url = fmt.Sprintf("%v/%v", url, params["metricType"])
+		u = fmt.Sprintf("%v/%v", u, params["metricType"])
 	}
 	if params["metric"] != nil {
-		url = fmt.Sprintf("%v/%v", url, params["metric"])
+		u = fmt.Sprintf("%v/%v", u, params["metric"])
 	}
 	if params["value"] != nil {
-		url = fmt.Sprintf("%v/%v", url, params["value"])
+		u = fmt.Sprintf("%v/%v", u, params["value"])
 	}
-	return url
+	return u
 }
