@@ -13,6 +13,6 @@ func main() {
 		log.Fatal(err)
 	}
 	if err := agent.Run(c); err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
