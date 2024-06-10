@@ -1,7 +1,7 @@
 package metrics
 
 import (
-	"reflect"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -17,9 +17,8 @@ func TestNewMetrics(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewMetrics(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewMetrics() = %v, want %v", got, tt.want)
-			}
+			m := NewMetrics()
+			assert.Equal(t, tt.want, m)
 		})
 	}
 }
