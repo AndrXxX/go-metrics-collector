@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"reflect"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -77,9 +77,8 @@ func TestNewMetricURLBuilder(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.host, func(t *testing.T) {
-			if got := NewMetricURLBuilder(tt.host); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewMetricURLBuilder() = %v, want %v", got, tt.want)
-			}
+			b := NewMetricURLBuilder(tt.host)
+			assert.Equal(t, tt.want, b)
 		})
 	}
 }
