@@ -11,13 +11,13 @@ import (
 func CounterUpdater(s repositories.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
-		metric := chi.URLParam(r, vars.METRIC)
+		metric := chi.URLParam(r, vars.Metric)
 		if metric == "" {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 
-		value := chi.URLParam(r, vars.VALUE)
+		value := chi.URLParam(r, vars.Value)
 		if converted, err := strconv.ParseInt(value, 10, 64); err == nil {
 			s.SetCounter(metric, converted)
 			w.WriteHeader(http.StatusOK)

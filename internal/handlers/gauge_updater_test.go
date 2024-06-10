@@ -37,7 +37,7 @@ func TestGaugeUpdater(t *testing.T) {
 		{
 			name:    "StatusOK test",
 			request: "/update/gauge/test/10.1",
-			vars:    map[string]string{vars.METRIC: "test", vars.VALUE: "10.1"},
+			vars:    map[string]string{vars.Metric: "test", vars.Value: "10.1"},
 			method:  http.MethodPost,
 			want: want{
 				statusCode:  http.StatusOK,
@@ -47,7 +47,7 @@ func TestGaugeUpdater(t *testing.T) {
 		{
 			name:    "StatusBadRequest test",
 			request: "/update/gauge/test/dsff",
-			vars:    map[string]string{vars.METRIC: "test", vars.VALUE: "dsff"},
+			vars:    map[string]string{vars.Metric: "test", vars.Value: "dsff"},
 			method:  http.MethodPost,
 			want: want{
 				statusCode:  http.StatusBadRequest,

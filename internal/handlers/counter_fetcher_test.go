@@ -42,7 +42,7 @@ func TestCounterFetcher(t *testing.T) {
 		{
 			name:    "StatusNotFound test with empty metric in storage",
 			request: "/value/counter/",
-			vars:    map[string]string{vars.METRIC: "test"},
+			vars:    map[string]string{vars.Metric: "test"},
 			method:  http.MethodGet,
 			fields:  map[string]int64{},
 			want: want{
@@ -54,7 +54,7 @@ func TestCounterFetcher(t *testing.T) {
 		{
 			name:    "StatusOK test",
 			request: "/value/counter/test",
-			vars:    map[string]string{vars.METRIC: "test"},
+			vars:    map[string]string{vars.Metric: "test"},
 			method:  http.MethodGet,
 			fields:  map[string]int64{"test": 10},
 			want: want{

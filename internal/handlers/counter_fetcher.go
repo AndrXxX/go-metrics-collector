@@ -11,7 +11,7 @@ import (
 func CounterFetcher(s repositories.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
-		metric := chi.URLParam(r, vars.METRIC)
+		metric := chi.URLParam(r, vars.Metric)
 		if metric == "" {
 			w.WriteHeader(http.StatusNotFound)
 			return

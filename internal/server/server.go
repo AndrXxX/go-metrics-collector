@@ -14,14 +14,14 @@ func Run(c *config.Config) error {
 	storage := memstorage.New()
 	r := chi.NewRouter()
 	r.Route("/update", func(r chi.Router) {
-		r.Post(fmt.Sprintf("/counter/{%v}/{%v}", vars.METRIC, vars.VALUE), handlers.CounterUpdater(&storage))
-		r.Post(fmt.Sprintf("/gauge/{%v}/{%v}", vars.METRIC, vars.VALUE), handlers.GaugeUpdater(&storage))
-		r.Post(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.METRIC, vars.VALUE), handlers.BadRequest)
+		r.Post(fmt.Sprintf("/counter/{%v}/{%v}", vars.Metric, vars.Value), handlers.CounterUpdater(&storage))
+		r.Post(fmt.Sprintf("/gauge/{%v}/{%v}", vars.Metric, vars.Value), handlers.GaugeUpdater(&storage))
+		r.Post(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), handlers.BadRequest)
 	})
 	r.Route("/value", func(r chi.Router) {
-		r.Get(fmt.Sprintf("/counter/{%v}", vars.METRIC), handlers.CounterFetcher(&storage))
-		r.Get(fmt.Sprintf("/gauge/{%v}", vars.METRIC), handlers.GaugeFetcher(&storage))
-		r.Get(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.METRIC, vars.VALUE), handlers.BadRequest)
+		r.Get(fmt.Sprintf("/counter/{%v}", vars.Metric), handlers.CounterFetcher(&storage))
+		r.Get(fmt.Sprintf("/gauge/{%v}", vars.Metric), handlers.GaugeFetcher(&storage))
+		r.Get(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), handlers.BadRequest)
 	})
 	r.Get("/", handlers.MetricsFetcher(&storage))
 
