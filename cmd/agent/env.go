@@ -11,7 +11,7 @@ type EnvConfig struct {
 	PollInterval   int64  `env:"POLL_INTERVAL"`
 }
 
-func parseEnv(c *config.Config) {
+func parseEnv(c *config.Config) error {
 	cfg := EnvConfig{
 		Addr:           c.Common.Host,
 		ReportInterval: c.Intervals.ReportInterval,
@@ -19,11 +19,12 @@ func parseEnv(c *config.Config) {
 	}
 	err := env.Parse(&cfg)
 	if err != nil {
-		return
+		return err
 	}
 	if cfg.Addr != "" {
 		c.Common.Host = cfg.Addr
 	}
 	c.Intervals.ReportInterval = cfg.ReportInterval
 	c.Intervals.PollInterval = cfg.PollInterval
+	return nil
 }
