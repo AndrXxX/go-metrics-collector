@@ -2,7 +2,8 @@ package utils
 
 import (
 	"fmt"
-	"strings"
+	"log"
+	"net/url"
 )
 
 type MetricURLBuilder struct {
@@ -10,10 +11,15 @@ type MetricURLBuilder struct {
 }
 
 func NewMetricURLBuilder(host string) *MetricURLBuilder {
-	if strings.HasPrefix(host, "http://") || strings.HasPrefix(host, "https://") {
-		return &MetricURLBuilder{host}
+	u, err := url.Parse(host)
+	if err != nil {
+		log.Print(err)
+		return nil
 	}
-	return &MetricURLBuilder{host: fmt.Sprintf("http://%s", host)}
+	if u.Scheme == "" {
+		u.Scheme = "http"
+	}
+	return &MetricURLBuilder{host: u.String()}
 }
 
 func (b *MetricURLBuilder) BuildURL(params URLParams) string {
