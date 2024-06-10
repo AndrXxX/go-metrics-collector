@@ -3,32 +3,16 @@ package handlers
 import (
 	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/repositories"
+	"github.com/AndrXxX/go-metrics-collector/internal/templates"
 	"html/template"
 	"log"
 	"net/http"
 )
 
-const tpl = `
-<!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="UTF-8">
-		<title>{{.Title}}</title>
-	</head>
-	<body>
-		<h1>{{.Title}}</h1>
-		{{ range $metric, $value := .Items }}
-			<div><strong>{{ $metric }}:</strong> <span>{{ $value }}</span></div>
-		{{else}}
-			<div><strong>Список пуст</strong></div>
-		{{end}}
-	</body>
-</html>`
-
 func MetricsFetcher(s repositories.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
-		t, err := template.New("webpage").Parse(tpl)
+		t, err := template.New("webpage").Parse(templates.MetricsList)
 		if err != nil {
 			log.Print(err)
 			w.WriteHeader(http.StatusInternalServerError)
