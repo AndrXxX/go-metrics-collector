@@ -28,14 +28,12 @@ const tpl = `
 func MetricsFetcher(s repositories.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
-
-		check := func(err error) {
-			if err != nil {
-				log.Fatal(err)
-			}
-		}
 		t, err := template.New("webpage").Parse(tpl)
-		check(err)
+		if err != nil {
+			log.Print(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
 		data := struct {
 			Title string
@@ -46,7 +44,11 @@ func MetricsFetcher(s repositories.Repository) http.HandlerFunc {
 		}
 
 		err = t.Execute(w, data)
-		check(err)
+		if err != nil {
+			log.Print(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		w.WriteHeader(http.StatusOK)
 	}
 }
