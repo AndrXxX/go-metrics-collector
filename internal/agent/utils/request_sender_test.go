@@ -4,11 +4,24 @@ import (
 	"errors"
 	"github.com/AndrXxX/go-metrics-collector/internal/mocks"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"io"
 	"net/http"
-	"strings"
 	"testing"
 )
+
+type closableReadableBodyMock struct {
+	mock.Mock
+	io.Reader
+}
+
+func (m *closableReadableBodyMock) Close() error {
+	return nil
+}
+
+func (m *closableReadableBodyMock) Read(p []byte) (n int, err error) {
+	return 0, nil
+}
 
 func TestRequestSender_Post(t *testing.T) {
 	type fields struct {
@@ -44,7 +57,7 @@ func TestRequestSender_Post(t *testing.T) {
 				ub: NewMetricURLBuilder("host"),
 				c: &mocks.MockClient{
 					PostFunc: func(url, contentType string, body io.Reader) (*http.Response, error) {
-						return &http.Response{Header: http.Header{}, Body: io.NopCloser(strings.NewReader("test"))}, nil
+						return &http.Response{Header: http.Header{}, Body: &closableReadableBodyMock{}}, nil
 					},
 				},
 			},
