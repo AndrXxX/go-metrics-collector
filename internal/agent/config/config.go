@@ -11,6 +11,7 @@ type MetricsList []string
 type Intervals struct {
 	PollInterval   int64
 	ReportInterval int64
+	SleepInterval  int64
 }
 
 type CommonConfig struct {

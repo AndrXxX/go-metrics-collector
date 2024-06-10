@@ -7,7 +7,7 @@ func NewConfig() *Config {
 		Common: CommonConfig{
 			Host: "localhost:8080",
 		},
-		Intervals: Intervals{PollInterval: 2, ReportInterval: 10},
+		Intervals: Intervals{PollInterval: 2, ReportInterval: 10, SleepInterval: 1},
 		Metrics: MetricsList{
 			metrics.Alloc,
 			metrics.BuckHashSys,

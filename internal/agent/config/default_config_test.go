@@ -14,6 +14,7 @@ func TestNewConfig(t *testing.T) {
 	require.NotNil(t, config.Intervals)
 	assert.NotNil(t, config.Intervals.PollInterval)
 	assert.NotNil(t, config.Intervals.ReportInterval)
+	assert.NotNil(t, config.Intervals.SleepInterval)
 	require.NotNil(t, config.Metrics)
 	assert.Contains(t, config.Metrics, me.Alloc)
 }
