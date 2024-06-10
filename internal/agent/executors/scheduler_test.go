@@ -54,12 +54,12 @@ func TestNewIntervalScheduler(t *testing.T) {
 	}{
 		{
 			name: "Simple test",
-			want: &IntervalScheduler{list: make([]item, 0)},
+			want: &IntervalScheduler{list: []item{}, sleepInterval: 1},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, NewIntervalScheduler(), "NewIntervalScheduler()")
+			assert.Equalf(t, tt.want, NewIntervalScheduler(1), "NewIntervalScheduler()")
 		})
 	}
 }

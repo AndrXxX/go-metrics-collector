@@ -6,8 +6,6 @@ import (
 	"time"
 )
 
-const sleepInterval = 1
-
 type item struct {
 	e            Executors
 	interval     time.Duration
@@ -15,8 +13,9 @@ type item struct {
 }
 
 type IntervalScheduler struct {
-	list    []item
-	running bool
+	list          []item
+	running       bool
+	sleepInterval int64
 }
 
 func (s *IntervalScheduler) Add(e Executors, interval time.Duration) {
@@ -40,7 +39,7 @@ func (s *IntervalScheduler) Run(m metrics.Metrics) error {
 			}
 			item.lastExecuted = time.Now()
 		}
-		time.Sleep(sleepInterval * time.Second)
+		time.Sleep(time.Duration(s.sleepInterval) * time.Second)
 	}
 }
 
@@ -48,8 +47,9 @@ func canExecute(i item) bool {
 	return time.Since(i.lastExecuted) >= i.interval
 }
 
-func NewIntervalScheduler() *IntervalScheduler {
+func NewIntervalScheduler(sleepInterval int64) *IntervalScheduler {
 	return &IntervalScheduler{
-		list: make([]item, 0),
+		list:          []item{},
+		sleepInterval: sleepInterval,
 	}
 }

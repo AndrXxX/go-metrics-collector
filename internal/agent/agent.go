@@ -11,7 +11,7 @@ import (
 
 func Run(config *config.Config) error {
 	m := metrics.NewMetrics()
-	scheduler := executors.NewIntervalScheduler()
+	scheduler := executors.NewIntervalScheduler(config.Intervals.SleepInterval)
 	scheduler.Add(executors.NewCollector(&config.Metrics), time.Duration(config.Intervals.PollInterval)*time.Second)
 
 	rs := utils.NewRequestSender(utils.NewMetricURLBuilder(config.Common.Host), http.DefaultClient)
