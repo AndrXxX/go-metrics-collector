@@ -1,7 +1,9 @@
 package config
 
+import "github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
+
 func NewConfig() *Config {
 	return &Config{
-		Host: "localhost:8080",
+		Host: vars.DefaultHost,
 	}
 }
