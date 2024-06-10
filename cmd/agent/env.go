@@ -21,9 +21,7 @@ func parseEnv(c *config.Config) error {
 	if err != nil {
 		return err
 	}
-	if cfg.Addr != "" {
-		c.Common.Host = cfg.Addr
-	}
+	c.Common.Host = cfg.Addr
 	c.Intervals.ReportInterval = cfg.ReportInterval
 	c.Intervals.PollInterval = cfg.PollInterval
 	return nil

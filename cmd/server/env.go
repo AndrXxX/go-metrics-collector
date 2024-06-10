@@ -17,7 +17,5 @@ func parseEnv(c *config.Config) {
 	if err != nil {
 		return
 	}
-	if cfg.Addr != "" {
-		c.Host = cfg.Addr
-	}
+	c.Host = cfg.Addr
 }
