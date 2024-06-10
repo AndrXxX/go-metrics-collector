@@ -3,9 +3,9 @@ package utils
 import (
 	"errors"
 	"github.com/AndrXxX/go-metrics-collector/internal/mocks"
+	"github.com/stretchr/testify/assert"
 	"io"
 	"net/http"
-	"reflect"
 	"strings"
 	"testing"
 )
@@ -96,9 +96,8 @@ func TestNewRequestSender(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewRequestSender(tt.args.ub, tt.args.c); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewRequestSender() = %v, want %v", got, tt.want)
-			}
+			rs := NewRequestSender(tt.args.ub, tt.args.c)
+			assert.Equal(t, tt.want, rs)
 		})
 	}
 }
