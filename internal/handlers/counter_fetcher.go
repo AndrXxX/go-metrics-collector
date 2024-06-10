@@ -17,7 +17,7 @@ func CounterFetcher(s repositories.Repository) http.HandlerFunc {
 			return
 		}
 		if val, err := s.GetCounter(metric); err == nil {
-			_, _ = w.Write([]byte(fmt.Sprintf("%d", val)))
+			_, _ = fmt.Fprintf(w, "%d", val)
 			w.WriteHeader(http.StatusOK)
 		}
 		w.WriteHeader(http.StatusNotFound)
