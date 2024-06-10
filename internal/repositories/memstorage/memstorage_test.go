@@ -226,7 +226,7 @@ func TestNew(t *testing.T) {
 	}{
 		{
 			name: "Test New MemStorage",
-			want: MemStorage{gauge: make(map[string]float64), counter: make(map[string]int64)},
+			want: MemStorage{gauge: map[string]float64{}, counter: map[string]int64{}},
 		},
 	}
 	for _, tt := range tests {
