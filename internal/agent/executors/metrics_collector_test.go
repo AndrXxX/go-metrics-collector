@@ -44,10 +44,23 @@ func Test_metricsCollector_Execute(t *testing.T) {
 		ml     *config.MetricsList
 		result metrics.Metrics
 		valuesInResult
+		excludeValuesInResult valuesInResult
 	}{
 		{
+			name:   "Test Unknown field",
+			ml:     &config.MetricsList{"UnknownMetric"},
+			result: *metrics.NewMetrics(),
+			valuesInResult: valuesInResult{
+				counter: []string{me.PollCount},
+			},
+			excludeValuesInResult: valuesInResult{
+				counter: []string{"UnknownMetric"},
+				gauge:   []string{"UnknownMetric"},
+			},
+		},
+		{
 			name:   "Test Counter",
-			ml:     &config.MetricsList{me.Alloc},
+			ml:     &config.MetricsList{},
 			result: *metrics.NewMetrics(),
 			valuesInResult: valuesInResult{
 				counter: []string{me.PollCount},
@@ -84,10 +97,22 @@ func Test_metricsCollector_Execute(t *testing.T) {
 			err := c.Execute(tt.result)
 			assert.NoError(t, err)
 			for _, v := range tt.valuesInResult.gauge {
-				assert.NotNil(t, tt.result.Gauge[v])
+				_, ok := tt.result.Gauge[v]
+				assert.True(t, ok)
 			}
 			for _, v := range tt.valuesInResult.counter {
-				assert.NotNil(t, tt.result.Counter[v])
+				_, ok := tt.result.Counter[v]
+				assert.True(t, ok)
+			}
+			if tt.excludeValuesInResult.gauge != nil {
+				for _, v := range tt.excludeValuesInResult.gauge {
+					_, ok := tt.result.Gauge[v]
+					assert.False(t, ok)
+				}
+				for _, v := range tt.excludeValuesInResult.counter {
+					_, ok := tt.result.Counter[v]
+					assert.False(t, ok)
+				}
 			}
 		})
 	}

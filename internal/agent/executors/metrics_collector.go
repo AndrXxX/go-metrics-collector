@@ -7,7 +7,6 @@ import (
 	"math/rand"
 	"reflect"
 	"runtime"
-	"slices"
 )
 
 type metricsCollector struct {
@@ -18,24 +17,26 @@ func (c *metricsCollector) Execute(result metrics.Metrics) error {
 	stats := runtime.MemStats{}
 	runtime.ReadMemStats(&stats)
 	values := reflect.ValueOf(stats)
-	types := values.Type()
-	for i := 0; i < values.NumField(); i++ {
-		if !slices.Contains(*c.ml, types.Field(i).Name) {
+	for _, name := range *c.ml {
+		field := values.FieldByName(name)
+		if field.Kind() == reflect.Ptr {
+			field = field.Elem()
+		}
+		if field.Kind() == reflect.Invalid {
 			continue
 		}
-		if values.Field(i).CanFloat() {
-			result.Gauge[types.Field(i).Name] = values.Field(i).Float()
+		if field.CanFloat() {
+			result.Gauge[name] = field.Float()
 			continue
 		}
-		if values.Field(i).CanInt() {
-			result.Gauge[types.Field(i).Name] = float64(values.Field(i).Int())
+		if field.CanInt() {
+			result.Gauge[name] = float64(field.Int())
 			continue
 		}
-		if values.Field(i).CanUint() {
-			result.Gauge[types.Field(i).Name] = float64(values.Field(i).Uint())
+		if field.CanUint() {
+			result.Gauge[name] = float64(field.Uint())
 			continue
 		}
-		println(types.Field(i).Name, values.Field(i).String())
 	}
 	result.Counter[me.PollCount]++
 	result.Gauge[me.RandomValue] = rand.Float64()
