@@ -17,7 +17,7 @@ func GaugeFetcher(s repositories.Repository) http.HandlerFunc {
 			return
 		}
 		if val, err := s.GetGauge(metric); err == nil {
-			_, _ = w.Write([]byte(fmt.Sprintf("%v", val)))
+			_, _ = fmt.Fprintf(w, "%v", val)
 			w.WriteHeader(http.StatusOK)
 		}
 		w.WriteHeader(http.StatusNotFound)
