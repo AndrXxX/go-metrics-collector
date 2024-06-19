@@ -6,6 +6,7 @@ import (
 	me "github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"math/rand"
 	"reflect"
+	// TODO: Perederey Использование reflect и slices.Contains в metricsCollector может быть избыточным. Попробуй найти более простой способ обработки полей структуры.
 	"runtime"
 	"slices"
 )
