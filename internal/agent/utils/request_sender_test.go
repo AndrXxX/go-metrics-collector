@@ -19,7 +19,7 @@ func (m *closableReadableBodyMock) Close() error {
 	return nil
 }
 
-func (m *closableReadableBodyMock) Read(p []byte) (n int, err error) {
+func (m *closableReadableBodyMock) Read(_ []byte) (n int, err error) {
 	return 0, nil
 }
 
