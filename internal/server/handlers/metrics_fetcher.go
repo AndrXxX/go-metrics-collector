@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"fmt"
-	"github.com/AndrXxX/go-metrics-collector/internal/repositories"
-	"github.com/AndrXxX/go-metrics-collector/internal/templates"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/templates"
 	"html/template"
 	"log"
 	"net/http"

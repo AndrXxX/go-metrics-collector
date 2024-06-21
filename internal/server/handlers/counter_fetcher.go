@@ -3,7 +3,7 @@ package handlers
 import (
 	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
-	"github.com/AndrXxX/go-metrics-collector/internal/repositories"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 )

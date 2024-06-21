@@ -1,14 +1,14 @@
 package handlers
 
 import (
+	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
-	"github.com/AndrXxX/go-metrics-collector/internal/repositories"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories"
 	"github.com/go-chi/chi/v5"
 	"net/http"
-	"strconv"
 )
 
-func CounterUpdater(s repositories.Repository) http.HandlerFunc {
+func GaugeFetcher(s repositories.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
 		metric := chi.URLParam(r, vars.Metric)
@@ -16,13 +16,10 @@ func CounterUpdater(s repositories.Repository) http.HandlerFunc {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
-
-		value := chi.URLParam(r, vars.Value)
-		if converted, err := strconv.ParseInt(value, 10, 64); err == nil {
-			s.SetCounter(metric, converted)
+		if val, err := s.GetGauge(metric); err == nil {
+			_, _ = fmt.Fprintf(w, "%v", val)
 			w.WriteHeader(http.StatusOK)
-			return
 		}
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusNotFound)
 	}
 }
