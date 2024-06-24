@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func CounterUpdater(s repositories.Repository) http.HandlerFunc {
+func CounterUpdater(s repositories.CounterStorage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
 		metric := chi.URLParam(r, vars.Metric)

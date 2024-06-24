@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func GaugeFetcher(s repositories.Repository) http.HandlerFunc {
+func GaugeFetcher(s repositories.GaugeStorage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
 		metric := chi.URLParam(r, vars.Metric)

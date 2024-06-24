@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-func MetricsFetcher(s repositories.Repository) http.HandlerFunc {
+func MetricsFetcher(gs repositories.GaugeStorage, cs repositories.CounterStorage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		t, err := template.New("webpage").Parse(templates.MetricsList)
@@ -24,7 +24,7 @@ func MetricsFetcher(s repositories.Repository) http.HandlerFunc {
 			Items map[string]string
 		}{
 			Title: "Metrics List",
-			Items: fetchMetrics(s),
+			Items: fetchMetrics(gs, cs),
 		}
 
 		err = t.Execute(w, data)
@@ -37,12 +37,12 @@ func MetricsFetcher(s repositories.Repository) http.HandlerFunc {
 	}
 }
 
-func fetchMetrics(s repositories.Repository) map[string]string {
+func fetchMetrics(gs repositories.GaugeStorage, cs repositories.CounterStorage) map[string]string {
 	result := map[string]string{}
-	for k, v := range s.GetCounterAll() {
+	for k, v := range cs.GetCounterAll() {
 		result[k] = fmt.Sprintf("%d", v)
 	}
-	for k, v := range s.GetGaugeAll() {
+	for k, v := range gs.GetGaugeAll() {
 		result[k] = fmt.Sprintf("%v", v)
 	}
 	return result

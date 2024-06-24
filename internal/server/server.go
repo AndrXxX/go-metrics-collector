@@ -27,7 +27,7 @@ func Run(c *config.Config) error {
 		r.Get(fmt.Sprintf("/gauge/{%v}", vars.Metric), logger.RequestLogger(handlers.GaugeFetcher(&storage)))
 		r.Get(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), handlers.BadRequest())
 	})
-	r.Get("/", logger.RequestLogger(handlers.MetricsFetcher(&storage)))
+	r.Get("/", logger.RequestLogger(handlers.MetricsFetcher(&storage, &storage)))
 
 	return http.ListenAndServe(c.Host, r)
 }
