@@ -2,13 +2,16 @@ package handlers
 
 import (
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 	"strconv"
 )
 
-func CounterUpdater(s repositories.CounterStorage) http.HandlerFunc {
+type updater interface {
+	Update(name string, value int64)
+}
+
+func CounterUpdater(u updater) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
 		metric := chi.URLParam(r, vars.Metric)
@@ -19,7 +22,7 @@ func CounterUpdater(s repositories.CounterStorage) http.HandlerFunc {
 
 		value := chi.URLParam(r, vars.Value)
 		if converted, err := strconv.ParseInt(value, 10, 64); err == nil {
-			s.SetCounter(metric, converted)
+			u.Update(metric, converted)
 			w.WriteHeader(http.StatusOK)
 			return
 		}

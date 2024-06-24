@@ -7,6 +7,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/handlers"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memstorage"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/counter"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/logger"
 	"github.com/go-chi/chi/v5"
 	"net/http"
@@ -17,10 +18,11 @@ func Run(c *config.Config) error {
 		return err
 	}
 	counterStorage := memory.New[int64]()
+	counterUpdater := counter.New(&counterStorage)
 	storage := memstorage.New()
 	r := chi.NewRouter()
 	r.Route("/update", func(r chi.Router) {
-		r.Post(fmt.Sprintf("/counter/{%v}/{%v}", vars.Metric, vars.Value), logger.RequestLogger(handlers.CounterUpdater(&storage)))
+		r.Post(fmt.Sprintf("/counter/{%v}/{%v}", vars.Metric, vars.Value), logger.RequestLogger(handlers.CounterUpdater(&counterUpdater)))
 		r.Post(fmt.Sprintf("/gauge/{%v}/{%v}", vars.Metric, vars.Value), logger.RequestLogger(handlers.GaugeUpdater(&storage)))
 		r.Post(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), logger.RequestLogger(handlers.BadRequest()))
 	})
