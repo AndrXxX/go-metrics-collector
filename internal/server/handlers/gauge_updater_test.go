@@ -3,7 +3,7 @@ package handlers
 import (
 	"context"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memstorage"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -55,7 +55,7 @@ func TestGaugeUpdater(t *testing.T) {
 			},
 		},
 	}
-	storage := memstorage.New()
+	storage := memory.New[float64]()
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			request := httptest.NewRequest(test.method, test.request, nil)

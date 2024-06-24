@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func GaugeUpdater(s repositories.GaugeStorage) http.HandlerFunc {
+func GaugeUpdater(s repositories.Storage[float64]) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
 		metric := chi.URLParam(r, vars.Metric)
@@ -19,7 +19,7 @@ func GaugeUpdater(s repositories.GaugeStorage) http.HandlerFunc {
 
 		value := chi.URLParam(r, vars.Value)
 		if converted, err := strconv.ParseFloat(value, 64); err == nil {
-			s.SetGauge(metric, converted)
+			s.Insert(metric, converted)
 			w.WriteHeader(http.StatusOK)
 			return
 		}

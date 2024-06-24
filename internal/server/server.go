@@ -17,13 +17,14 @@ func Run(c *config.Config) error {
 	if err := logger.Initialize(c.LogLevel); err != nil {
 		return err
 	}
+	gaugeStorage := memory.New[float64]()
 	counterStorage := memory.New[int64]()
 	counterUpdater := counter.New(&counterStorage)
 	storage := memstorage.New()
 	r := chi.NewRouter()
 	r.Route("/update", func(r chi.Router) {
 		r.Post(fmt.Sprintf("/counter/{%v}/{%v}", vars.Metric, vars.Value), logger.RequestLogger(handlers.CounterUpdater(&counterUpdater)))
-		r.Post(fmt.Sprintf("/gauge/{%v}/{%v}", vars.Metric, vars.Value), logger.RequestLogger(handlers.GaugeUpdater(&storage)))
+		r.Post(fmt.Sprintf("/gauge/{%v}/{%v}", vars.Metric, vars.Value), logger.RequestLogger(handlers.GaugeUpdater(&gaugeStorage)))
 		r.Post(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), logger.RequestLogger(handlers.BadRequest()))
 	})
 	r.Route("/value", func(r chi.Router) {
