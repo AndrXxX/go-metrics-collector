@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func GaugeFetcher(s repositories.GaugeStorage) http.HandlerFunc {
+func GaugeFetcher(s repositories.Storage[float64]) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
 		metric := chi.URLParam(r, vars.Metric)
@@ -16,7 +16,7 @@ func GaugeFetcher(s repositories.GaugeStorage) http.HandlerFunc {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
-		if val, err := s.GetGauge(metric); err == nil {
+		if val, ok := s.Get(metric); ok {
 			_, _ = fmt.Fprintf(w, "%v", val)
 			w.WriteHeader(http.StatusOK)
 		}

@@ -3,7 +3,7 @@ package handlers
 import (
 	"context"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memstorage"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -74,9 +74,9 @@ func TestGaugeFetcher(t *testing.T) {
 				rctx.URLParams.Add(k, v)
 			}
 
-			storage := memstorage.New()
+			storage := memory.New[float64]()
 			for k, v := range test.fields {
-				storage.SetGauge(k, v)
+				storage.Insert(k, v)
 			}
 			w := httptest.NewRecorder()
 			GaugeFetcher(&storage)(w, request)
