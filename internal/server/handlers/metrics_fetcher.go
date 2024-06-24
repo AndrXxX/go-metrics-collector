@@ -2,14 +2,17 @@ package handlers
 
 import (
 	"fmt"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/templates"
 	"html/template"
 	"log"
 	"net/http"
 )
 
-func MetricsFetcher(gs repositories.GaugeStorage, cs repositories.CounterStorage) http.HandlerFunc {
+type storage[T any] interface {
+	All() map[string]T
+}
+
+func MetricsFetcher(gs storage[float64], cs storage[int64]) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		t, err := template.New("webpage").Parse(templates.MetricsList)
@@ -37,12 +40,12 @@ func MetricsFetcher(gs repositories.GaugeStorage, cs repositories.CounterStorage
 	}
 }
 
-func fetchMetrics(gs repositories.GaugeStorage, cs repositories.CounterStorage) map[string]string {
+func fetchMetrics(gs storage[float64], cs storage[int64]) map[string]string {
 	result := map[string]string{}
-	for k, v := range cs.GetCounterAll() {
+	for k, v := range cs.All() {
 		result[k] = fmt.Sprintf("%d", v)
 	}
-	for k, v := range gs.GetGaugeAll() {
+	for k, v := range gs.All() {
 		result[k] = fmt.Sprintf("%v", v)
 	}
 	return result
