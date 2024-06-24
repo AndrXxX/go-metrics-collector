@@ -11,3 +11,9 @@ type CounterStorage interface {
 	GetCounter(metric string) (value int64, err error)
 	GetCounterAll() map[string]int64
 }
+
+type Storage[T any] interface {
+	Insert(metric string, value T)
+	Get(metric string) (value T, ok bool)
+	All() map[string]T
+}
