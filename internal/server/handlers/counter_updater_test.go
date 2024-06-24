@@ -3,7 +3,8 @@ package handlers
 import (
 	"context"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memstorage"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/counter"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -55,7 +56,8 @@ func TestCounterUpdater(t *testing.T) {
 			},
 		},
 	}
-	storage := memstorage.New()
+	storage := memory.New[int64]()
+	updater := counter.New(&storage)
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			request := httptest.NewRequest(test.method, test.request, nil)
@@ -66,7 +68,7 @@ func TestCounterUpdater(t *testing.T) {
 			}
 
 			w := httptest.NewRecorder()
-			CounterUpdater(&storage)(w, request)
+			CounterUpdater(&updater)(w, request)
 			result := w.Result()
 
 			assert.Equal(t, test.want.statusCode, result.StatusCode)
