@@ -3,10 +3,9 @@ package executors
 import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/metrics"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/utils"
 	me "github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"math/rand"
-	"reflect"
-	// TODO: Perederey Использование reflect и slices.Contains в metricsCollector может быть избыточным. Попробуй найти более простой способ обработки полей структуры.
 	"runtime"
 )
 
@@ -15,29 +14,16 @@ type metricsCollector struct {
 }
 
 func (c *metricsCollector) Execute(result metrics.Metrics) error {
-	stats := runtime.MemStats{}
-	runtime.ReadMemStats(&stats)
-	values := reflect.ValueOf(stats)
+	ems := utils.NewExtendedMemStats()
+	runtime.ReadMemStats(&ems.Stats)
+
 	for _, name := range *c.ml {
-		field := values.FieldByName(name)
-		if field.Kind() == reflect.Ptr {
-			field = field.Elem()
-		}
-		if field.Kind() == reflect.Invalid {
+		val, err := ems.GetValue(name)
+		if err != nil {
+			// TODO: log error
 			continue
 		}
-		if field.CanFloat() {
-			result.Gauge[name] = field.Float()
-			continue
-		}
-		if field.CanInt() {
-			result.Gauge[name] = float64(field.Int())
-			continue
-		}
-		if field.CanUint() {
-			result.Gauge[name] = float64(field.Uint())
-			continue
-		}
+		result.Gauge[name] = val
 	}
 	result.Counter[me.PollCount]++
 	result.Gauge[me.RandomValue] = rand.Float64()
