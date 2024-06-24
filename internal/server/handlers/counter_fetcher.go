@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-func CounterFetcher(s repositories.CounterStorage) http.HandlerFunc {
+func CounterFetcher(s repositories.Storage[int64]) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
 		metric := chi.URLParam(r, vars.Metric)
@@ -17,12 +17,12 @@ func CounterFetcher(s repositories.CounterStorage) http.HandlerFunc {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
-		val, err := s.GetCounter(metric)
-		if err != nil {
-			w.WriteHeader(http.StatusOK)
+		val, ok := s.Get(metric)
+		if !ok {
+			w.WriteHeader(http.StatusNotFound)
 			return
 		}
-		_, err = w.Write([]byte(fmt.Sprintf("%d", val)))
+		_, err := w.Write([]byte(fmt.Sprintf("%d", val)))
 		if err != nil {
 			logger.Log.Error("Failed to write counter response")
 			w.WriteHeader(http.StatusInternalServerError)

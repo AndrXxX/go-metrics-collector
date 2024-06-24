@@ -3,7 +3,7 @@ package handlers
 import (
 	"context"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memstorage"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -74,9 +74,9 @@ func TestCounterFetcher(t *testing.T) {
 				rctx.URLParams.Add(k, v)
 			}
 
-			storage := memstorage.New()
+			storage := memory.New[int64]()
 			for k, v := range test.fields {
-				storage.SetCounter(k, v)
+				storage.Insert(k, v)
 			}
 			w := httptest.NewRecorder()
 			CounterFetcher(&storage)(w, request)
