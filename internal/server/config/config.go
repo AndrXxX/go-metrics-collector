@@ -1,5 +1,6 @@
 package config
 
 type Config struct {
-	Host string
+	Host     string
+	LogLevel string
 }

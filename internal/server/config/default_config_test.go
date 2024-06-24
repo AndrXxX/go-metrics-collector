@@ -8,4 +8,5 @@ import (
 func TestNewConfig(t *testing.T) {
 	config := NewConfig()
 	require.NotNil(t, config.Host)
+	require.NotNil(t, config.LogLevel)
 }
