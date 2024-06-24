@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/logger"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 )
@@ -16,10 +17,17 @@ func CounterFetcher(s repositories.Repository) http.HandlerFunc {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
-		if val, err := s.GetCounter(metric); err == nil {
-			_, _ = fmt.Fprintf(w, "%d", val)
+		val, err := s.GetCounter(metric)
+		if err != nil {
 			w.WriteHeader(http.StatusOK)
+			return
 		}
-		w.WriteHeader(http.StatusNotFound)
+		_, err = w.Write([]byte(fmt.Sprintf("%d", val)))
+		if err != nil {
+			logger.Log.Error("Failed to write counter response")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
 	}
 }
