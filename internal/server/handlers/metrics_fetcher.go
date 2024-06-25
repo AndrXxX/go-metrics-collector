@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"fmt"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/logger"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/templates"
 	"html/template"
-	"log"
 	"net/http"
 )
 
@@ -17,7 +17,7 @@ func MetricsFetcher(gs mfStorage[float64], cs mfStorage[int64]) http.HandlerFunc
 		w.Header().Set("Content-Type", "text/html")
 		t, err := template.New("webpage").Parse(templates.MetricsList)
 		if err != nil {
-			log.Print(err)
+			logger.Log.Error(fmt.Sprintf("Error on parse MetricsList template: %s", err.Error()))
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -32,7 +32,7 @@ func MetricsFetcher(gs mfStorage[float64], cs mfStorage[int64]) http.HandlerFunc
 
 		err = t.Execute(w, data)
 		if err != nil {
-			log.Print(err)
+			logger.Log.Error(fmt.Sprintf("Error on execute MetricsList template: %s", err.Error()))
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
