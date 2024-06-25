@@ -13,9 +13,6 @@ import (
 )
 
 func Run(c *config.Config) error {
-	if err := logger.Initialize(c.LogLevel); err != nil {
-		return err
-	}
 	gaugeStorage := memory.New[float64]()
 	counterStorage := memory.New[int64]()
 	counterUpdater := counter.New(&counterStorage)
