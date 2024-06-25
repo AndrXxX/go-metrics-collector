@@ -8,11 +8,11 @@ import (
 	"net/http"
 )
 
-type storage[T any] interface {
+type mfStorage[T any] interface {
 	All() map[string]T
 }
 
-func MetricsFetcher(gs storage[float64], cs storage[int64]) http.HandlerFunc {
+func MetricsFetcher(gs mfStorage[float64], cs mfStorage[int64]) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		t, err := template.New("webpage").Parse(templates.MetricsList)
@@ -40,7 +40,7 @@ func MetricsFetcher(gs storage[float64], cs storage[int64]) http.HandlerFunc {
 	}
 }
 
-func fetchMetrics(gs storage[float64], cs storage[int64]) map[string]string {
+func fetchMetrics(gs mfStorage[float64], cs mfStorage[int64]) map[string]string {
 	result := map[string]string{}
 	for k, v := range cs.All() {
 		result[k] = fmt.Sprintf("%d", v)
