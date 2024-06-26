@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func RequestLogger(h http.Handler) http.HandlerFunc {
+func RequestLogger(h http.HandlerFunc) http.HandlerFunc {
 	logFn := func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
@@ -18,7 +18,7 @@ func RequestLogger(h http.Handler) http.HandlerFunc {
 			ResponseWriter: w,
 			responseData:   responseData,
 		}
-		h.ServeHTTP(&lw, r)
+		h(&lw, r)
 
 		duration := time.Since(start)
 

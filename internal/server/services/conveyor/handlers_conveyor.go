@@ -11,12 +11,15 @@ type handler interface {
 	Execute(http.ResponseWriter, *http.Request) (ok bool)
 }
 
+type loggerFunc func(h http.HandlerFunc) http.HandlerFunc
+
 type handlersConveyor struct {
-	stack stackInterface[handler]
+	stack  stackInterface[handler]
+	logger loggerFunc
 }
 
 func (c *handlersConveyor) Handler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+	handler := func(w http.ResponseWriter, r *http.Request) {
 		for {
 			handler, ok := c.stack.Pop()
 			if !ok || !handler.Execute(w, r) {
@@ -24,6 +27,14 @@ func (c *handlersConveyor) Handler() http.HandlerFunc {
 			}
 		}
 	}
+	if c.logger != nil {
+		return c.logger(handler)
+	}
+	return handler
+}
+
+func (c *handlersConveyor) SetLogger(logger loggerFunc) {
+	c.logger = logger
 }
 
 func New(stack stackInterface[handler]) *handlersConveyor {
