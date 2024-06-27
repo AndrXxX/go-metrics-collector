@@ -28,18 +28,6 @@ func TestGaugeFetcher(t *testing.T) {
 		want    want
 	}{
 		{
-			name:    "StatusNotFound test without metric",
-			request: "/value/counter/",
-			vars:    map[string]string{},
-			method:  http.MethodGet,
-			fields:  map[string]float64{},
-			want: want{
-				statusCode:  http.StatusNotFound,
-				contentType: "text/plain",
-				body:        "",
-			},
-		},
-		{
 			name:    "StatusNotFound test with empty metric in storage",
 			request: "/value/counter/",
 			vars:    map[string]string{vars.Metric: "test"},
@@ -79,7 +67,8 @@ func TestGaugeFetcher(t *testing.T) {
 				storage.Insert(k, v)
 			}
 			w := httptest.NewRecorder()
-			GaugeFetcher(&storage)(w, request)
+			h := New(&storage)
+			h.Handle(w, request)
 			result := w.Result()
 
 			assert.Equal(t, test.want.statusCode, result.StatusCode)

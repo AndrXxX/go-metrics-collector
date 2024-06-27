@@ -7,22 +7,22 @@ import (
 	"net/http"
 )
 
-type gfStorage interface {
-	Get(metric string) (value float64, ok bool)
+type fetchGaugeHandler struct {
+	s gfStorage
 }
 
-func GaugeFetcher(s gfStorage) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/plain")
-		metric := chi.URLParam(r, vars.Metric)
-		if metric == "" {
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-		if val, ok := s.Get(metric); ok {
-			_, _ = fmt.Fprintf(w, "%v", val)
-			w.WriteHeader(http.StatusOK)
-		}
-		w.WriteHeader(http.StatusNotFound)
+func (h *fetchGaugeHandler) Handle(w http.ResponseWriter, r *http.Request) (ok bool) {
+	w.Header().Set("Content-Type", "text/plain")
+	metric := chi.URLParam(r, vars.Metric)
+	if val, ok := h.s.Get(metric); ok {
+		_, _ = fmt.Fprintf(w, "%v", val)
+		w.WriteHeader(http.StatusOK)
+		return true
 	}
+	w.WriteHeader(http.StatusNotFound)
+	return false
+}
+
+func New(s gfStorage) *fetchGaugeHandler {
+	return &fetchGaugeHandler{s}
 }
