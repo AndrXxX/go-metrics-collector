@@ -14,7 +14,6 @@ type fetchMetricsHandler struct {
 }
 
 func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request) (ok bool) {
-	w.Header().Set("Content-Type", "text/html")
 	t, err := template.New("webpage").Parse(templates.MetricsList)
 	if err != nil {
 		logger.Log.Error(fmt.Sprintf("Error on parse MetricsList template: %s", err.Error()))
