@@ -1,4 +1,4 @@
-package handlers
+package update_gauge
 
 import (
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
