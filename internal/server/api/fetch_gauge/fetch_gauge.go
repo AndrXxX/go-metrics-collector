@@ -1,4 +1,4 @@
-package handlers
+package fetch_gauge
 
 import (
 	"fmt"

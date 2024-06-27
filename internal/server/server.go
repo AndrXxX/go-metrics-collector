@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetch_counter"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetch_gauge"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/update_counter"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/handlers"
@@ -35,7 +36,7 @@ func Run(c *config.Config) error {
 			middlewares.HasMetricOr404(),
 			fetch_counter.New(&counterStorage),
 		}).Handler())
-		r.Get(fmt.Sprintf("/gauge/{%v}", vars.Metric), logger.RequestLogger(handlers.GaugeFetcher(&gaugeStorage)))
+		r.Get(fmt.Sprintf("/gauge/{%v}", vars.Metric), logger.RequestLogger(fetch_gauge.GaugeFetcher(&gaugeStorage)))
 		r.Get(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), handlers.BadRequest())
 	})
 	r.Get("/", logger.RequestLogger(handlers.MetricsFetcher(&gaugeStorage, &counterStorage)))
