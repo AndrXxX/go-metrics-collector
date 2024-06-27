@@ -14,8 +14,7 @@ import (
 
 func TestUpdateGaugeHandlerHandle(t *testing.T) {
 	type want struct {
-		contentType string
-		statusCode  int
+		statusCode int
 	}
 	tests := []struct {
 		name    string
@@ -30,8 +29,7 @@ func TestUpdateGaugeHandlerHandle(t *testing.T) {
 			vars:    map[string]string{vars.Metric: "test", vars.Value: "10.1"},
 			method:  http.MethodPost,
 			want: want{
-				statusCode:  http.StatusOK,
-				contentType: "text/plain",
+				statusCode: http.StatusOK,
 			},
 		},
 		{
@@ -40,8 +38,7 @@ func TestUpdateGaugeHandlerHandle(t *testing.T) {
 			vars:    map[string]string{vars.Metric: "test", vars.Value: "aaa"},
 			method:  http.MethodPost,
 			want: want{
-				statusCode:  http.StatusBadRequest,
-				contentType: "text/plain",
+				statusCode: http.StatusBadRequest,
 			},
 		},
 	}
@@ -61,7 +58,6 @@ func TestUpdateGaugeHandlerHandle(t *testing.T) {
 			result := w.Result()
 
 			assert.Equal(t, test.want.statusCode, result.StatusCode)
-			assert.Equal(t, test.want.contentType, result.Header.Get("Content-Type"))
 			if result.Body != nil {
 				err := result.Body.Close()
 				require.NoError(t, err)

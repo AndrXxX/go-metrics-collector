@@ -31,6 +31,7 @@ func Run(c *config.Config) error {
 			updatecounter.New(counterUpdater),
 		}).Handler())
 		r.Post(fmt.Sprintf("/gauge/{%v}/{%v}", vars.Metric, vars.Value), conveyor.New(logger.RequestLogger).From([]interfaces.Handler{
+			middlewares.SetContentType("text/plain"),
 			middlewares.HasMetricOr404(),
 			updategauge.New(&gaugeStorage),
 		}).Handler())

@@ -12,7 +12,6 @@ type updateGaugeHandler struct {
 }
 
 func (h *updateGaugeHandler) Handle(w http.ResponseWriter, r *http.Request) (ok bool) {
-	w.Header().Set("Content-Type", "text/plain")
 	metric := chi.URLParam(r, vars.Metric)
 	value := chi.URLParam(r, vars.Value)
 	if converted, err := strconv.ParseFloat(value, 64); err == nil {
