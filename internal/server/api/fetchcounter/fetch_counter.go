@@ -13,7 +13,6 @@ type fetchCounterHandler struct {
 }
 
 func (h *fetchCounterHandler) Handle(w http.ResponseWriter, r *http.Request) (ok bool) {
-	w.Header().Set("Content-Type", "text/plain")
 	metric := chi.URLParam(r, vars.Metric)
 	val, ok := h.s.Get(metric)
 	if !ok {

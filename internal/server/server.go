@@ -37,6 +37,7 @@ func Run(c *config.Config) error {
 	})
 	r.Route("/value", func(r chi.Router) {
 		r.Get(fmt.Sprintf("/counter/{%v}", vars.Metric), conveyor.New(logger.RequestLogger).From([]interfaces.Handler{
+			middlewares.SetContentType("text/plain"),
 			middlewares.HasMetricOr404(),
 			fetchcounter.New(&counterStorage),
 		}).Handler())
