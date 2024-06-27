@@ -1,14 +1,14 @@
 package stack
 
-type stack[T any] struct {
+type Stack[T any] struct {
 	elements []T
 }
 
-func (s *stack[T]) Push(value T) {
+func (s *Stack[T]) Push(value T) {
 	s.elements = append(s.elements, value)
 }
 
-func (s *stack[T]) Pop() (T, bool) {
+func (s *Stack[T]) Pop() (T, bool) {
 	if len(s.elements) == 0 {
 		var zero T
 		return zero, false
@@ -18,6 +18,6 @@ func (s *stack[T]) Pop() (T, bool) {
 	return last, true
 }
 
-func NewFromSlice[T any](elements []T) *stack[T] {
-	return &stack[T]{elements: elements}
+func NewFromSlice[T any](elements []T) *Stack[T] {
+	return &Stack[T]{elements: elements}
 }
