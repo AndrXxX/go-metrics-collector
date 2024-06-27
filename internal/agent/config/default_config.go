@@ -10,7 +10,11 @@ func NewConfig() *Config {
 		Common: CommonConfig{
 			Host: defaults.Host,
 		},
-		Intervals: Intervals{PollInterval: 2, ReportInterval: 10, SleepInterval: 1},
+		Intervals: Intervals{
+			PollInterval:   defaults.PollInterval,
+			ReportInterval: defaults.ReportInterval,
+			SleepInterval:  defaults.SleepInterval,
+		},
 		Metrics: MetricsList{
 			metrics.Alloc,
 			metrics.BuckHashSys,
