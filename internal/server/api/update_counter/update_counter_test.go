@@ -26,16 +26,6 @@ func TestUpdateCounterHandler(t *testing.T) {
 		want    want
 	}{
 		{
-			name:    "StatusNotFound test",
-			request: "/update/counter/",
-			vars:    map[string]string{},
-			method:  http.MethodPost,
-			want: want{
-				statusCode:  http.StatusNotFound,
-				contentType: "text/plain",
-			},
-		},
-		{
 			name:    "StatusOK test",
 			request: "/update/counter/test/10",
 			vars:    map[string]string{vars.Metric: "test", vars.Value: "10"},

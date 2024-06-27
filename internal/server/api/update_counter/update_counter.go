@@ -14,11 +14,6 @@ type updateCounterHandler struct {
 func (cu *updateCounterHandler) Handle(w http.ResponseWriter, r *http.Request) (ok bool) {
 	w.Header().Set("Content-Type", "text/plain")
 	metric := chi.URLParam(r, vars.Metric)
-	if metric == "" {
-		w.WriteHeader(http.StatusNotFound)
-		return false
-	}
-
 	value := chi.URLParam(r, vars.Value)
 	if converted, err := strconv.ParseInt(value, 10, 64); err == nil {
 		cu.u.Update(metric, converted)
