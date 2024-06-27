@@ -1,4 +1,4 @@
-package fetch_gauge
+package fetchgauge
 
 type gfStorage interface {
 	Get(metric string) (value float64, ok bool)
