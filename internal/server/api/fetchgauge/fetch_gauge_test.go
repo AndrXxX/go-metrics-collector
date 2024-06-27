@@ -15,9 +15,8 @@ import (
 
 func TestGaugeFetcher(t *testing.T) {
 	type want struct {
-		contentType string
-		statusCode  int
-		body        string
+		statusCode int
+		body       string
 	}
 	tests := []struct {
 		name    string
@@ -34,9 +33,8 @@ func TestGaugeFetcher(t *testing.T) {
 			method:  http.MethodGet,
 			fields:  map[string]float64{},
 			want: want{
-				statusCode:  http.StatusNotFound,
-				contentType: "text/plain",
-				body:        "",
+				statusCode: http.StatusNotFound,
+				body:       "",
 			},
 		},
 		{
@@ -46,9 +44,8 @@ func TestGaugeFetcher(t *testing.T) {
 			method:  http.MethodGet,
 			fields:  map[string]float64{"test": 10.1},
 			want: want{
-				statusCode:  http.StatusOK,
-				contentType: "text/plain",
-				body:        "10.1",
+				statusCode: http.StatusOK,
+				body:       "10.1",
 			},
 		},
 	}
@@ -72,7 +69,6 @@ func TestGaugeFetcher(t *testing.T) {
 			result := w.Result()
 
 			assert.Equal(t, test.want.statusCode, result.StatusCode)
-			assert.Equal(t, test.want.contentType, result.Header.Get("Content-Type"))
 			body, err := io.ReadAll(result.Body)
 			assert.Equal(t, []byte(test.want.body), body)
 			assert.NoError(t, err)

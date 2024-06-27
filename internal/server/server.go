@@ -42,6 +42,7 @@ func Run(c *config.Config) error {
 			fetchcounter.New(&counterStorage),
 		}).Handler())
 		r.Get(fmt.Sprintf("/gauge/{%v}", vars.Metric), conveyor.New(logger.RequestLogger).From([]interfaces.Handler{
+			middlewares.SetContentType("text/plain"),
 			middlewares.HasMetricOr404(),
 			fetchgauge.New(&gaugeStorage),
 		}).Handler())

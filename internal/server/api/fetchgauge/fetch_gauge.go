@@ -12,7 +12,6 @@ type fetchGaugeHandler struct {
 }
 
 func (h *fetchGaugeHandler) Handle(w http.ResponseWriter, r *http.Request) (ok bool) {
-	w.Header().Set("Content-Type", "text/plain")
 	metric := chi.URLParam(r, vars.Metric)
 	if val, ok := h.s.Get(metric); ok {
 		_, _ = fmt.Fprintf(w, "%v", val)
