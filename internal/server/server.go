@@ -5,7 +5,6 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchcounter"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchgauge"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/api/update_gauge"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/handlers"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
@@ -30,7 +29,7 @@ func Run(c *config.Config) error {
 		}).Handler())
 		r.Post(fmt.Sprintf("/gauge/{%v}/{%v}", vars.Metric, vars.Value), conveyor.New(logger.RequestLogger).From([]interfaces.Handler{
 			middlewares.HasMetricOr404(),
-			update_gauge.New(&gaugeStorage),
+			updategauge.New(&gaugeStorage),
 		}).Handler())
 		r.Post(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), logger.RequestLogger(handlers.BadRequest()))
 	})

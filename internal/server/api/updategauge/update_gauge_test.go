@@ -1,4 +1,4 @@
-package update_gauge
+package updategauge
 
 import (
 	"context"
