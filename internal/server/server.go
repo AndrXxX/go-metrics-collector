@@ -26,6 +26,7 @@ func Run(c *config.Config) error {
 	r := chi.NewRouter()
 	r.Route("/update", func(r chi.Router) {
 		r.Post(fmt.Sprintf("/counter/{%v}/{%v}", vars.Metric, vars.Value), conveyor.New(logger.RequestLogger).From([]interfaces.Handler{
+			middlewares.SetContentType("text/plain"),
 			middlewares.HasMetricOr404(),
 			updatecounter.New(counterUpdater),
 		}).Handler())
