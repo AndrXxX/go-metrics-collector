@@ -18,6 +18,10 @@ func (s *Stack[T]) Pop() (T, bool) {
 	return last, true
 }
 
+func (s *Stack[T]) All() []T {
+	return s.elements
+}
+
 func NewFromSlice[T any](elements []T) *Stack[T] {
 	return &Stack[T]{elements: elements}
 }

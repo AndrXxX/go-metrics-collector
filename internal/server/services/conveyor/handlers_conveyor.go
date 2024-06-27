@@ -15,9 +15,8 @@ type handlersConveyor struct {
 
 func (c *handlersConveyor) Handler() http.HandlerFunc {
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		for {
-			handler, ok := c.stack.Pop()
-			if !ok || !handler.Handle(w, r) {
+		for _, handler := range c.stack.All() {
+			if !handler.Handle(w, r) {
 				return
 			}
 		}
