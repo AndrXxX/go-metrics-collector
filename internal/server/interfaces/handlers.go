@@ -2,4 +2,6 @@ package interfaces
 
 import "net/http"
 
-type HandlerFunc func(http.ResponseWriter, *http.Request) (ok bool)
+type Handler interface {
+	Handle(http.ResponseWriter, *http.Request) (ok bool)
+}
