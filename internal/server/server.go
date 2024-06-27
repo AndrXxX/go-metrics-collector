@@ -5,6 +5,8 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchcounter"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchgauge"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updatecounter"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updategauge"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/handlers"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
