@@ -12,7 +12,7 @@ import (
 	"testing"
 )
 
-func TestGaugeUpdater(t *testing.T) {
+func TestUpdateGaugeHandlerHandle(t *testing.T) {
 	type want struct {
 		contentType string
 		statusCode  int
@@ -25,16 +25,6 @@ func TestGaugeUpdater(t *testing.T) {
 		want    want
 	}{
 		{
-			name:    "StatusNotFound test",
-			request: "/update/gauge/",
-			vars:    map[string]string{},
-			method:  http.MethodPost,
-			want: want{
-				statusCode:  http.StatusNotFound,
-				contentType: "text/plain",
-			},
-		},
-		{
 			name:    "StatusOK test",
 			request: "/update/gauge/test/10.1",
 			vars:    map[string]string{vars.Metric: "test", vars.Value: "10.1"},
@@ -46,8 +36,8 @@ func TestGaugeUpdater(t *testing.T) {
 		},
 		{
 			name:    "StatusBadRequest test",
-			request: "/update/gauge/test/dsff",
-			vars:    map[string]string{vars.Metric: "test", vars.Value: "dsff"},
+			request: "/update/gauge/test/aaa",
+			vars:    map[string]string{vars.Metric: "test", vars.Value: "aaa"},
 			method:  http.MethodPost,
 			want: want{
 				statusCode:  http.StatusBadRequest,
@@ -56,6 +46,7 @@ func TestGaugeUpdater(t *testing.T) {
 		},
 	}
 	storage := memory.New[float64]()
+	h := New(&storage)
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			request := httptest.NewRequest(test.method, test.request, nil)
@@ -66,7 +57,7 @@ func TestGaugeUpdater(t *testing.T) {
 			}
 
 			w := httptest.NewRecorder()
-			GaugeUpdater(&storage)(w, request)
+			h.Handle(w, request)
 			result := w.Result()
 
 			assert.Equal(t, test.want.statusCode, result.StatusCode)

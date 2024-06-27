@@ -7,25 +7,23 @@ import (
 	"strconv"
 )
 
-type guStorage interface {
-	Insert(metric string, value float64)
+type updateGaugeHandler struct {
+	s guStorage
 }
 
-func GaugeUpdater(s guStorage) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/plain")
-		metric := chi.URLParam(r, vars.Metric)
-		if metric == "" {
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-
-		value := chi.URLParam(r, vars.Value)
-		if converted, err := strconv.ParseFloat(value, 64); err == nil {
-			s.Insert(metric, converted)
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-		w.WriteHeader(http.StatusBadRequest)
+func (h *updateGaugeHandler) Handle(w http.ResponseWriter, r *http.Request) (ok bool) {
+	w.Header().Set("Content-Type", "text/plain")
+	metric := chi.URLParam(r, vars.Metric)
+	value := chi.URLParam(r, vars.Value)
+	if converted, err := strconv.ParseFloat(value, 64); err == nil {
+		h.s.Insert(metric, converted)
+		w.WriteHeader(http.StatusOK)
+		return true
 	}
+	w.WriteHeader(http.StatusBadRequest)
+	return false
+}
+
+func New(s guStorage) *updateGaugeHandler {
+	return &updateGaugeHandler{s}
 }
