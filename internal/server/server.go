@@ -6,7 +6,6 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchcounter"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchgauge"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchmetrics"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/api/handlers"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/middlewares"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updatecounter"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updategauge"
@@ -36,7 +35,10 @@ func Run(c *config.Config) error {
 			middlewares.HasMetricOr404(),
 			updategauge.New(&gaugeStorage),
 		}).Handler())
-		r.Post(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), logger.RequestLogger(handlers.BadRequest()))
+		r.Post(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), conveyor.New(logger.RequestLogger).From([]interfaces.Handler{
+			middlewares.SetContentType("text/plain"),
+			middlewares.SetHttpError(http.StatusBadRequest),
+		}).Handler())
 	})
 	r.Route("/value", func(r chi.Router) {
 		r.Get(fmt.Sprintf("/counter/{%v}", vars.Metric), conveyor.New(logger.RequestLogger).From([]interfaces.Handler{
@@ -49,7 +51,10 @@ func Run(c *config.Config) error {
 			middlewares.HasMetricOr404(),
 			fetchgauge.New(&gaugeStorage),
 		}).Handler())
-		r.Get(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), handlers.BadRequest())
+		r.Get(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), conveyor.New(logger.RequestLogger).From([]interfaces.Handler{
+			middlewares.SetContentType("text/plain"),
+			middlewares.SetHttpError(http.StatusBadRequest),
+		}).Handler())
 	})
 	r.Get("/", conveyor.New(logger.RequestLogger).From([]interfaces.Handler{
 		middlewares.SetContentType("text/plain"),
