@@ -51,11 +51,11 @@ func Run(c *config.Config) error {
 		}).Handler())
 		r.Get(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), handlers.BadRequest())
 	})
-	r.Get("/", logger.RequestLogger(conveyor.New(logger.RequestLogger).From([]interfaces.Handler{
+	r.Get("/", conveyor.New(logger.RequestLogger).From([]interfaces.Handler{
 		middlewares.SetContentType("text/plain"),
 		middlewares.HasMetricOr404(),
 		fetchmetrics.New(&gaugeStorage, &counterStorage),
-	}).Handler()))
+	}).Handler())
 
 	return http.ListenAndServe(c.Host, r)
 }
