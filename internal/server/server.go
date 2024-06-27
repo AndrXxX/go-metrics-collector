@@ -5,6 +5,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchcounter"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchgauge"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchmetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/middlewares"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updatecounter"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updategauge"
@@ -50,7 +51,7 @@ func Run(c *config.Config) error {
 		}).Handler())
 		r.Get(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), handlers.BadRequest())
 	})
-	r.Get("/", logger.RequestLogger(handlers.MetricsFetcher(&gaugeStorage, &counterStorage)))
+	r.Get("/", logger.RequestLogger(fetchmetrics.MetricsFetcher(&gaugeStorage, &counterStorage)))
 
 	return http.ListenAndServe(c.Host, r)
 }
