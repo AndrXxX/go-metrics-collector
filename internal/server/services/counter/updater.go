@@ -6,8 +6,8 @@ type updater struct {
 	storage repositories.Storage[int64]
 }
 
-func New(storage repositories.Storage[int64]) updater {
-	return updater{storage: storage}
+func New(storage repositories.Storage[int64]) *updater {
+	return &updater{storage: storage}
 }
 
 func (u *updater) Update(name string, value int64) {

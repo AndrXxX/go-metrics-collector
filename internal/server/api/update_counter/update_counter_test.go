@@ -1,4 +1,4 @@
-package handlers
+package update_counter
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	"testing"
 )
 
-func TestCounterUpdater(t *testing.T) {
+func TestUpdateCounterHandler(t *testing.T) {
 	type want struct {
 		contentType string
 		statusCode  int
@@ -47,8 +47,8 @@ func TestCounterUpdater(t *testing.T) {
 		},
 		{
 			name:    "StatusBadRequest test",
-			request: "/update/counter/test/dsff",
-			vars:    map[string]string{vars.Metric: "test", vars.Value: "dsff"},
+			request: "/update/counter/test/aaa",
+			vars:    map[string]string{vars.Metric: "test", vars.Value: "aaa"},
 			method:  http.MethodPost,
 			want: want{
 				statusCode:  http.StatusBadRequest,
@@ -57,18 +57,19 @@ func TestCounterUpdater(t *testing.T) {
 		},
 	}
 	storage := memory.New[int64]()
-	updater := counter.New(&storage)
+	updater := New(counter.New(&storage))
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			request := httptest.NewRequest(test.method, test.request, nil)
-			rctx := chi.NewRouteContext()
-			request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, rctx))
+			ctx := chi.NewRouteContext()
+			request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, ctx))
 			for k, v := range test.vars {
-				rctx.URLParams.Add(k, v)
+				ctx.URLParams.Add(k, v)
 			}
 
 			w := httptest.NewRecorder()
-			CounterUpdater(&updater)(w, request)
+
+			updater.Handle(w, request)
 			result := w.Result()
 
 			assert.Equal(t, test.want.statusCode, result.StatusCode)
