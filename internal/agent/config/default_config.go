@@ -2,13 +2,13 @@ package config
 
 import (
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
-	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
+	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars/defaults"
 )
 
 func NewConfig() *Config {
 	return &Config{
 		Common: CommonConfig{
-			Host: vars.DefaultHost,
+			Host: defaults.Host,
 		},
 		Intervals: Intervals{PollInterval: 2, ReportInterval: 10, SleepInterval: 1},
 		Metrics: MetricsList{
