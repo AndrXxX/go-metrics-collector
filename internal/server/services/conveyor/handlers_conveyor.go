@@ -1,20 +1,15 @@
 package conveyor
 
-import "net/http"
-
-type stackInterface[T any] interface {
-	Push(value T)
-	Pop() (T, bool)
-}
-
-type handler interface {
-	Execute(http.ResponseWriter, *http.Request) (ok bool)
-}
+import (
+	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/stack"
+	"net/http"
+)
 
 type loggerFunc func(h http.HandlerFunc) http.HandlerFunc
 
 type handlersConveyor struct {
-	stack  stackInterface[handler]
+	stack  stack.Stack[interfaces.HandlerFunc]
 	logger loggerFunc
 }
 
@@ -22,7 +17,7 @@ func (c *handlersConveyor) Handler() http.HandlerFunc {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		for {
 			handler, ok := c.stack.Pop()
-			if !ok || !handler.Execute(w, r) {
+			if !ok || !handler(w, r) {
 				return
 			}
 		}
@@ -33,10 +28,19 @@ func (c *handlersConveyor) Handler() http.HandlerFunc {
 	return handler
 }
 
-func (c *handlersConveyor) SetLogger(logger loggerFunc) {
-	c.logger = logger
+func (c *handlersConveyor) Add(handler interfaces.HandlerFunc) *handlersConveyor {
+	c.stack.Push(handler)
+	return c
 }
 
-func New(stack stackInterface[handler]) *handlersConveyor {
-	return &handlersConveyor{stack: stack}
+func (c *handlersConveyor) From(list []interfaces.HandlerFunc) *handlersConveyor {
+	c.stack = *stack.NewFromSlice(list)
+	return c
+}
+
+func New(logger loggerFunc) *handlersConveyor {
+	return &handlersConveyor{
+		stack:  *stack.NewFromSlice([]interfaces.HandlerFunc{}),
+		logger: logger,
+	}
 }
