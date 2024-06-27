@@ -29,7 +29,10 @@ func Run(c *config.Config) error {
 			middlewares.HasMetricOr404(),
 			update_counter.New(counterUpdater),
 		}).Handler())
-		r.Post(fmt.Sprintf("/gauge/{%v}/{%v}", vars.Metric, vars.Value), logger.RequestLogger(update_gauge.GaugeUpdater(&gaugeStorage)))
+		r.Post(fmt.Sprintf("/gauge/{%v}/{%v}", vars.Metric, vars.Value), conveyor.New(logger.RequestLogger).From([]interfaces.Handler{
+			middlewares.HasMetricOr404(),
+			update_gauge.New(&gaugeStorage),
+		}).Handler())
 		r.Post(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), logger.RequestLogger(handlers.BadRequest()))
 	})
 	r.Route("/value", func(r chi.Router) {
