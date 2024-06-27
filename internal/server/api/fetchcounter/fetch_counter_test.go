@@ -1,4 +1,4 @@
-package fetch_counter
+package fetchcounter
 
 import (
 	"context"

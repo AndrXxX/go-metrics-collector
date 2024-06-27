@@ -3,7 +3,7 @@ package server
 import (
 	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetch_counter"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchcounter"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchgauge"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/update_counter"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/update_gauge"
@@ -38,7 +38,7 @@ func Run(c *config.Config) error {
 	r.Route("/value", func(r chi.Router) {
 		r.Get(fmt.Sprintf("/counter/{%v}", vars.Metric), conveyor.New(logger.RequestLogger).From([]interfaces.Handler{
 			middlewares.HasMetricOr404(),
-			fetch_counter.New(&counterStorage),
+			fetchcounter.New(&counterStorage),
 		}).Handler())
 		r.Get(fmt.Sprintf("/gauge/{%v}", vars.Metric), conveyor.New(logger.RequestLogger).From([]interfaces.Handler{
 			middlewares.HasMetricOr404(),
