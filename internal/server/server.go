@@ -23,40 +23,41 @@ func Run(c *config.Config) error {
 	gaugeStorage := memory.New[float64]()
 	counterStorage := memory.New[int64]()
 	counterUpdater := counter.New(&counterStorage)
+	cFactory := conveyor.Factory(logger.RequestLogger)
 	r := chi.NewRouter()
 	r.Route("/update", func(r chi.Router) {
-		r.Post(fmt.Sprintf("/counter/{%v}/{%v}", vars.Metric, vars.Value), conveyor.New(logger.RequestLogger).From([]interfaces.Handler{
+		r.Post(fmt.Sprintf("/counter/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
 			middlewares.HasMetricOr404(),
 			updatecounter.New(counterUpdater),
 		}).Handler())
-		r.Post(fmt.Sprintf("/gauge/{%v}/{%v}", vars.Metric, vars.Value), conveyor.New(logger.RequestLogger).From([]interfaces.Handler{
+		r.Post(fmt.Sprintf("/gauge/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
 			middlewares.HasMetricOr404(),
 			updategauge.New(&gaugeStorage),
 		}).Handler())
-		r.Post(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), conveyor.New(logger.RequestLogger).From([]interfaces.Handler{
+		r.Post(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
 			middlewares.SetHttpError(http.StatusBadRequest),
 		}).Handler())
 	})
 	r.Route("/value", func(r chi.Router) {
-		r.Get(fmt.Sprintf("/counter/{%v}", vars.Metric), conveyor.New(logger.RequestLogger).From([]interfaces.Handler{
+		r.Get(fmt.Sprintf("/counter/{%v}", vars.Metric), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
 			middlewares.HasMetricOr404(),
 			fetchcounter.New(&counterStorage),
 		}).Handler())
-		r.Get(fmt.Sprintf("/gauge/{%v}", vars.Metric), conveyor.New(logger.RequestLogger).From([]interfaces.Handler{
+		r.Get(fmt.Sprintf("/gauge/{%v}", vars.Metric), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
 			middlewares.HasMetricOr404(),
 			fetchgauge.New(&gaugeStorage),
 		}).Handler())
-		r.Get(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), conveyor.New(logger.RequestLogger).From([]interfaces.Handler{
+		r.Get(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
 			middlewares.SetHttpError(http.StatusBadRequest),
 		}).Handler())
 	})
-	r.Get("/", conveyor.New(logger.RequestLogger).From([]interfaces.Handler{
+	r.Get("/", cFactory.From([]interfaces.Handler{
 		middlewares.SetContentType("text/plain"),
 		middlewares.HasMetricOr404(),
 		fetchmetrics.New(&gaugeStorage, &counterStorage),
