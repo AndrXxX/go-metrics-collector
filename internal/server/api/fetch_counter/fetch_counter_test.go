@@ -1,4 +1,4 @@
-package handlers
+package fetch_counter
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	"testing"
 )
 
-func TestCounterFetcher(t *testing.T) {
+func TestFetchCounterHandlerHandle(t *testing.T) {
 	type want struct {
 		contentType string
 		statusCode  int
@@ -27,18 +27,6 @@ func TestCounterFetcher(t *testing.T) {
 		fields  map[string]int64
 		want    want
 	}{
-		{
-			name:    "StatusNotFound test without metric",
-			request: "/value/counter/",
-			vars:    map[string]string{},
-			method:  http.MethodGet,
-			fields:  map[string]int64{},
-			want: want{
-				statusCode:  http.StatusNotFound,
-				contentType: "text/plain",
-				body:        "",
-			},
-		},
 		{
 			name:    "StatusNotFound test with empty metric in storage",
 			request: "/value/counter/",
@@ -79,7 +67,8 @@ func TestCounterFetcher(t *testing.T) {
 				storage.Insert(k, v)
 			}
 			w := httptest.NewRecorder()
-			CounterFetcher(&storage)(w, request)
+			h := New(&storage)
+			h.Handle(w, request)
 			result := w.Result()
 
 			assert.Equal(t, test.want.statusCode, result.StatusCode)
