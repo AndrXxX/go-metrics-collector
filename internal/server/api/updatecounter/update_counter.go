@@ -1,4 +1,4 @@
-package update_counter
+package updatecounter
 
 import (
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"

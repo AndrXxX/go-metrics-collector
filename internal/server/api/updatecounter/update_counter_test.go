@@ -1,4 +1,4 @@
-package update_counter
+package updatecounter
 
 import (
 	"context"
