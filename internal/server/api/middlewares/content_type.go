@@ -8,7 +8,7 @@ type contentType struct {
 	ct string
 }
 
-func (m *contentType) Handle(w http.ResponseWriter, r *http.Request) (ok bool) {
+func (m *contentType) Handle(w http.ResponseWriter, _ *http.Request) (ok bool) {
 	w.Header().Set("Content-Type", m.ct)
 	return true
 }

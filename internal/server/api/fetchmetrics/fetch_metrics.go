@@ -13,7 +13,7 @@ type fetchMetricsHandler struct {
 	cs mfStorage[int64]
 }
 
-func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request) (ok bool) {
+func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, _ *http.Request) (ok bool) {
 	t, err := template.New("webpage").Parse(templates.MetricsList)
 	if err != nil {
 		logger.Log.Error(fmt.Sprintf("Error on parse MetricsList template: %s", err.Error()))
