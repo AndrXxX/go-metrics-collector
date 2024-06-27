@@ -11,12 +11,12 @@ type updateCounterHandler struct {
 	u updater
 }
 
-func (cu *updateCounterHandler) Handle(w http.ResponseWriter, r *http.Request) (ok bool) {
+func (h *updateCounterHandler) Handle(w http.ResponseWriter, r *http.Request) (ok bool) {
 	w.Header().Set("Content-Type", "text/plain")
 	metric := chi.URLParam(r, vars.Metric)
 	value := chi.URLParam(r, vars.Value)
 	if converted, err := strconv.ParseInt(value, 10, 64); err == nil {
-		cu.u.Update(metric, converted)
+		h.u.Update(metric, converted)
 		w.WriteHeader(http.StatusOK)
 		return true
 	}
