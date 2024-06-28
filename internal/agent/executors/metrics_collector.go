@@ -1,10 +1,12 @@
 package executors
 
 import (
+	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/utils"
 	me "github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/logger"
 	"math/rand"
 	"runtime"
 )
@@ -20,7 +22,7 @@ func (c *metricsCollector) Execute(result metrics.Metrics) error {
 	for _, name := range *c.ml {
 		val, err := ems.GetValue(name)
 		if err != nil {
-			// TODO: log error
+			logger.Log.Error(fmt.Sprintf("Failed to get value for metric %s: %s", name, err.Error()))
 			continue
 		}
 		result.Gauge[name] = val
