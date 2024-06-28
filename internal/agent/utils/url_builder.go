@@ -1,7 +1,7 @@
 package utils
 
 type URLBuilder interface {
-	BuildURL(params URLParams) string
+	Build(params URLParams) string
 }
 
 type URLParams map[string]any

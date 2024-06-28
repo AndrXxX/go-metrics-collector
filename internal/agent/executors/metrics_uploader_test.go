@@ -2,6 +2,7 @@ package executors
 
 import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricurlbuilder"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/utils"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/mocks"
@@ -19,8 +20,8 @@ func TestNewUploader(t *testing.T) {
 	}{
 		{
 			name: "Test New metricsUploader #1 (Alloc)",
-			rs:   utils.NewRequestSender(utils.NewMetricURLBuilder(""), http.DefaultClient),
-			want: &metricsUploader{rs: utils.NewRequestSender(utils.NewMetricURLBuilder(""), http.DefaultClient)},
+			rs:   utils.NewRequestSender(metricurlbuilder.New(""), http.DefaultClient),
+			want: &metricsUploader{rs: utils.NewRequestSender(metricurlbuilder.New(""), http.DefaultClient)},
 		},
 	}
 	for _, tt := range tests {
@@ -60,7 +61,7 @@ func Test_metricsUploader_Execute(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rs := utils.NewRequestSender(utils.NewMetricURLBuilder("host"), &mocks.MockClient{
+			rs := utils.NewRequestSender(metricurlbuilder.New("host"), &mocks.MockClient{
 				PostFunc: func(url, contentType string, body io.Reader) (*http.Response, error) {
 					assert.Equal(t, tt.url, url)
 					return nil, nil

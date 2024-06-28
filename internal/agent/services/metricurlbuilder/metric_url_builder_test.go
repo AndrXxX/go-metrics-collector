@@ -1,72 +1,73 @@
-package utils
+package metricurlbuilder
 
 import (
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/utils"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-func TestMetricURLBuilder_BuildURL(t *testing.T) {
+func TestMetricURLBuilderBuildURL(t *testing.T) {
 	tests := []struct {
 		host   string
-		params URLParams
+		params utils.URLParams
 		want   string
 	}{
 		{
 			host:   "localhost:8080",
-			params: URLParams{"metricType": "metricType", "metric": "metric", "value": "value"},
+			params: utils.URLParams{"metricType": "metricType", "metric": "metric", "value": "value"},
 			want:   "http://localhost:8080/update/metricType/metric/value",
 		},
 		{
 			host:   "http://localhost:8080",
-			params: URLParams{"metricType": "metricType", "metric": "metric", "value": "value"},
+			params: utils.URLParams{"metricType": "metricType", "metric": "metric", "value": "value"},
 			want:   "http://localhost:8080/update/metricType/metric/value",
 		},
 		{
 			host:   "https://localhost:8080",
-			params: URLParams{"metricType": "metricType", "metric": "metric", "value": "value"},
+			params: utils.URLParams{"metricType": "metricType", "metric": "metric", "value": "value"},
 			want:   "https://localhost:8080/update/metricType/metric/value",
 		},
 		{
 			host:   "host",
-			params: URLParams{"metricType": "metricType", "metric": "metric", "value": "value"},
+			params: utils.URLParams{"metricType": "metricType", "metric": "metric", "value": "value"},
 			want:   "http://host/update/metricType/metric/value",
 		},
 		{
 			host:   "host",
-			params: URLParams{"metricType": "metricType", "metric": "metric"},
+			params: utils.URLParams{"metricType": "metricType", "metric": "metric"},
 			want:   "http://host/update/metricType/metric",
 		},
 		{
 			host:   "host",
-			params: URLParams{"metricType": "metricType"},
+			params: utils.URLParams{"metricType": "metricType"},
 			want:   "http://host/update/metricType",
 		},
 		{
 			host:   "host",
-			params: URLParams{"value": "value"},
+			params: utils.URLParams{"value": "value"},
 			want:   "http://host/update/value",
 		},
 		{
 			host:   "host",
-			params: URLParams{},
+			params: utils.URLParams{},
 			want:   "http://host/update",
 		},
 		{
 			host:   "http://host",
-			params: URLParams{},
+			params: utils.URLParams{},
 			want:   "http://host/update",
 		},
 		{
 			host:   "https://host",
-			params: URLParams{},
+			params: utils.URLParams{},
 			want:   "https://host/update",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.want, func(t *testing.T) {
-			b := NewMetricURLBuilder(tt.host)
-			if got := b.BuildURL(tt.params); got != tt.want {
-				t.Errorf("BuildURL() = %v, want %v", got, tt.want)
+			b := New(tt.host)
+			if got := b.Build(tt.params); got != tt.want {
+				t.Errorf("Build() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -92,7 +93,7 @@ func TestNewMetricURLBuilder(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.host, func(t *testing.T) {
-			b := NewMetricURLBuilder(tt.host)
+			b := New(tt.host)
 			assert.Equal(t, tt.want, b)
 		})
 	}

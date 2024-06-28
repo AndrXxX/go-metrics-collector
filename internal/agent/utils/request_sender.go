@@ -19,7 +19,7 @@ func NewRequestSender(ub URLBuilder, c Client) *RequestSender {
 }
 
 func (s *RequestSender) Post(params URLParams, contentType string) error {
-	url := s.ub.BuildURL(params)
+	url := s.ub.Build(params)
 	resp, err := s.c.Post(url, contentType, nil)
 	if err != nil {
 		return err

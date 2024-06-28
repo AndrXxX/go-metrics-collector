@@ -1,7 +1,8 @@
-package utils
+package metricurlbuilder
 
 import (
 	"fmt"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/utils"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"net/url"
 )
@@ -10,7 +11,7 @@ type metricURLBuilder struct {
 	host string
 }
 
-func NewMetricURLBuilder(host string) *metricURLBuilder {
+func New(host string) *metricURLBuilder {
 	u, err := url.Parse(host)
 	if err != nil {
 		logger.Log.Error(fmt.Sprintf("Error on parse host %s: %s", host, err.Error()))
@@ -25,7 +26,7 @@ func NewMetricURLBuilder(host string) *metricURLBuilder {
 	return &metricURLBuilder{host: u.String()}
 }
 
-func (b *metricURLBuilder) BuildURL(params URLParams) string {
+func (b *metricURLBuilder) Build(params utils.URLParams) string {
 	u := fmt.Sprintf("%v/update", b.host)
 	if params["metricType"] != nil {
 		u = fmt.Sprintf("%v/%v", u, params["metricType"])

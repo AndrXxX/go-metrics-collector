@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricurlbuilder"
 	"github.com/AndrXxX/go-metrics-collector/internal/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -41,7 +42,7 @@ func TestRequestSender_Post(t *testing.T) {
 		{
 			name: "Positive test #1",
 			fields: fields{
-				ub: NewMetricURLBuilder("host"),
+				ub: metricurlbuilder.New("host"),
 				c: &mocks.MockClient{
 					PostFunc: func(url, contentType string, body io.Reader) (*http.Response, error) {
 						return nil, nil
@@ -54,7 +55,7 @@ func TestRequestSender_Post(t *testing.T) {
 		{
 			name: "Positive test #2 with body",
 			fields: fields{
-				ub: NewMetricURLBuilder("host"),
+				ub: metricurlbuilder.New("host"),
 				c: &mocks.MockClient{
 					PostFunc: func(url, contentType string, body io.Reader) (*http.Response, error) {
 						return &http.Response{Header: http.Header{}, Body: &closableReadableBodyMock{}}, nil
@@ -67,7 +68,7 @@ func TestRequestSender_Post(t *testing.T) {
 		{
 			name: "Error test #1",
 			fields: fields{
-				ub: NewMetricURLBuilder("host"),
+				ub: metricurlbuilder.New("host"),
 				c: &mocks.MockClient{
 					PostFunc: func(url, contentType string, body io.Reader) (*http.Response, error) {
 						return nil, errors.New("error from web server")
@@ -103,8 +104,8 @@ func TestNewRequestSender(t *testing.T) {
 	}{
 		{
 			name: "Test New RequestSender #1 (Alloc)",
-			args: args{ub: NewMetricURLBuilder(""), c: http.DefaultClient},
-			want: &RequestSender{ub: NewMetricURLBuilder(""), c: http.DefaultClient},
+			args: args{ub: metricurlbuilder.New(""), c: http.DefaultClient},
+			want: &RequestSender{ub: metricurlbuilder.New(""), c: http.DefaultClient},
 		},
 	}
 	for _, tt := range tests {
