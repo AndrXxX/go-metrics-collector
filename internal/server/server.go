@@ -38,7 +38,7 @@ func Run(c *config.Config) error {
 		}).Handler())
 		r.Post(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
-			middlewares.SetHttpError(http.StatusBadRequest),
+			middlewares.SetHTTPError(http.StatusBadRequest),
 		}).Handler())
 	})
 	r.Route("/value", func(r chi.Router) {
@@ -54,7 +54,7 @@ func Run(c *config.Config) error {
 		}).Handler())
 		r.Get(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
-			middlewares.SetHttpError(http.StatusBadRequest),
+			middlewares.SetHTTPError(http.StatusBadRequest),
 		}).Handler())
 	})
 	r.Get("/", cFactory.From([]interfaces.Handler{

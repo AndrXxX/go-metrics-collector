@@ -13,6 +13,6 @@ func (m *httpError) Handle(w http.ResponseWriter, _ *http.Request) (ok bool) {
 	return true
 }
 
-func SetHttpError(code int) *httpError {
+func SetHTTPError(code int) *httpError {
 	return &httpError{code}
 }
