@@ -2,7 +2,7 @@ package utils
 
 import (
 	"fmt"
-	"log"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"net/url"
 )
 
@@ -13,7 +13,7 @@ type MetricURLBuilder struct {
 func NewMetricURLBuilder(host string) *MetricURLBuilder {
 	u, err := url.Parse(host)
 	if err != nil {
-		log.Print(err)
+		logger.Log.Error(fmt.Sprintf("Error on parse host %s: %s", host, err.Error()))
 		return nil
 	}
 	if u.Scheme == "" {
