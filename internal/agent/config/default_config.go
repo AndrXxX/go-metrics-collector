@@ -8,7 +8,8 @@ import (
 func NewConfig() *Config {
 	return &Config{
 		Common: CommonConfig{
-			Host: defaults.Host,
+			Host:     defaults.Host,
+			LogLevel: defaults.LogLevel,
 		},
 		Intervals: Intervals{
 			PollInterval:   defaults.PollInterval,

@@ -16,5 +16,6 @@ type Intervals struct {
 }
 
 type CommonConfig struct {
-	Host string
+	Host     string
+	LogLevel string
 }
