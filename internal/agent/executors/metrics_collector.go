@@ -5,7 +5,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/utils"
-	me "github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
+	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"math/rand"
 	"runtime"
@@ -27,8 +27,8 @@ func (c *metricsCollector) Execute(result dto.MetricsDto) error {
 		}
 		result.Gauge[name] = val
 	}
-	result.Counter[me.PollCount]++
-	result.Gauge[me.RandomValue] = rand.Float64()
+	result.Counter[metrics.PollCount]++
+	result.Gauge[metrics.RandomValue] = rand.Float64()
 	return nil
 }
 

@@ -3,7 +3,7 @@ package executors
 import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
-	me "github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
+	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -16,13 +16,13 @@ func TestNewCollector(t *testing.T) {
 	}{
 		{
 			name: "Test New metricsCollector #1 (Alloc)",
-			ml:   &config.MetricsList{me.Alloc},
-			want: &metricsCollector{ml: &config.MetricsList{me.Alloc}},
+			ml:   &config.MetricsList{metrics.Alloc},
+			want: &metricsCollector{ml: &config.MetricsList{metrics.Alloc}},
 		},
 		{
 			name: "Test New metricsCollector #1 (Alloc)",
-			ml:   &config.MetricsList{me.BuckHashSys, me.HeapObjects},
-			want: &metricsCollector{ml: &config.MetricsList{me.BuckHashSys, me.HeapObjects}},
+			ml:   &config.MetricsList{metrics.BuckHashSys, metrics.HeapObjects},
+			want: &metricsCollector{ml: &config.MetricsList{metrics.BuckHashSys, metrics.HeapObjects}},
 		},
 	}
 	for _, tt := range tests {
@@ -51,7 +51,7 @@ func Test_metricsCollector_Execute(t *testing.T) {
 			ml:     &config.MetricsList{"UnknownMetric"},
 			result: *dto.NewMetricsDto(),
 			valuesInResult: valuesInResult{
-				counter: []string{me.PollCount},
+				counter: []string{metrics.PollCount},
 			},
 			excludeValuesInResult: valuesInResult{
 				counter: []string{"UnknownMetric"},
@@ -63,23 +63,23 @@ func Test_metricsCollector_Execute(t *testing.T) {
 			ml:     &config.MetricsList{},
 			result: *dto.NewMetricsDto(),
 			valuesInResult: valuesInResult{
-				counter: []string{me.PollCount},
+				counter: []string{metrics.PollCount},
 			},
 		},
 		{
 			name:   "Test Alloc",
-			ml:     &config.MetricsList{me.Alloc},
+			ml:     &config.MetricsList{metrics.Alloc},
 			result: *dto.NewMetricsDto(),
 			valuesInResult: valuesInResult{
-				gauge: []string{me.Alloc, me.RandomValue},
+				gauge: []string{metrics.Alloc, metrics.RandomValue},
 			},
 		},
 		{
 			name:   "Test BuckHashSys, HeapObjects",
-			ml:     &config.MetricsList{me.BuckHashSys, me.HeapObjects},
+			ml:     &config.MetricsList{metrics.BuckHashSys, metrics.HeapObjects},
 			result: *dto.NewMetricsDto(),
 			valuesInResult: valuesInResult{
-				gauge: []string{me.BuckHashSys, me.HeapObjects},
+				gauge: []string{metrics.BuckHashSys, metrics.HeapObjects},
 			},
 		},
 		{
@@ -87,7 +87,7 @@ func Test_metricsCollector_Execute(t *testing.T) {
 			ml:     &config.MetricsList{},
 			result: *dto.NewMetricsDto(),
 			valuesInResult: valuesInResult{
-				gauge: []string{me.RandomValue},
+				gauge: []string{metrics.RandomValue},
 			},
 		},
 	}

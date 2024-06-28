@@ -3,7 +3,7 @@ package executors
 import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/utils"
-	me "github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
+	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/mocks"
 	"github.com/stretchr/testify/assert"
 	"io"
@@ -39,21 +39,21 @@ func Test_metricsUploader_Execute(t *testing.T) {
 		{
 			name: "Test Gauge me.Alloc: 0.1",
 			result: dto.MetricsDto{
-				Gauge: map[string]float64{me.Alloc: 0.1},
+				Gauge: map[string]float64{metrics.Alloc: 0.1},
 			},
 			url: "http://host/update/gauge/Alloc/0.1",
 		},
 		{
 			name: "Test Gauge me.Alloc: 0.1",
 			result: dto.MetricsDto{
-				Gauge: map[string]float64{me.HeapAlloc: 0.6661},
+				Gauge: map[string]float64{metrics.HeapAlloc: 0.6661},
 			},
 			url: "http://host/update/gauge/HeapAlloc/0.6661",
 		},
 		{
 			name: "Test Counter me.PollCount: 555",
 			result: dto.MetricsDto{
-				Counter: map[string]int64{me.PollCount: 555},
+				Counter: map[string]int64{metrics.PollCount: 555},
 			},
 			url: "http://host/update/counter/PollCount/555",
 		},
