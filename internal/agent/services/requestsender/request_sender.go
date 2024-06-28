@@ -1,6 +1,7 @@
 package requestsender
 
 import (
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/types"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/utils"
 	"io"
 	"net/http"
@@ -19,7 +20,7 @@ func New(ub utils.URLBuilder, c Client) *RequestSender {
 	return &RequestSender{ub: ub, c: c}
 }
 
-func (s *RequestSender) Post(params utils.URLParams, contentType string) error {
+func (s *RequestSender) Post(params types.URLParams, contentType string) error {
 	url := s.ub.Build(params)
 	resp, err := s.c.Post(url, contentType, nil)
 	if err != nil {

@@ -1,7 +1,7 @@
 package metricurlbuilder
 
 import (
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/utils"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/types"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -9,57 +9,57 @@ import (
 func TestMetricURLBuilderBuildURL(t *testing.T) {
 	tests := []struct {
 		host   string
-		params utils.URLParams
+		params types.URLParams
 		want   string
 	}{
 		{
 			host:   "localhost:8080",
-			params: utils.URLParams{"metricType": "metricType", "metric": "metric", "value": "value"},
+			params: types.URLParams{"metricType": "metricType", "metric": "metric", "value": "value"},
 			want:   "http://localhost:8080/update/metricType/metric/value",
 		},
 		{
 			host:   "http://localhost:8080",
-			params: utils.URLParams{"metricType": "metricType", "metric": "metric", "value": "value"},
+			params: types.URLParams{"metricType": "metricType", "metric": "metric", "value": "value"},
 			want:   "http://localhost:8080/update/metricType/metric/value",
 		},
 		{
 			host:   "https://localhost:8080",
-			params: utils.URLParams{"metricType": "metricType", "metric": "metric", "value": "value"},
+			params: types.URLParams{"metricType": "metricType", "metric": "metric", "value": "value"},
 			want:   "https://localhost:8080/update/metricType/metric/value",
 		},
 		{
 			host:   "host",
-			params: utils.URLParams{"metricType": "metricType", "metric": "metric", "value": "value"},
+			params: types.URLParams{"metricType": "metricType", "metric": "metric", "value": "value"},
 			want:   "http://host/update/metricType/metric/value",
 		},
 		{
 			host:   "host",
-			params: utils.URLParams{"metricType": "metricType", "metric": "metric"},
+			params: types.URLParams{"metricType": "metricType", "metric": "metric"},
 			want:   "http://host/update/metricType/metric",
 		},
 		{
 			host:   "host",
-			params: utils.URLParams{"metricType": "metricType"},
+			params: types.URLParams{"metricType": "metricType"},
 			want:   "http://host/update/metricType",
 		},
 		{
 			host:   "host",
-			params: utils.URLParams{"value": "value"},
+			params: types.URLParams{"value": "value"},
 			want:   "http://host/update/value",
 		},
 		{
 			host:   "host",
-			params: utils.URLParams{},
+			params: types.URLParams{},
 			want:   "http://host/update",
 		},
 		{
 			host:   "http://host",
-			params: utils.URLParams{},
+			params: types.URLParams{},
 			want:   "http://host/update",
 		},
 		{
 			host:   "https://host",
-			params: utils.URLParams{},
+			params: types.URLParams{},
 			want:   "https://host/update",
 		},
 	}

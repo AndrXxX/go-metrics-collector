@@ -3,6 +3,7 @@ package requestsender
 import (
 	"errors"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricurlbuilder"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/types"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/utils"
 	"github.com/AndrXxX/go-metrics-collector/internal/mocks"
 	"github.com/stretchr/testify/assert"
@@ -31,7 +32,7 @@ func TestRequestSender_Post(t *testing.T) {
 		c  Client
 	}
 	type args struct {
-		params      utils.URLParams
+		params      types.URLParams
 		contentType string
 	}
 	tests := []struct {

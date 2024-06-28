@@ -1,7 +1,7 @@
 package utils
 
-type URLBuilder interface {
-	Build(params URLParams) string
-}
+import "github.com/AndrXxX/go-metrics-collector/internal/agent/types"
 
-type URLParams map[string]any
+type URLBuilder interface {
+	Build(params types.URLParams) string
+}
