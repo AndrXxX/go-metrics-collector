@@ -1,4 +1,4 @@
-package executors
+package scheduler
 
 import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/metrics"
@@ -16,7 +16,7 @@ func (t *testExecutor) Execute(_ metrics.Metrics) error {
 
 func TestIntervalScheduler_Add(t *testing.T) {
 	type args struct {
-		e        Executors
+		e        executor
 		interval time.Duration
 	}
 	tests := []struct {
@@ -40,7 +40,7 @@ func TestIntervalScheduler_Add(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &IntervalScheduler{list: tt.list}
+			s := &intervalScheduler{list: tt.list}
 			s.Add(tt.args.e, tt.args.interval)
 			assert.Equal(t, tt.want, s.list)
 		})
@@ -50,11 +50,11 @@ func TestIntervalScheduler_Add(t *testing.T) {
 func TestNewIntervalScheduler(t *testing.T) {
 	tests := []struct {
 		name string
-		want *IntervalScheduler
+		want *intervalScheduler
 	}{
 		{
 			name: "Simple test",
-			want: &IntervalScheduler{list: []item{}, sleepInterval: 1},
+			want: &intervalScheduler{list: []item{}, sleepInterval: 1},
 		},
 	}
 	for _, tt := range tests {

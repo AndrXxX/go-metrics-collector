@@ -1,4 +1,4 @@
-package executors
+package scheduler
 
 import (
 	"errors"
@@ -7,23 +7,17 @@ import (
 	"time"
 )
 
-type item struct {
-	e            Executors
-	interval     time.Duration
-	lastExecuted time.Time
-}
-
-type IntervalScheduler struct {
+type intervalScheduler struct {
 	list          []item
 	running       bool
 	sleepInterval int64
 }
 
-func (s *IntervalScheduler) Add(e Executors, interval time.Duration) {
+func (s *intervalScheduler) Add(e executor, interval time.Duration) {
 	s.list = append(s.list, item{e: e, interval: interval})
 }
 
-func (s *IntervalScheduler) Run(m metrics.Metrics) error {
+func (s *intervalScheduler) Run(m metrics.Metrics) error {
 	if s.running {
 		return errors.New("already running")
 	}
@@ -50,8 +44,8 @@ func canExecute(i item) bool {
 	return time.Since(i.lastExecuted) >= i.interval
 }
 
-func NewIntervalScheduler(sleepInterval int64) *IntervalScheduler {
-	return &IntervalScheduler{
+func NewIntervalScheduler(sleepInterval int64) *intervalScheduler {
+	return &intervalScheduler{
 		list:          []item{},
 		sleepInterval: sleepInterval,
 	}

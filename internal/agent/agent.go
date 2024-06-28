@@ -4,6 +4,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/executors"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/metrics"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/scheduler"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/utils"
 	"net/http"
 	"time"
@@ -11,12 +12,12 @@ import (
 
 func Run(config *config.Config) error {
 	m := metrics.NewMetrics()
-	scheduler := executors.NewIntervalScheduler(config.Intervals.SleepInterval)
-	scheduler.Add(executors.NewCollector(&config.Metrics), time.Duration(config.Intervals.PollInterval)*time.Second)
+	s := scheduler.NewIntervalScheduler(config.Intervals.SleepInterval)
+	s.Add(executors.NewCollector(&config.Metrics), time.Duration(config.Intervals.PollInterval)*time.Second)
 
 	rs := utils.NewRequestSender(utils.NewMetricURLBuilder(config.Common.Host), http.DefaultClient)
-	scheduler.Add(executors.NewUploader(rs), time.Duration(config.Intervals.ReportInterval)*time.Second)
+	s.Add(executors.NewUploader(rs), time.Duration(config.Intervals.ReportInterval)*time.Second)
 
-	err := scheduler.Run(*m)
+	err := s.Run(*m)
 	return err
 }
