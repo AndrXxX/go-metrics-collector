@@ -14,7 +14,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/conveyor"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/counter"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/counterupdater"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 )
@@ -22,14 +22,14 @@ import (
 func Run(c *config.Config) error {
 	gaugeStorage := memory.New[float64]()
 	counterStorage := memory.New[int64]()
-	counterUpdater := counter.New(&counterStorage)
+	cu := counterupdater.New(&counterStorage)
 	cFactory := conveyor.Factory(logger.New())
 	r := chi.NewRouter()
 	r.Route("/update", func(r chi.Router) {
 		r.Post(fmt.Sprintf("/counter/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
 			middlewares.HasMetricOr404(),
-			updatecounter.New(counterUpdater),
+			updatecounter.New(cu),
 		}).Handler())
 		r.Post(fmt.Sprintf("/gauge/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),

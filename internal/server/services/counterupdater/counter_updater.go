@@ -1,4 +1,4 @@
-package counter
+package counterupdater
 
 import "github.com/AndrXxX/go-metrics-collector/internal/server/repositories"
 

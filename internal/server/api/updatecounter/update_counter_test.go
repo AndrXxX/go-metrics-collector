@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/counter"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/counterupdater"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -44,7 +44,7 @@ func TestUpdateCounterHandler(t *testing.T) {
 		},
 	}
 	storage := memory.New[int64]()
-	updater := New(counter.New(&storage))
+	updater := New(counterupdater.New(&storage))
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			request := httptest.NewRequest(test.method, test.request, nil)
