@@ -75,19 +75,19 @@ func TestMetricURLBuilder_BuildURL(t *testing.T) {
 func TestNewMetricURLBuilder(t *testing.T) {
 	tests := []struct {
 		host string
-		want *MetricURLBuilder
+		want *metricURLBuilder
 	}{
 		{
 			host: "host",
-			want: &MetricURLBuilder{host: "http://host"},
+			want: &metricURLBuilder{host: "http://host"},
 		},
 		{
 			host: "http://host",
-			want: &MetricURLBuilder{host: "http://host"},
+			want: &metricURLBuilder{host: "http://host"},
 		},
 		{
 			host: "https://host",
-			want: &MetricURLBuilder{host: "https://host"},
+			want: &metricURLBuilder{host: "https://host"},
 		},
 	}
 	for _, tt := range tests {

@@ -6,11 +6,11 @@ import (
 	"net/url"
 )
 
-type MetricURLBuilder struct {
+type metricURLBuilder struct {
 	host string
 }
 
-func NewMetricURLBuilder(host string) *MetricURLBuilder {
+func NewMetricURLBuilder(host string) *metricURLBuilder {
 	u, err := url.Parse(host)
 	if err != nil {
 		logger.Log.Error(fmt.Sprintf("Error on parse host %s: %s", host, err.Error()))
@@ -22,10 +22,10 @@ func NewMetricURLBuilder(host string) *MetricURLBuilder {
 	if u.Scheme == "localhost" {
 		u.Scheme = "http://localhost"
 	}
-	return &MetricURLBuilder{host: u.String()}
+	return &metricURLBuilder{host: u.String()}
 }
 
-func (b *MetricURLBuilder) BuildURL(params URLParams) string {
+func (b *metricURLBuilder) BuildURL(params URLParams) string {
 	u := fmt.Sprintf("%v/update", b.host)
 	if params["metricType"] != nil {
 		u = fmt.Sprintf("%v/%v", u, params["metricType"])
