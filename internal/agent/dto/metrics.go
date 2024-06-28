@@ -1,12 +1,12 @@
-package metrics
+package dto
 
-type Metrics struct {
+type MetricsDto struct {
 	Gauge   map[string]float64
 	Counter map[string]int64
 }
 
-func NewMetrics() *Metrics {
-	return &Metrics{
+func NewMetricsDto() *MetricsDto {
+	return &MetricsDto{
 		Gauge:   map[string]float64{},
 		Counter: map[string]int64{},
 	}

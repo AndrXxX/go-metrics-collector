@@ -3,7 +3,7 @@ package executors
 import (
 	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/metrics"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/utils"
 	me "github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
@@ -15,7 +15,7 @@ type metricsCollector struct {
 	ml *config.MetricsList
 }
 
-func (c *metricsCollector) Execute(result metrics.Metrics) error {
+func (c *metricsCollector) Execute(result dto.MetricsDto) error {
 	ems := utils.NewExtendedMemStats()
 	runtime.ReadMemStats(&ems.Stats)
 

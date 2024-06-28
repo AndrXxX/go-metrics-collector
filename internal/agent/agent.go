@@ -2,8 +2,8 @@ package agent
 
 import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/executors"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/scheduler"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/utils"
 	"net/http"
@@ -11,7 +11,7 @@ import (
 )
 
 func Run(config *config.Config) error {
-	m := metrics.NewMetrics()
+	m := dto.NewMetricsDto()
 	s := scheduler.NewIntervalScheduler(config.Intervals.SleepInterval)
 	s.Add(executors.NewCollector(&config.Metrics), time.Duration(config.Intervals.PollInterval)*time.Second)
 

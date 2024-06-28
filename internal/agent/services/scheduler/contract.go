@@ -1,12 +1,12 @@
 package scheduler
 
 import (
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/metrics"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
 	"time"
 )
 
 type executor interface {
-	Execute(metrics.Metrics) error
+	Execute(dto.MetricsDto) error
 }
 
 type item struct {

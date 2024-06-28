@@ -2,7 +2,7 @@ package scheduler
 
 import (
 	"errors"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/metrics"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"time"
 )
@@ -17,7 +17,7 @@ func (s *intervalScheduler) Add(e executor, interval time.Duration) {
 	s.list = append(s.list, item{e: e, interval: interval})
 }
 
-func (s *intervalScheduler) Run(m metrics.Metrics) error {
+func (s *intervalScheduler) Run(m dto.MetricsDto) error {
 	if s.running {
 		return errors.New("already running")
 	}

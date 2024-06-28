@@ -2,7 +2,7 @@ package executors
 
 import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/metrics"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
 	me "github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -42,14 +42,14 @@ func Test_metricsCollector_Execute(t *testing.T) {
 	tests := []struct {
 		name   string
 		ml     *config.MetricsList
-		result metrics.Metrics
+		result dto.MetricsDto
 		valuesInResult
 		excludeValuesInResult valuesInResult
 	}{
 		{
 			name:   "Test Unknown field",
 			ml:     &config.MetricsList{"UnknownMetric"},
-			result: *metrics.NewMetrics(),
+			result: *dto.NewMetricsDto(),
 			valuesInResult: valuesInResult{
 				counter: []string{me.PollCount},
 			},
@@ -61,7 +61,7 @@ func Test_metricsCollector_Execute(t *testing.T) {
 		{
 			name:   "Test Counter",
 			ml:     &config.MetricsList{},
-			result: *metrics.NewMetrics(),
+			result: *dto.NewMetricsDto(),
 			valuesInResult: valuesInResult{
 				counter: []string{me.PollCount},
 			},
@@ -69,7 +69,7 @@ func Test_metricsCollector_Execute(t *testing.T) {
 		{
 			name:   "Test Alloc",
 			ml:     &config.MetricsList{me.Alloc},
-			result: *metrics.NewMetrics(),
+			result: *dto.NewMetricsDto(),
 			valuesInResult: valuesInResult{
 				gauge: []string{me.Alloc, me.RandomValue},
 			},
@@ -77,7 +77,7 @@ func Test_metricsCollector_Execute(t *testing.T) {
 		{
 			name:   "Test BuckHashSys, HeapObjects",
 			ml:     &config.MetricsList{me.BuckHashSys, me.HeapObjects},
-			result: *metrics.NewMetrics(),
+			result: *dto.NewMetricsDto(),
 			valuesInResult: valuesInResult{
 				gauge: []string{me.BuckHashSys, me.HeapObjects},
 			},
@@ -85,7 +85,7 @@ func Test_metricsCollector_Execute(t *testing.T) {
 		{
 			name:   "Test empty",
 			ml:     &config.MetricsList{},
-			result: *metrics.NewMetrics(),
+			result: *dto.NewMetricsDto(),
 			valuesInResult: valuesInResult{
 				gauge: []string{me.RandomValue},
 			},

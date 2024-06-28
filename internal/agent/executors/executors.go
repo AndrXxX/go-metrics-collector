@@ -1,7 +1,7 @@
 package executors
 
-import "github.com/AndrXxX/go-metrics-collector/internal/agent/metrics"
+import "github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
 
 type Executor interface {
-	Execute(metrics.Metrics) error
+	Execute(dto.MetricsDto) error
 }

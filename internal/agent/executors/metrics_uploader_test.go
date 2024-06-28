@@ -1,7 +1,7 @@
 package executors
 
 import (
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/metrics"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/utils"
 	me "github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/mocks"
@@ -33,26 +33,26 @@ func TestNewUploader(t *testing.T) {
 func Test_metricsUploader_Execute(t *testing.T) {
 	tests := []struct {
 		name   string
-		result metrics.Metrics
+		result dto.MetricsDto
 		url    string
 	}{
 		{
 			name: "Test Gauge me.Alloc: 0.1",
-			result: metrics.Metrics{
+			result: dto.MetricsDto{
 				Gauge: map[string]float64{me.Alloc: 0.1},
 			},
 			url: "http://host/update/gauge/Alloc/0.1",
 		},
 		{
 			name: "Test Gauge me.Alloc: 0.1",
-			result: metrics.Metrics{
+			result: dto.MetricsDto{
 				Gauge: map[string]float64{me.HeapAlloc: 0.6661},
 			},
 			url: "http://host/update/gauge/HeapAlloc/0.6661",
 		},
 		{
 			name: "Test Counter me.PollCount: 555",
-			result: metrics.Metrics{
+			result: dto.MetricsDto{
 				Counter: map[string]int64{me.PollCount: 555},
 			},
 			url: "http://host/update/counter/PollCount/555",

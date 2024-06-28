@@ -1,7 +1,7 @@
 package scheduler
 
 import (
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/metrics"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -10,7 +10,7 @@ import (
 type testExecutor struct {
 }
 
-func (t *testExecutor) Execute(_ metrics.Metrics) error {
+func (t *testExecutor) Execute(_ dto.MetricsDto) error {
 	return nil
 }
 
