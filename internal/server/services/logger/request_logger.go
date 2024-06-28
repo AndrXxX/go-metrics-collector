@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"go.uber.org/zap"
 	"net/http"
 	"time"
@@ -22,7 +23,7 @@ func RequestLogger(h http.HandlerFunc) http.HandlerFunc {
 
 		duration := time.Since(start)
 
-		Log.Info(
+		logger.Log.Info(
 			"got incoming HTTP request",
 			zap.String("uri", r.RequestURI),
 			zap.String("method", r.Method),

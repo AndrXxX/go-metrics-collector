@@ -2,8 +2,8 @@ package fetchmetrics
 
 import (
 	"fmt"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/logger"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/templates"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"html/template"
 	"net/http"
 )

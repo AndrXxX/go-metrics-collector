@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/logger"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"github.com/caarlos0/env/v6"
 )
 

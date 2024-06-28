@@ -6,7 +6,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/utils"
 	me "github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/logger"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"math/rand"
 	"runtime"
 )

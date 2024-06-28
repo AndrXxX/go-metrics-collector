@@ -3,7 +3,7 @@ package fetchcounter
 import (
 	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/logger"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 )
