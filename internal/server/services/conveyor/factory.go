@@ -6,18 +6,16 @@ import (
 )
 
 type conveyorFactory struct {
-	logger loggerFunc
+	l logger
 }
 
 func (f *conveyorFactory) From(list []interfaces.Handler) *handlersConveyor {
 	return &handlersConveyor{
-		logger: f.logger,
+		logger: f.l,
 		stack:  *stack.NewFromSlice(list),
 	}
 }
 
-func Factory(logger loggerFunc) *conveyorFactory {
-	return &conveyorFactory{
-		logger: logger,
-	}
+func Factory(l logger) *conveyorFactory {
+	return &conveyorFactory{l}
 }

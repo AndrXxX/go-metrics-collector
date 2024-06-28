@@ -23,7 +23,7 @@ func Run(c *config.Config) error {
 	gaugeStorage := memory.New[float64]()
 	counterStorage := memory.New[int64]()
 	counterUpdater := counter.New(&counterStorage)
-	cFactory := conveyor.Factory(logger.RequestLogger)
+	cFactory := conveyor.Factory(logger.New())
 	r := chi.NewRouter()
 	r.Route("/update", func(r chi.Router) {
 		r.Post(fmt.Sprintf("/counter/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{

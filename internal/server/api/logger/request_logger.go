@@ -7,7 +7,10 @@ import (
 	"time"
 )
 
-func RequestLogger(h http.HandlerFunc) http.HandlerFunc {
+type requestLogger struct {
+}
+
+func (l *requestLogger) Handle(h http.HandlerFunc) http.HandlerFunc {
 	logFn := func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
@@ -33,4 +36,8 @@ func RequestLogger(h http.HandlerFunc) http.HandlerFunc {
 		)
 	}
 	return logFn
+}
+
+func New() *requestLogger {
+	return &requestLogger{}
 }

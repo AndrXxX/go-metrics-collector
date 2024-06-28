@@ -6,11 +6,9 @@ import (
 	"net/http"
 )
 
-type loggerFunc func(h http.HandlerFunc) http.HandlerFunc
-
 type handlersConveyor struct {
 	stack  stack.Stack[interfaces.Handler]
-	logger loggerFunc
+	logger logger
 }
 
 func (c *handlersConveyor) Handler() http.HandlerFunc {
@@ -22,7 +20,7 @@ func (c *handlersConveyor) Handler() http.HandlerFunc {
 		}
 	}
 	if c.logger != nil {
-		return c.logger(handler)
+		return c.logger.Handle(handler)
 	}
 	return handler
 }
