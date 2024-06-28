@@ -12,7 +12,7 @@ func TestNewCollector(t *testing.T) {
 	tests := []struct {
 		name string
 		ml   *config.MetricsList
-		want Executors
+		want *metricsCollector
 	}{
 		{
 			name: "Test New metricsCollector #1 (Alloc)",

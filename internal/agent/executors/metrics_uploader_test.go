@@ -15,7 +15,7 @@ func TestNewUploader(t *testing.T) {
 	tests := []struct {
 		name string
 		rs   *utils.RequestSender
-		want Executors
+		want *metricsUploader
 	}{
 		{
 			name: "Test New metricsUploader #1 (Alloc)",

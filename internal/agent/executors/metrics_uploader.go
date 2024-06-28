@@ -22,8 +22,6 @@ func (c *metricsUploader) Execute(result metrics.Metrics) error {
 	return nil
 }
 
-func NewUploader(rs *utils.RequestSender) Executors {
-	return &metricsUploader{
-		rs: rs,
-	}
+func NewUploader(rs *utils.RequestSender) *metricsUploader {
+	return &metricsUploader{rs}
 }

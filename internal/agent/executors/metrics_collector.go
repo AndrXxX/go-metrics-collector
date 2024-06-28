@@ -32,8 +32,6 @@ func (c *metricsCollector) Execute(result metrics.Metrics) error {
 	return nil
 }
 
-func NewCollector(ml *config.MetricsList) Executors {
-	return &metricsCollector{
-		ml: ml,
-	}
+func NewCollector(ml *config.MetricsList) *metricsCollector {
+	return &metricsCollector{ml}
 }
