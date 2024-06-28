@@ -47,10 +47,10 @@ func TestUpdateGaugeHandlerHandle(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			request := httptest.NewRequest(test.method, test.request, nil)
-			rctx := chi.NewRouteContext()
-			request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, rctx))
+			ctx := chi.NewRouteContext()
+			request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, ctx))
 			for k, v := range test.vars {
-				rctx.URLParams.Add(k, v)
+				ctx.URLParams.Add(k, v)
 			}
 
 			w := httptest.NewRecorder()
