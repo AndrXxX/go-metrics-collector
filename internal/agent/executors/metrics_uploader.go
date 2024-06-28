@@ -2,12 +2,13 @@ package executors
 
 import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/requestsender"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/utils"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 )
 
 type metricsUploader struct {
-	rs *utils.RequestSender
+	rs *requestsender.RequestSender
 }
 
 func (c *metricsUploader) Execute(result dto.MetricsDto) error {
@@ -22,6 +23,6 @@ func (c *metricsUploader) Execute(result dto.MetricsDto) error {
 	return nil
 }
 
-func NewUploader(rs *utils.RequestSender) *metricsUploader {
+func NewUploader(rs *requestsender.RequestSender) *metricsUploader {
 	return &metricsUploader{rs}
 }

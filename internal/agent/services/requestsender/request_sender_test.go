@@ -1,8 +1,9 @@
-package utils
+package requestsender
 
 import (
 	"errors"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricurlbuilder"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/utils"
 	"github.com/AndrXxX/go-metrics-collector/internal/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -26,11 +27,11 @@ func (m *closableReadableBodyMock) Read(_ []byte) (n int, err error) {
 
 func TestRequestSender_Post(t *testing.T) {
 	type fields struct {
-		ub URLBuilder
+		ub utils.URLBuilder
 		c  Client
 	}
 	type args struct {
-		params      URLParams
+		params      utils.URLParams
 		contentType string
 	}
 	tests := []struct {
@@ -94,7 +95,7 @@ func TestRequestSender_Post(t *testing.T) {
 
 func TestNewRequestSender(t *testing.T) {
 	type args struct {
-		ub URLBuilder
+		ub utils.URLBuilder
 		c  Client
 	}
 	tests := []struct {
@@ -110,7 +111,7 @@ func TestNewRequestSender(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rs := NewRequestSender(tt.args.ub, tt.args.c)
+			rs := New(tt.args.ub, tt.args.c)
 			assert.Equal(t, tt.want, rs)
 		})
 	}
