@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricurlbuilder"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/types"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/utils"
 	"github.com/AndrXxX/go-metrics-collector/internal/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -28,7 +27,7 @@ func (m *closableReadableBodyMock) Read(_ []byte) (n int, err error) {
 
 func TestRequestSender_Post(t *testing.T) {
 	type fields struct {
-		ub utils.URLBuilder
+		ub urlBuilder
 		c  Client
 	}
 	type args struct {
@@ -96,7 +95,7 @@ func TestRequestSender_Post(t *testing.T) {
 
 func TestNewRequestSender(t *testing.T) {
 	type args struct {
-		ub utils.URLBuilder
+		ub urlBuilder
 		c  Client
 	}
 	tests := []struct {
