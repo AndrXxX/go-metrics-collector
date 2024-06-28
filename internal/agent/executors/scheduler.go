@@ -3,6 +3,7 @@ package executors
 import (
 	"errors"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/metrics"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"time"
 )
 
@@ -26,6 +27,7 @@ func (s *IntervalScheduler) Run(m metrics.Metrics) error {
 	if s.running {
 		return errors.New("already running")
 	}
+	logger.Log.Info("Scheduler running")
 	s.running = true
 	for {
 		for _, item := range s.list {
@@ -34,6 +36,7 @@ func (s *IntervalScheduler) Run(m metrics.Metrics) error {
 			}
 			err := item.e.Execute(m)
 			if err != nil {
+				logger.Log.Info("Scheduler stopped")
 				s.running = false
 				return err
 			}
