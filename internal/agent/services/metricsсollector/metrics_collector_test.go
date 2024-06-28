@@ -1,4 +1,4 @@
-package executors
+package metricsсollector
 
 import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
@@ -27,7 +27,7 @@ func TestNewCollector(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := NewCollector(tt.ml)
+			c := New(tt.ml)
 			assert.Equal(t, tt.want, c)
 		})
 	}

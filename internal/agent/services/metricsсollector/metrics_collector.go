@@ -1,4 +1,4 @@
-package executors
+package metricsсollector
 
 import (
 	"fmt"
@@ -31,6 +31,6 @@ func (c *metricsCollector) Execute(result dto.MetricsDto) error {
 	return nil
 }
 
-func NewCollector(ml *config.MetricsList) *metricsCollector {
+func New(ml *config.MetricsList) *metricsCollector {
 	return &metricsCollector{ml}
 }
