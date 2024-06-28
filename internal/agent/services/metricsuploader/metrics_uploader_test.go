@@ -1,4 +1,4 @@
-package executors
+package metricsuploader
 
 import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
@@ -26,7 +26,7 @@ func TestNewUploader(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, NewUploader(tt.rs), "NewUploader(%v)", tt.rs)
+			assert.Equalf(t, tt.want, New(tt.rs), "New(%v)", tt.rs)
 		})
 	}
 }

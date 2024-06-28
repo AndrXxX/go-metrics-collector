@@ -1,4 +1,4 @@
-package executors
+package metricsuploader
 
 import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
@@ -23,6 +23,6 @@ func (c *metricsUploader) Execute(result dto.MetricsDto) error {
 	return nil
 }
 
-func NewUploader(rs *requestsender.RequestSender) *metricsUploader {
+func New(rs *requestsender.RequestSender) *metricsUploader {
 	return &metricsUploader{rs}
 }
