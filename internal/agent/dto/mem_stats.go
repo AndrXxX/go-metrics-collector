@@ -1,4 +1,4 @@
-package utils
+package dto
 
 import (
 	"fmt"
@@ -6,15 +6,15 @@ import (
 	"runtime"
 )
 
-type extendedMemStats struct {
+type memStatsDto struct {
 	Stats runtime.MemStats
 }
 
-func NewExtendedMemStats() extendedMemStats {
-	return extendedMemStats{Stats: runtime.MemStats{}}
+func NewMemStatsDto() memStatsDto {
+	return memStatsDto{Stats: runtime.MemStats{}}
 }
 
-func (ms *extendedMemStats) GetValue(name string) (float64, error) {
+func (ms *memStatsDto) GetValue(name string) (float64, error) {
 	switch name {
 	case metrics.Alloc:
 		return float64(ms.Stats.Alloc), nil

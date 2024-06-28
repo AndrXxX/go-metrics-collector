@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/utils"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"math/rand"
@@ -16,11 +15,11 @@ type metricsCollector struct {
 }
 
 func (c *metricsCollector) Execute(result dto.MetricsDto) error {
-	ems := utils.NewExtendedMemStats()
-	runtime.ReadMemStats(&ems.Stats)
+	memStatsDto := dto.NewMemStatsDto()
+	runtime.ReadMemStats(&memStatsDto.Stats)
 
 	for _, name := range *c.ml {
-		val, err := ems.GetValue(name)
+		val, err := memStatsDto.GetValue(name)
 		if err != nil {
 			logger.Log.Error(fmt.Sprintf("Failed to get value for metric %s: %s", name, err.Error()))
 			continue
