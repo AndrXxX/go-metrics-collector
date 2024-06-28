@@ -6,6 +6,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchcounter"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchgauge"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchmetrics"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/api/logger"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/middlewares"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updatecounter"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updategauge"
@@ -14,7 +15,6 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/conveyor"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/counter"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/logger"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 )
