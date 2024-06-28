@@ -1,4 +1,4 @@
-package metricsсollector
+package metricscollector
 
 import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
