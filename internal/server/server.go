@@ -16,6 +16,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/conveyor"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/counterupdater"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricstringifier"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 )
@@ -47,7 +48,7 @@ func Run(c *config.Config) error {
 		r.Get(fmt.Sprintf("/counter/{%v}", vars.Metric), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
 			middlewares.HasMetricOr404(),
-			fetchcounter.New(&modelCounterStorage),
+			fetchcounter.New(&modelCounterStorage, metricstringifier.MetricsValueStringifier{}),
 		}).Handler())
 		r.Get(fmt.Sprintf("/gauge/{%v}", vars.Metric), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),

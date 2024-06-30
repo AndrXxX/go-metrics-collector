@@ -9,7 +9,8 @@ import (
 )
 
 type fetchCounterHandler struct {
-	s storage
+	s           storage
+	stringifier stringifier
 }
 
 func (h *fetchCounterHandler) Handle(w http.ResponseWriter, r *http.Request) (ok bool) {
@@ -19,7 +20,10 @@ func (h *fetchCounterHandler) Handle(w http.ResponseWriter, r *http.Request) (ok
 		w.WriteHeader(http.StatusNotFound)
 		return false
 	}
-	_, err := fmt.Fprintf(w, "%d", *val.Delta)
+	str, err := h.stringifier.String(val)
+	if err == nil {
+		_, err = fmt.Fprintf(w, "%s", str)
+	}
 	if err != nil {
 		logger.Log.Error("Failed to write counter response")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -29,6 +33,6 @@ func (h *fetchCounterHandler) Handle(w http.ResponseWriter, r *http.Request) (ok
 	return true
 }
 
-func New(s storage) *fetchCounterHandler {
-	return &fetchCounterHandler{s}
+func New(s storage, stringifier stringifier) *fetchCounterHandler {
+	return &fetchCounterHandler{s, stringifier}
 }
