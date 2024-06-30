@@ -23,6 +23,7 @@ import (
 
 func Run(c *config.Config) error {
 	modelCounterStorage := memory.New[*models.Metrics]()
+	modelGaugeStorage := memory.New[*models.Metrics]()
 	gaugeStorage := memory.New[float64]()
 	counterStorage := memory.New[int64]()
 	cu := counterupdater.New(&counterStorage)
@@ -53,7 +54,7 @@ func Run(c *config.Config) error {
 		r.Get(fmt.Sprintf("/gauge/{%v}", vars.Metric), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
 			middlewares.HasMetricOr404(),
-			fetchgauge.New(&gaugeStorage),
+			fetchgauge.New(&modelGaugeStorage),
 		}).Handler())
 		r.Get(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),

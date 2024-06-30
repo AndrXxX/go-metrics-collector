@@ -8,13 +8,13 @@ import (
 )
 
 type fetchGaugeHandler struct {
-	s gfStorage
+	s storage
 }
 
 func (h *fetchGaugeHandler) Handle(w http.ResponseWriter, r *http.Request) (ok bool) {
 	metric := chi.URLParam(r, vars.Metric)
 	if val, ok := h.s.Get(metric); ok {
-		_, _ = fmt.Fprintf(w, "%v", val)
+		_, _ = fmt.Fprintf(w, "%v", *val.Value)
 		w.WriteHeader(http.StatusOK)
 		return true
 	}
@@ -22,6 +22,6 @@ func (h *fetchGaugeHandler) Handle(w http.ResponseWriter, r *http.Request) (ok b
 	return false
 }
 
-func New(s gfStorage) *fetchGaugeHandler {
+func New(s storage) *fetchGaugeHandler {
 	return &fetchGaugeHandler{s}
 }

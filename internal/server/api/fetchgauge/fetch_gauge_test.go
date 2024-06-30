@@ -2,7 +2,9 @@ package fetchgauge
 
 import (
 	"context"
+	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
@@ -59,9 +61,13 @@ func TestGaugeFetcher(t *testing.T) {
 				ctx.URLParams.Add(k, v)
 			}
 
-			storage := memory.New[float64]()
+			storage := memory.New[*models.Metrics]()
 			for k, v := range test.fields {
-				storage.Insert(k, v)
+				storage.Insert(k, &models.Metrics{
+					ID:    k,
+					MType: metrics.Counter,
+					Value: &v,
+				})
 			}
 			w := httptest.NewRecorder()
 			h := New(&storage)
