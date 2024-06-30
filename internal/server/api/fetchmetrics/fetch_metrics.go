@@ -2,6 +2,7 @@ package fetchmetrics
 
 import (
 	"fmt"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/templates"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"html/template"
@@ -9,8 +10,8 @@ import (
 )
 
 type fetchMetricsHandler struct {
-	gs mfStorage[float64]
-	cs mfStorage[int64]
+	gs storage[*models.Metrics]
+	cs storage[*models.Metrics]
 }
 
 func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, _ *http.Request) (ok bool) {
@@ -42,14 +43,14 @@ func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, _ *http.Request) (ok
 func (h *fetchMetricsHandler) fetchMetrics() map[string]string {
 	result := map[string]string{}
 	for k, v := range h.cs.All() {
-		result[k] = fmt.Sprintf("%d", v)
+		result[k] = fmt.Sprintf("%d", *v.Delta)
 	}
 	for k, v := range h.gs.All() {
-		result[k] = fmt.Sprintf("%v", v)
+		result[k] = fmt.Sprintf("%v", *v.Value)
 	}
 	return result
 }
 
-func New(gs mfStorage[float64], cs mfStorage[int64]) *fetchMetricsHandler {
+func New(gs storage[*models.Metrics], cs storage[*models.Metrics]) *fetchMetricsHandler {
 	return &fetchMetricsHandler{gs, cs}
 }

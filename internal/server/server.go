@@ -63,7 +63,7 @@ func Run(c *config.Config) error {
 	})
 	r.Get("/", cFactory.From([]interfaces.Handler{
 		middlewares.SetContentType("text/html; charset=utf-8"),
-		fetchmetrics.New(&gaugeStorage, &counterStorage),
+		fetchmetrics.New(&modelGaugeStorage, &modelCounterStorage),
 	}).Handler())
 
 	return http.ListenAndServe(c.Host, r)

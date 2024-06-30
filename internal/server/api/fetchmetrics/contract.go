@@ -1,5 +1,5 @@
 package fetchmetrics
 
-type mfStorage[T any] interface {
+type storage[T any] interface {
 	All() map[string]T
 }
