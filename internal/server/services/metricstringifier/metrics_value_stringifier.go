@@ -13,9 +13,15 @@ type MetricsValueStringifier struct {
 func (s MetricsValueStringifier) String(m *models.Metrics) (string, error) {
 	switch m.MType {
 	case metrics.Counter:
-		return fmt.Sprintf("%d", m.Delta), nil
+		if m.Delta == nil {
+			return "", nil
+		}
+		return fmt.Sprintf("%d", *m.Delta), nil
 	case metrics.Gauge:
-		return fmt.Sprintf("%d", m.Value), nil
+		if m.Value == nil {
+			return "", nil
+		}
+		return fmt.Sprintf("%v", *m.Value), nil
 	default:
 		return "", errors.New("unknown metric type")
 	}
