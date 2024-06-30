@@ -1,5 +1,7 @@
 package fetchcounter
 
-type cfStorage interface {
-	Get(metric string) (value int64, ok bool)
+import "github.com/AndrXxX/go-metrics-collector/internal/server/models"
+
+type storage interface {
+	Get(metric string) (value *models.Metrics, ok bool)
 }

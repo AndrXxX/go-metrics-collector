@@ -12,6 +12,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updategauge"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/conveyor"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/counterupdater"
@@ -20,6 +21,7 @@ import (
 )
 
 func Run(c *config.Config) error {
+	modelCounterStorage := memory.New[*models.Metrics]()
 	gaugeStorage := memory.New[float64]()
 	counterStorage := memory.New[int64]()
 	cu := counterupdater.New(&counterStorage)
@@ -45,7 +47,7 @@ func Run(c *config.Config) error {
 		r.Get(fmt.Sprintf("/counter/{%v}", vars.Metric), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
 			middlewares.HasMetricOr404(),
-			fetchcounter.New(&counterStorage),
+			fetchcounter.New(&modelCounterStorage),
 		}).Handler())
 		r.Get(fmt.Sprintf("/gauge/{%v}", vars.Metric), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),

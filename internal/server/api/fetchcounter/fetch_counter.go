@@ -9,7 +9,7 @@ import (
 )
 
 type fetchCounterHandler struct {
-	s cfStorage
+	s storage
 }
 
 func (h *fetchCounterHandler) Handle(w http.ResponseWriter, r *http.Request) (ok bool) {
@@ -19,7 +19,7 @@ func (h *fetchCounterHandler) Handle(w http.ResponseWriter, r *http.Request) (ok
 		w.WriteHeader(http.StatusNotFound)
 		return false
 	}
-	_, err := w.Write([]byte(fmt.Sprintf("%d", val)))
+	_, err := fmt.Fprintf(w, "%d", *val.Delta)
 	if err != nil {
 		logger.Log.Error("Failed to write counter response")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -29,6 +29,6 @@ func (h *fetchCounterHandler) Handle(w http.ResponseWriter, r *http.Request) (ok
 	return true
 }
 
-func New(s cfStorage) *fetchCounterHandler {
+func New(s storage) *fetchCounterHandler {
 	return &fetchCounterHandler{s}
 }
