@@ -54,7 +54,7 @@ func Run(c *config.Config) error {
 		r.Get(fmt.Sprintf("/gauge/{%v}", vars.Metric), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
 			middlewares.HasMetricOr404(),
-			fetchgauge.New(&modelGaugeStorage),
+			fetchgauge.New(&modelGaugeStorage, metricstringifier.MetricsValueStringifier{}),
 		}).Handler())
 		r.Get(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),

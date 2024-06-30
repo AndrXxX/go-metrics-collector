@@ -6,6 +6,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricstringifier"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -65,12 +66,12 @@ func TestGaugeFetcher(t *testing.T) {
 			for k, v := range test.fields {
 				storage.Insert(k, &models.Metrics{
 					ID:    k,
-					MType: metrics.Counter,
+					MType: metrics.Gauge,
 					Value: &v,
 				})
 			}
 			w := httptest.NewRecorder()
-			h := New(&storage)
+			h := New(&storage, metricstringifier.MetricsValueStringifier{})
 			h.Handle(w, request)
 			result := w.Result()
 
