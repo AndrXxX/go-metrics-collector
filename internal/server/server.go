@@ -62,8 +62,7 @@ func Run(c *config.Config) error {
 		}).Handler())
 	})
 	r.Get("/", cFactory.From([]interfaces.Handler{
-		middlewares.SetContentType("text/plain"),
-		middlewares.HasMetricOr404(),
+		middlewares.SetContentType("text/html; charset=utf-8"),
 		fetchmetrics.New(&gaugeStorage, &counterStorage),
 	}).Handler())
 
