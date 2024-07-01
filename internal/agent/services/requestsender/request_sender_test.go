@@ -2,8 +2,6 @@ package requestsender
 
 import (
 	"errors"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricurlbuilder"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/types"
 	"github.com/AndrXxX/go-metrics-collector/internal/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -27,11 +25,10 @@ func (m *closableReadableBodyMock) Read(_ []byte) (n int, err error) {
 
 func TestRequestSender_Post(t *testing.T) {
 	type fields struct {
-		ub requestsender.urlBuilder
-		c  Client
+		c Client
 	}
 	type args struct {
-		params      types.URLParams
+		url         string
 		contentType string
 	}
 	tests := []struct {
@@ -43,50 +40,44 @@ func TestRequestSender_Post(t *testing.T) {
 		{
 			name: "Positive test #1",
 			fields: fields{
-				ub: metricurlbuilder.New("host"),
 				c: &mocks.MockClient{
 					PostFunc: func(url, contentType string, body io.Reader) (*http.Response, error) {
 						return nil, nil
 					},
 				},
 			},
-			args:    args{params: map[string]any{}, contentType: ""},
+			args:    args{url: "", contentType: ""},
 			wantErr: false,
 		},
 		{
 			name: "Positive test #2 with body",
 			fields: fields{
-				ub: metricurlbuilder.New("host"),
 				c: &mocks.MockClient{
 					PostFunc: func(url, contentType string, body io.Reader) (*http.Response, error) {
 						return &http.Response{Header: http.Header{}, Body: &closableReadableBodyMock{}}, nil
 					},
 				},
 			},
-			args:    args{params: map[string]any{}, contentType: ""},
+			args:    args{url: "", contentType: ""},
 			wantErr: false,
 		},
 		{
 			name: "Error test #1",
 			fields: fields{
-				ub: metricurlbuilder.New("host"),
 				c: &mocks.MockClient{
 					PostFunc: func(url, contentType string, body io.Reader) (*http.Response, error) {
 						return nil, errors.New("error from web server")
 					},
 				},
 			},
-			args:    args{params: map[string]any{}, contentType: ""},
+			args:    args{url: "", contentType: ""},
 			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &RequestSender{
-				ub: tt.fields.ub,
-				c:  tt.fields.c,
-			}
-			if err := s.Post(tt.args.params, tt.args.contentType); (err != nil) != tt.wantErr {
+			s := &RequestSender{c: tt.fields.c}
+			if err := s.Post(tt.args.url, tt.args.contentType, nil); (err != nil) != tt.wantErr {
 				t.Errorf("Post() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -95,8 +86,7 @@ func TestRequestSender_Post(t *testing.T) {
 
 func TestNewRequestSender(t *testing.T) {
 	type args struct {
-		ub requestsender.urlBuilder
-		c  Client
+		c Client
 	}
 	tests := []struct {
 		name string
@@ -105,13 +95,13 @@ func TestNewRequestSender(t *testing.T) {
 	}{
 		{
 			name: "Test New RequestSender #1 (Alloc)",
-			args: args{ub: metricurlbuilder.New(""), c: http.DefaultClient},
-			want: &RequestSender{ub: metricurlbuilder.New(""), c: http.DefaultClient},
+			args: args{c: http.DefaultClient},
+			want: &RequestSender{c: http.DefaultClient},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rs := New(tt.args.ub, tt.args.c)
+			rs := New(tt.args.c)
 			assert.Equal(t, tt.want, rs)
 		})
 	}
