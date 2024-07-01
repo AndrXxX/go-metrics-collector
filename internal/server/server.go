@@ -30,8 +30,8 @@ func Run(c *config.Config) error {
 	sp.RegisterStorage(metrics.Counter, &modelCounterStorage)
 	sp.RegisterStorage(metrics.Gauge, &modelGaugeStorage)
 	cFactory := conveyor.Factory(logger.New())
-	r := chi.NewRouter()
 
+	r := chi.NewRouter()
 	r.Route("/update", func(r chi.Router) {
 		r.Post(fmt.Sprintf("/{%v}/{%v}/{%v}", vars.MetricType, vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType(contenttypes.TextPlain),
@@ -45,6 +45,11 @@ func Run(c *config.Config) error {
 			middlewares.SetContentType(contenttypes.TextPlain),
 			middlewares.HasMetricOr404(),
 			fetchmetrics.New(sp, metricstringifier.MetricsValueStringifier{}, metricsidentifier.NewURLIdentifier()),
+		}).Handler())
+
+		r.Post("/", cFactory.From([]interfaces.Handler{
+			middlewares.SetContentType(contenttypes.ApplicationJSON),
+			fetchmetrics.New(sp, metricstringifier.MetricsJSONStringifier{}, metricsidentifier.NewJsonIdentifier()),
 		}).Handler())
 	})
 
