@@ -57,6 +57,6 @@ func (c *jsonMetricsUploader) send(m JSONMetrics) error {
 	return c.rs.Post(url, contenttypes.TextPlain, strings.NewReader(string(encoded)))
 }
 
-func NewJsonUploader(rs *requestsender.RequestSender, ub urlBuilder) *jsonMetricsUploader {
+func NewJSONUploader(rs *requestsender.RequestSender, ub urlBuilder) *jsonMetricsUploader {
 	return &jsonMetricsUploader{rs, ub}
 }
