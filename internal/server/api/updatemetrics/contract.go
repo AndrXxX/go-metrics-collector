@@ -9,6 +9,10 @@ type updater interface {
 	Update(m *models.Metrics, value string) error
 }
 
+type stringifier interface {
+	String(m *models.Metrics) (string, error)
+}
+
 type identifier interface {
 	Process(r *http.Request) (*models.Metrics, error)
 }
