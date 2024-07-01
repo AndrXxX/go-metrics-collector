@@ -1,4 +1,4 @@
-package updatecounter
+package updatemetrics
 
 import (
 	"context"
@@ -14,7 +14,61 @@ import (
 	"testing"
 )
 
-func TestUpdateCounterHandler(t *testing.T) {
+func TestUpdateMetricsHandlerGaugeHandle(t *testing.T) {
+	type want struct {
+		statusCode int
+	}
+	tests := []struct {
+		name    string
+		request string
+		vars    map[string]string
+		method  string
+		want    want
+	}{
+		{
+			name:    "StatusOK test",
+			request: "/update/gauge/test/10.1",
+			vars:    map[string]string{vars.Metric: "test", vars.Value: "10.1"},
+			method:  http.MethodPost,
+			want: want{
+				statusCode: http.StatusOK,
+			},
+		},
+		{
+			name:    "StatusBadRequest test",
+			request: "/update/gauge/test/aaa",
+			vars:    map[string]string{vars.Metric: "test", vars.Value: "aaa"},
+			method:  http.MethodPost,
+			want: want{
+				statusCode: http.StatusBadRequest,
+			},
+		},
+	}
+	storage := memory.New[*models.Metrics]()
+	h := New(metricsupdater.NewGaugeUpdater(&storage))
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			request := httptest.NewRequest(test.method, test.request, nil)
+			ctx := chi.NewRouteContext()
+			request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, ctx))
+			for k, v := range test.vars {
+				ctx.URLParams.Add(k, v)
+			}
+
+			w := httptest.NewRecorder()
+			h.Handle(w, request)
+			result := w.Result()
+
+			assert.Equal(t, test.want.statusCode, result.StatusCode)
+			if result.Body != nil {
+				err := result.Body.Close()
+				require.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestUpdateMetricsHandlerCounterHandle(t *testing.T) {
 	type want struct {
 		statusCode int
 	}
@@ -45,7 +99,7 @@ func TestUpdateCounterHandler(t *testing.T) {
 		},
 	}
 	storage := memory.New[*models.Metrics]()
-	updater := New(metricsupdater.NewCounterUpdater(&storage))
+	h := New(metricsupdater.NewCounterUpdater(&storage))
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			request := httptest.NewRequest(test.method, test.request, nil)
@@ -57,7 +111,7 @@ func TestUpdateCounterHandler(t *testing.T) {
 
 			w := httptest.NewRecorder()
 
-			updater.Handle(w, request)
+			h.Handle(w, request)
 			result := w.Result()
 
 			assert.Equal(t, test.want.statusCode, result.StatusCode)

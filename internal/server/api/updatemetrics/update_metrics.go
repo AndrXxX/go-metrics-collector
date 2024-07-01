@@ -1,4 +1,4 @@
-package updategauge
+package updatemetrics
 
 import (
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
@@ -6,11 +6,11 @@ import (
 	"net/http"
 )
 
-type updateGaugeHandler struct {
+type updateMetricsHandler struct {
 	u updater
 }
 
-func (h *updateGaugeHandler) Handle(w http.ResponseWriter, r *http.Request) (ok bool) {
+func (h *updateMetricsHandler) Handle(w http.ResponseWriter, r *http.Request) (ok bool) {
 	metric := chi.URLParam(r, vars.Metric)
 	value := chi.URLParam(r, vars.Value)
 	if err := h.u.Update(metric, value); err == nil {
@@ -21,6 +21,6 @@ func (h *updateGaugeHandler) Handle(w http.ResponseWriter, r *http.Request) (ok 
 	return false
 }
 
-func New(u updater) *updateGaugeHandler {
-	return &updateGaugeHandler{u}
+func New(u updater) *updateMetricsHandler {
+	return &updateMetricsHandler{u}
 }

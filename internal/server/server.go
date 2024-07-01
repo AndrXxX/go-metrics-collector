@@ -7,8 +7,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchmetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/logger"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/middlewares"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updatecounter"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updategauge"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updatemetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
@@ -29,12 +28,12 @@ func Run(c *config.Config) error {
 		r.Post(fmt.Sprintf("/counter/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
 			middlewares.HasMetricOr404(),
-			updatecounter.New(metricsupdater.NewCounterUpdater(&modelCounterStorage)),
+			updatemetrics.New(metricsupdater.NewCounterUpdater(&modelCounterStorage)),
 		}).Handler())
 		r.Post(fmt.Sprintf("/gauge/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
 			middlewares.HasMetricOr404(),
-			updategauge.New(metricsupdater.NewGaugeUpdater(&modelGaugeStorage)),
+			updatemetrics.New(metricsupdater.NewGaugeUpdater(&modelGaugeStorage)),
 		}).Handler())
 		r.Post(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
