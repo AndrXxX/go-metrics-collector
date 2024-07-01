@@ -1,25 +1,29 @@
 package metricsupdater
 
-import "github.com/AndrXxX/go-metrics-collector/internal/server/models"
+import (
+	"fmt"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsvaluesetter"
+)
 
 type metricsUpdater struct {
-	storage storage
-	setter  metricsSetter
-	mType   string
+	sp storageProvider
 }
 
-func New(storage storage, setter metricsSetter, mType string) *metricsUpdater {
-	return &metricsUpdater{storage, setter, mType}
+func New(sp storageProvider) *metricsUpdater {
+	return &metricsUpdater{sp}
 }
 
-func (u *metricsUpdater) Update(name string, value string) error {
-	current, exist := u.storage.Get(name)
-	if !exist {
-		current = &models.Metrics{
-			ID:    name,
-			MType: u.mType,
-		}
-		u.storage.Insert(name, current)
+func (u *metricsUpdater) Update(m *models.Metrics, value string) error {
+	storage := u.sp.GetStorage(m.MType)
+	if storage == nil {
+		return fmt.Errorf("not found storage for metrics type %s", m.MType)
 	}
-	return u.setter.Set(current, value)
+	current, exist := storage.Get(m.ID)
+	if !exist {
+		current = m
+		storage.Insert(current.ID, current)
+	}
+	setter := metricsvaluesetter.Factory().SetterByType(current.MType)
+	return setter.Set(current, value)
 }

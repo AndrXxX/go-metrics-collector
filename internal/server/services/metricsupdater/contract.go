@@ -1,14 +1,9 @@
 package metricsupdater
 
 import (
-	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
 )
 
-type metricsSetter interface {
-	Set(m *models.Metrics, value string) error
-}
-
-type storage interface {
-	Insert(metric string, value *models.Metrics)
-	Get(metric string) (value *models.Metrics, ok bool)
+type storageProvider interface {
+	GetStorage(name string) interfaces.MetricsStorage
 }

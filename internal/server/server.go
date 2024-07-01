@@ -18,7 +18,6 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsidentifier"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricstringifier"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsupdater"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsvaluesetter"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/storageprovider"
 	"github.com/go-chi/chi/v5"
 	"net/http"
@@ -31,25 +30,13 @@ func Run(c *config.Config) error {
 	sp.RegisterStorage(metrics.Counter, &modelCounterStorage)
 	sp.RegisterStorage(metrics.Gauge, &modelGaugeStorage)
 	cFactory := conveyor.Factory(logger.New())
-	mvsFactory := metricsvaluesetter.Factory()
 	r := chi.NewRouter()
 
 	r.Route("/update", func(r chi.Router) {
-		r.Post(fmt.Sprintf("/counter/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
+		r.Post(fmt.Sprintf("/{%v}/{%v}/{%v}", vars.MetricType, vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType(contenttypes.TextPlain),
 			middlewares.HasMetricOr404(),
-			updatemetrics.New(metricsupdater.New(&modelCounterStorage, mvsFactory.CounterValueSetter(), metrics.Counter)),
-		}).Handler())
-
-		r.Post(fmt.Sprintf("/gauge/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
-			middlewares.SetContentType(contenttypes.TextPlain),
-			middlewares.HasMetricOr404(),
-			updatemetrics.New(metricsupdater.New(&modelGaugeStorage, mvsFactory.GaugeValueSetter(), metrics.Gauge)),
-		}).Handler())
-
-		r.Post(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
-			middlewares.SetContentType(contenttypes.TextPlain),
-			middlewares.SetHTTPError(http.StatusBadRequest),
+			updatemetrics.New(metricsupdater.New(sp), metricsidentifier.NewURLIdentifier()),
 		}).Handler())
 	})
 

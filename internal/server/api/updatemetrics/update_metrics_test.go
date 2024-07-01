@@ -4,10 +4,12 @@ import (
 	"context"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsidentifier"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsupdater"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsvaluesetter"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/storageprovider"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -30,7 +32,7 @@ func TestUpdateMetricsHandlerGaugeHandle(t *testing.T) {
 		{
 			name:    "StatusOK test",
 			request: "/update/gauge/test/10.1",
-			vars:    map[string]string{vars.Metric: "test", vars.Value: "10.1"},
+			vars:    map[string]string{vars.MetricType: metrics.Gauge, vars.Metric: "test", vars.Value: "10.1"},
 			method:  http.MethodPost,
 			want: want{
 				statusCode: http.StatusOK,
@@ -39,7 +41,7 @@ func TestUpdateMetricsHandlerGaugeHandle(t *testing.T) {
 		{
 			name:    "StatusBadRequest test",
 			request: "/update/gauge/test/aaa",
-			vars:    map[string]string{vars.Metric: "test", vars.Value: "aaa"},
+			vars:    map[string]string{vars.MetricType: metrics.Gauge, vars.Metric: "test", vars.Value: "aaa"},
 			method:  http.MethodPost,
 			want: want{
 				statusCode: http.StatusBadRequest,
@@ -47,8 +49,9 @@ func TestUpdateMetricsHandlerGaugeHandle(t *testing.T) {
 		},
 	}
 	storage := memory.New[*models.Metrics]()
-	mvsFactory := metricsvaluesetter.Factory()
-	h := New(metricsupdater.New(&storage, mvsFactory.GaugeValueSetter(), metrics.Gauge))
+	sp := storageprovider.New[interfaces.MetricsStorage]()
+	sp.RegisterStorage(metrics.Gauge, &storage)
+	h := New(metricsupdater.New(sp), metricsidentifier.NewURLIdentifier())
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			request := httptest.NewRequest(test.method, test.request, nil)
@@ -85,7 +88,7 @@ func TestUpdateMetricsHandlerCounterHandle(t *testing.T) {
 		{
 			name:    "StatusOK test",
 			request: "/update/counter/test/10",
-			vars:    map[string]string{vars.Metric: "test", vars.Value: "10"},
+			vars:    map[string]string{vars.MetricType: metrics.Counter, vars.Metric: "test", vars.Value: "10"},
 			method:  http.MethodPost,
 			want: want{
 				statusCode: http.StatusOK,
@@ -94,7 +97,7 @@ func TestUpdateMetricsHandlerCounterHandle(t *testing.T) {
 		{
 			name:    "StatusBadRequest test",
 			request: "/update/counter/test/aaa",
-			vars:    map[string]string{vars.Metric: "test", vars.Value: "aaa"},
+			vars:    map[string]string{vars.MetricType: metrics.Counter, vars.Metric: "test", vars.Value: "aaa"},
 			method:  http.MethodPost,
 			want: want{
 				statusCode: http.StatusBadRequest,
@@ -102,8 +105,9 @@ func TestUpdateMetricsHandlerCounterHandle(t *testing.T) {
 		},
 	}
 	storage := memory.New[*models.Metrics]()
-	mvsFactory := metricsvaluesetter.Factory()
-	h := New(metricsupdater.New(&storage, mvsFactory.CounterValueSetter(), metrics.Counter))
+	sp := storageprovider.New[interfaces.MetricsStorage]()
+	sp.RegisterStorage(metrics.Counter, &storage)
+	h := New(metricsupdater.New(sp), metricsidentifier.NewURLIdentifier())
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			request := httptest.NewRequest(test.method, test.request, nil)

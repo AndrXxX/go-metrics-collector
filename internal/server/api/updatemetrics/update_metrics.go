@@ -8,10 +8,15 @@ import (
 
 type updateMetricsHandler struct {
 	u updater
+	i identifier
 }
 
 func (h *updateMetricsHandler) Handle(w http.ResponseWriter, r *http.Request) (ok bool) {
-	metric := chi.URLParam(r, vars.Metric)
+	metric, err := h.i.Process(r)
+	if metric == nil || err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return false
+	}
 	value := chi.URLParam(r, vars.Value)
 	if err := h.u.Update(metric, value); err == nil {
 		w.WriteHeader(http.StatusOK)
@@ -21,6 +26,6 @@ func (h *updateMetricsHandler) Handle(w http.ResponseWriter, r *http.Request) (o
 	return false
 }
 
-func New(u updater) *updateMetricsHandler {
-	return &updateMetricsHandler{u}
+func New(u updater, i identifier) *updateMetricsHandler {
+	return &updateMetricsHandler{u, i}
 }
