@@ -4,18 +4,16 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/go-chi/chi/v5"
 	"net/http"
-	"strconv"
 )
 
 type updateGaugeHandler struct {
-	s guStorage
+	u updater
 }
 
 func (h *updateGaugeHandler) Handle(w http.ResponseWriter, r *http.Request) (ok bool) {
 	metric := chi.URLParam(r, vars.Metric)
 	value := chi.URLParam(r, vars.Value)
-	if converted, err := strconv.ParseFloat(value, 64); err == nil {
-		h.s.Insert(metric, converted)
+	if err := h.u.Update(metric, value); err == nil {
 		w.WriteHeader(http.StatusOK)
 		return true
 	}
@@ -23,6 +21,6 @@ func (h *updateGaugeHandler) Handle(w http.ResponseWriter, r *http.Request) (ok 
 	return false
 }
 
-func New(s guStorage) *updateGaugeHandler {
-	return &updateGaugeHandler{s}
+func New(u updater) *updateGaugeHandler {
+	return &updateGaugeHandler{u}
 }

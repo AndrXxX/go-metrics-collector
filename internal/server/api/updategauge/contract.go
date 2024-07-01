@@ -1,5 +1,5 @@
 package updategauge
 
-type guStorage interface {
-	Insert(metric string, value float64)
+type updater interface {
+	Update(name string, value string) error
 }

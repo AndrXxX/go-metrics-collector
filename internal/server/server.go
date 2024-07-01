@@ -36,7 +36,7 @@ func Run(c *config.Config) error {
 		r.Post(fmt.Sprintf("/gauge/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
 			middlewares.HasMetricOr404(),
-			updategauge.New(&gaugeStorage),
+			updategauge.New(metricsupdater.NewGaugeUpdater(&modelGaugeStorage)),
 		}).Handler())
 		r.Post(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),

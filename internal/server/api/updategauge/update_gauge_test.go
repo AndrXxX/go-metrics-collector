@@ -3,7 +3,9 @@ package updategauge
 import (
 	"context"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsupdater"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -42,8 +44,8 @@ func TestUpdateGaugeHandlerHandle(t *testing.T) {
 			},
 		},
 	}
-	storage := memory.New[float64]()
-	h := New(&storage)
+	storage := memory.New[*models.Metrics]()
+	h := New(metricsupdater.NewGaugeUpdater(&storage))
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			request := httptest.NewRequest(test.method, test.request, nil)
