@@ -7,7 +7,7 @@ import (
 )
 
 type fetchMetricsHandler struct {
-	s           storage
+	sp          storageProvider
 	stringifier stringifier
 	i           identifier
 }
@@ -18,7 +18,12 @@ func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request) (ok
 		w.WriteHeader(http.StatusNotFound)
 		return false
 	}
-	val, ok := h.s.Get(metric.ID)
+	storage := h.sp.GetStorage(metric.MType)
+	if storage == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return false
+	}
+	val, ok := storage.Get(metric.ID)
 	if !ok {
 		w.WriteHeader(http.StatusNotFound)
 		return false
@@ -36,6 +41,6 @@ func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request) (ok
 	return true
 }
 
-func New(s storage, stringifier stringifier, i identifier) *fetchMetricsHandler {
-	return &fetchMetricsHandler{s, stringifier, i}
+func New(sp storageProvider, stringifier stringifier, i identifier) *fetchMetricsHandler {
+	return &fetchMetricsHandler{sp, stringifier, i}
 }

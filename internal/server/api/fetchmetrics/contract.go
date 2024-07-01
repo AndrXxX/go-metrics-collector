@@ -1,12 +1,13 @@
 package fetchmetrics
 
 import (
+	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"net/http"
 )
 
-type storage interface {
-	Get(metric string) (value *models.Metrics, ok bool)
+type storageProvider interface {
+	GetStorage(name string) interfaces.MetricsStorage
 }
 
 type stringifier interface {

@@ -19,6 +19,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricstringifier"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsupdater"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsvaluesetter"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/storageprovider"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 )
@@ -26,6 +27,9 @@ import (
 func Run(c *config.Config) error {
 	modelCounterStorage := memory.New[*models.Metrics]()
 	modelGaugeStorage := memory.New[*models.Metrics]()
+	sp := storageprovider.New[interfaces.MetricsStorage]()
+	sp.RegisterStorage(metrics.Counter, &modelCounterStorage)
+	sp.RegisterStorage(metrics.Gauge, &modelGaugeStorage)
 	cFactory := conveyor.Factory(logger.New())
 	mvsFactory := metricsvaluesetter.Factory()
 	r := chi.NewRouter()
@@ -50,21 +54,10 @@ func Run(c *config.Config) error {
 	})
 
 	r.Route("/value", func(r chi.Router) {
-		r.Get(fmt.Sprintf("/counter/{%v}", vars.Metric), cFactory.From([]interfaces.Handler{
+		r.Get(fmt.Sprintf("/{%v}/{%v}", vars.MetricType, vars.Metric), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType(contenttypes.TextPlain),
 			middlewares.HasMetricOr404(),
-			fetchmetrics.New(&modelCounterStorage, metricstringifier.MetricsValueStringifier{}, metricsidentifier.NewURLIdentifier(metrics.Counter)),
-		}).Handler())
-
-		r.Get(fmt.Sprintf("/gauge/{%v}", vars.Metric), cFactory.From([]interfaces.Handler{
-			middlewares.SetContentType(contenttypes.TextPlain),
-			middlewares.HasMetricOr404(),
-			fetchmetrics.New(&modelGaugeStorage, metricstringifier.MetricsValueStringifier{}, metricsidentifier.NewURLIdentifier(metrics.Gauge)),
-		}).Handler())
-
-		r.Get(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
-			middlewares.SetContentType(contenttypes.TextPlain),
-			middlewares.SetHTTPError(http.StatusBadRequest),
+			fetchmetrics.New(sp, metricstringifier.MetricsValueStringifier{}, metricsidentifier.NewURLIdentifier()),
 		}).Handler())
 	})
 

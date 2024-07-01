@@ -8,16 +8,15 @@ import (
 )
 
 type urlMetricsIdentifier struct {
-	mType string
 }
 
 func (i *urlMetricsIdentifier) Process(r *http.Request) (*models.Metrics, error) {
 	return &models.Metrics{
 		ID:    chi.URLParam(r, vars.Metric),
-		MType: i.mType,
+		MType: chi.URLParam(r, vars.MetricType),
 	}, nil
 }
 
-func NewURLIdentifier(mType string) *urlMetricsIdentifier {
-	return &urlMetricsIdentifier{mType}
+func NewURLIdentifier() *urlMetricsIdentifier {
+	return &urlMetricsIdentifier{}
 }

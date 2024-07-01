@@ -4,10 +4,12 @@ import (
 	"context"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsidentifier"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricstringifier"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/storageprovider"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -31,9 +33,20 @@ func TestFetchMetricsHandlerGaugeHandle(t *testing.T) {
 		want    want
 	}{
 		{
+			name:    "StatusBadRequest test with unknown metric type",
+			request: "/value/counter/test",
+			vars:    map[string]string{vars.Metric: "test", vars.MetricType: "unknown"},
+			method:  http.MethodGet,
+			fields:  map[string]float64{},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				body:       "",
+			},
+		},
+		{
 			name:    "StatusNotFound test with empty metric in storage",
-			request: "/value/counter/",
-			vars:    map[string]string{vars.Metric: "test"},
+			request: "/value/gauge/test",
+			vars:    map[string]string{vars.Metric: "test", vars.MetricType: metrics.Gauge},
 			method:  http.MethodGet,
 			fields:  map[string]float64{},
 			want: want{
@@ -43,8 +56,8 @@ func TestFetchMetricsHandlerGaugeHandle(t *testing.T) {
 		},
 		{
 			name:    "StatusOK test",
-			request: "/value/counter/test",
-			vars:    map[string]string{vars.Metric: "test"},
+			request: "/value/gauge/test",
+			vars:    map[string]string{vars.Metric: "test", vars.MetricType: metrics.Gauge},
 			method:  http.MethodGet,
 			fields:  map[string]float64{"test": 10.1},
 			want: want{
@@ -54,7 +67,7 @@ func TestFetchMetricsHandlerGaugeHandle(t *testing.T) {
 		},
 	}
 
-	identifier := metricsidentifier.NewURLIdentifier(metrics.Gauge)
+	identifier := metricsidentifier.NewURLIdentifier()
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			request := httptest.NewRequest(test.method, test.request, nil)
@@ -65,6 +78,8 @@ func TestFetchMetricsHandlerGaugeHandle(t *testing.T) {
 			}
 
 			storage := memory.New[*models.Metrics]()
+			sp := storageprovider.New[interfaces.MetricsStorage]()
+			sp.RegisterStorage(metrics.Gauge, &storage)
 			for k, v := range test.fields {
 				storage.Insert(k, &models.Metrics{
 					ID:    k,
@@ -73,7 +88,7 @@ func TestFetchMetricsHandlerGaugeHandle(t *testing.T) {
 				})
 			}
 			w := httptest.NewRecorder()
-			h := New(&storage, metricstringifier.MetricsValueStringifier{}, identifier)
+			h := New(sp, metricstringifier.MetricsValueStringifier{}, identifier)
 			h.Handle(w, request)
 			result := w.Result()
 
@@ -103,9 +118,20 @@ func TestFetchMetricsHandlerCounterHandle(t *testing.T) {
 		want    want
 	}{
 		{
+			name:    "StatusBadRequest test with unknown metric type",
+			request: "/value/counter/test",
+			vars:    map[string]string{vars.Metric: "test", vars.MetricType: "unknown"},
+			method:  http.MethodGet,
+			fields:  map[string]int64{},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				body:       "",
+			},
+		},
+		{
 			name:    "StatusNotFound test with empty metric in storage",
-			request: "/value/counter/",
-			vars:    map[string]string{vars.Metric: "test"},
+			request: "/value/counter/test",
+			vars:    map[string]string{vars.Metric: "test", vars.MetricType: metrics.Counter},
 			method:  http.MethodGet,
 			fields:  map[string]int64{},
 			want: want{
@@ -116,7 +142,7 @@ func TestFetchMetricsHandlerCounterHandle(t *testing.T) {
 		{
 			name:    "StatusOK test",
 			request: "/value/counter/test",
-			vars:    map[string]string{vars.Metric: "test"},
+			vars:    map[string]string{vars.Metric: "test", vars.MetricType: metrics.Counter},
 			method:  http.MethodGet,
 			fields:  map[string]int64{"test": 10},
 			want: want{
@@ -126,7 +152,7 @@ func TestFetchMetricsHandlerCounterHandle(t *testing.T) {
 		},
 	}
 
-	identifier := metricsidentifier.NewURLIdentifier(metrics.Counter)
+	identifier := metricsidentifier.NewURLIdentifier()
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			request := httptest.NewRequest(test.method, test.request, nil)
@@ -137,6 +163,8 @@ func TestFetchMetricsHandlerCounterHandle(t *testing.T) {
 			}
 
 			storage := memory.New[*models.Metrics]()
+			sp := storageprovider.New[interfaces.MetricsStorage]()
+			sp.RegisterStorage(metrics.Counter, &storage)
 			for k, v := range test.fields {
 				storage.Insert(k, &models.Metrics{
 					ID:    k,
@@ -145,7 +173,7 @@ func TestFetchMetricsHandlerCounterHandle(t *testing.T) {
 				})
 			}
 			w := httptest.NewRecorder()
-			h := New(&storage, metricstringifier.MetricsValueStringifier{}, identifier)
+			h := New(sp, metricstringifier.MetricsValueStringifier{}, identifier)
 			h.Handle(w, request)
 			result := w.Result()
 

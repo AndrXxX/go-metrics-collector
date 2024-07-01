@@ -1,19 +1,19 @@
 package storageprovider
 
-type storageProvider struct {
-	storages map[string]storage
+type storageProvider[T any] struct {
+	storages map[string]T
 }
 
-func (sp *storageProvider) RegisterStorage(name string, storage storage) {
+func (sp *storageProvider[T]) RegisterStorage(name string, storage T) {
 	sp.storages[name] = storage
 }
 
-func (sp *storageProvider) GetStorage(name string) storage {
+func (sp *storageProvider[T]) GetStorage(name string) T {
 	return sp.storages[name]
 }
 
-func New() *storageProvider {
-	return &storageProvider{
-		storages: map[string]storage{},
+func New[T any]() *storageProvider[T] {
+	return &storageProvider[T]{
+		storages: map[string]T{},
 	}
 }
