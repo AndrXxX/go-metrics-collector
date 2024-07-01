@@ -2,8 +2,8 @@ package metricsupdater
 
 import (
 	"fmt"
+	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsvaluesetter"
 )
 
 type metricsUpdater struct {
@@ -14,16 +14,25 @@ func New(sp storageProvider) *metricsUpdater {
 	return &metricsUpdater{sp}
 }
 
-func (u *metricsUpdater) Update(m *models.Metrics, value string) error {
-	storage := u.sp.GetStorage(m.MType)
+func (u *metricsUpdater) Update(newModel *models.Metrics) (*models.Metrics, error) {
+	storage := u.sp.GetStorage(newModel.MType)
 	if storage == nil {
-		return fmt.Errorf("not found storage for metrics type %s", m.MType)
+		return nil, fmt.Errorf("not found storage for metrics type %s", newModel.MType)
 	}
-	current, exist := storage.Get(m.ID)
+	currentModel, exist := storage.Get(newModel.ID)
 	if !exist {
-		current = m
-		storage.Insert(current.ID, current)
+		currentModel = newModel
+		storage.Insert(currentModel.ID, currentModel)
 	}
-	setter := metricsvaluesetter.Factory().SetterByType(current.MType)
-	return setter.Set(current, value)
+	if newModel.MType == metrics.Gauge {
+		currentModel.Value = newModel.Value
+		return currentModel, nil
+	}
+	if newModel.Delta != nil && currentModel.Delta != nil {
+		newVal := *currentModel.Delta + *newModel.Delta
+		currentModel.Delta = &newVal
+		return currentModel, nil
+	}
+	currentModel.Delta = newModel.Delta
+	return currentModel, nil
 }

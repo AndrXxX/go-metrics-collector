@@ -6,7 +6,7 @@ import (
 )
 
 type updater interface {
-	Update(m *models.Metrics, value string) error
+	Update(m *models.Metrics) (*models.Metrics, error)
 }
 
 type stringifier interface {
