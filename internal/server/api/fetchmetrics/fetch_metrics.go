@@ -1,4 +1,4 @@
-package fetchgauge
+package fetchmetrics
 
 import (
 	"fmt"
@@ -8,12 +8,12 @@ import (
 	"net/http"
 )
 
-type fetchGaugeHandler struct {
+type fetchMetricsHandler struct {
 	s           storage
 	stringifier stringifier
 }
 
-func (h *fetchGaugeHandler) Handle(w http.ResponseWriter, r *http.Request) (ok bool) {
+func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request) (ok bool) {
 	metric := chi.URLParam(r, vars.Metric)
 	val, ok := h.s.Get(metric)
 	if !ok {
@@ -25,7 +25,7 @@ func (h *fetchGaugeHandler) Handle(w http.ResponseWriter, r *http.Request) (ok b
 		_, err = fmt.Fprintf(w, "%s", str)
 	}
 	if err != nil {
-		logger.Log.Error("Failed to write gauge response")
+		logger.Log.Error("Failed to write metrics response")
 		w.WriteHeader(http.StatusInternalServerError)
 		return false
 	}
@@ -33,6 +33,6 @@ func (h *fetchGaugeHandler) Handle(w http.ResponseWriter, r *http.Request) (ok b
 	return true
 }
 
-func New(s storage, stringifier stringifier) *fetchGaugeHandler {
-	return &fetchGaugeHandler{s, stringifier}
+func New(s storage, stringifier stringifier) *fetchMetricsHandler {
+	return &fetchMetricsHandler{s, stringifier}
 }

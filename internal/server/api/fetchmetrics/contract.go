@@ -1,4 +1,4 @@
-package fetchgauge
+package fetchmetrics
 
 import "github.com/AndrXxX/go-metrics-collector/internal/server/models"
 

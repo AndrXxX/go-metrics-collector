@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchallmetrics"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchcounter"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchgauge"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchmetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/logger"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/middlewares"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updatecounter"
@@ -24,7 +23,6 @@ import (
 func Run(c *config.Config) error {
 	modelCounterStorage := memory.New[*models.Metrics]()
 	modelGaugeStorage := memory.New[*models.Metrics]()
-	gaugeStorage := memory.New[float64]()
 	cFactory := conveyor.Factory(logger.New())
 	r := chi.NewRouter()
 	r.Route("/update", func(r chi.Router) {
@@ -47,12 +45,12 @@ func Run(c *config.Config) error {
 		r.Get(fmt.Sprintf("/counter/{%v}", vars.Metric), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
 			middlewares.HasMetricOr404(),
-			fetchcounter.New(&modelCounterStorage, metricstringifier.MetricsValueStringifier{}),
+			fetchmetrics.New(&modelCounterStorage, metricstringifier.MetricsValueStringifier{}),
 		}).Handler())
 		r.Get(fmt.Sprintf("/gauge/{%v}", vars.Metric), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
 			middlewares.HasMetricOr404(),
-			fetchgauge.New(&modelGaugeStorage, metricstringifier.MetricsValueStringifier{}),
+			fetchmetrics.New(&modelGaugeStorage, metricstringifier.MetricsValueStringifier{}),
 		}).Handler())
 		r.Get(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
