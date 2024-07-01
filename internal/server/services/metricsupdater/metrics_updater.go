@@ -1,19 +1,34 @@
 package metricsupdater
 
-import "github.com/AndrXxX/go-metrics-collector/internal/server/repositories"
+import (
+	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories"
+	"strconv"
+)
 
-type updater struct {
-	storage repositories.Storage[int64]
+type counterUpdater struct {
+	storage repositories.Storage[*models.Metrics]
 }
 
-func New(storage repositories.Storage[int64]) *updater {
-	return &updater{storage: storage}
+func NewCounterUpdater(storage repositories.Storage[*models.Metrics]) *counterUpdater {
+	return &counterUpdater{storage: storage}
 }
 
-func (u *updater) Update(name string, value int64) {
-	current, ok := u.storage.Get(name)
-	if !ok {
-		current = 0
+func (u *counterUpdater) Update(name string, value string) error {
+	converted, err := strconv.ParseInt(value, 10, 64)
+	if err != nil {
+		return err
 	}
-	u.storage.Insert(name, current+value)
+	current, exist := u.storage.Get(name)
+	if !exist {
+		u.storage.Insert(name, &models.Metrics{
+			ID:    name,
+			MType: metrics.Counter,
+			Delta: &converted,
+		})
+		return nil
+	}
+	current.Delta = &converted
+	return nil
 }

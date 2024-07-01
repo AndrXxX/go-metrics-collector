@@ -25,14 +25,13 @@ func Run(c *config.Config) error {
 	modelCounterStorage := memory.New[*models.Metrics]()
 	modelGaugeStorage := memory.New[*models.Metrics]()
 	gaugeStorage := memory.New[float64]()
-	counterStorage := memory.New[int64]()
 	cFactory := conveyor.Factory(logger.New())
 	r := chi.NewRouter()
 	r.Route("/update", func(r chi.Router) {
 		r.Post(fmt.Sprintf("/counter/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
 			middlewares.HasMetricOr404(),
-			updatecounter.New(metricsupdater.New(&counterStorage)),
+			updatecounter.New(metricsupdater.NewCounterUpdater(&modelCounterStorage)),
 		}).Handler())
 		r.Post(fmt.Sprintf("/gauge/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),

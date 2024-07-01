@@ -3,6 +3,7 @@ package updatecounter
 import (
 	"context"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsupdater"
 	"github.com/go-chi/chi/v5"
@@ -43,8 +44,8 @@ func TestUpdateCounterHandler(t *testing.T) {
 			},
 		},
 	}
-	storage := memory.New[int64]()
-	updater := New(metricsupdater.New(&storage))
+	storage := memory.New[*models.Metrics]()
+	updater := New(metricsupdater.NewCounterUpdater(&storage))
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			request := httptest.NewRequest(test.method, test.request, nil)

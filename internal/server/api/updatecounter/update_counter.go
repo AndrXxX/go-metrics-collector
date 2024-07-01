@@ -4,7 +4,6 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/go-chi/chi/v5"
 	"net/http"
-	"strconv"
 )
 
 type updateCounterHandler struct {
@@ -14,8 +13,7 @@ type updateCounterHandler struct {
 func (h *updateCounterHandler) Handle(w http.ResponseWriter, r *http.Request) (ok bool) {
 	metric := chi.URLParam(r, vars.Metric)
 	value := chi.URLParam(r, vars.Value)
-	if converted, err := strconv.ParseInt(value, 10, 64); err == nil {
-		h.u.Update(metric, converted)
+	if err := h.u.Update(metric, value); err == nil {
 		w.WriteHeader(http.StatusOK)
 		return true
 	}
