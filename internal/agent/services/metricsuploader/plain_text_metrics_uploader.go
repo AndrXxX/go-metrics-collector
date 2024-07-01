@@ -8,12 +8,12 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 )
 
-type metricsUploader struct {
+type plainTextMetricsUploader struct {
 	rs *requestsender.RequestSender
 	ub urlBuilder
 }
 
-func (c *metricsUploader) Execute(result dto.MetricsDto) error {
+func (c *plainTextMetricsUploader) Execute(result dto.MetricsDto) error {
 	for metric, value := range result.Gauge {
 		params := types.URLParams{"metricType": metrics.Gauge, "metric": metric, "value": value}
 		url := c.ub.Build(params)
@@ -27,6 +27,6 @@ func (c *metricsUploader) Execute(result dto.MetricsDto) error {
 	return nil
 }
 
-func New(rs *requestsender.RequestSender, ub urlBuilder) *metricsUploader {
-	return &metricsUploader{rs, ub}
+func NewPlainTextUploader(rs *requestsender.RequestSender, ub urlBuilder) *plainTextMetricsUploader {
+	return &plainTextMetricsUploader{rs, ub}
 }
