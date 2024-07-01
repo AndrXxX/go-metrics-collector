@@ -2,20 +2,23 @@ package fetchmetrics
 
 import (
 	"fmt"
-	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
-	"github.com/go-chi/chi/v5"
 	"net/http"
 )
 
 type fetchMetricsHandler struct {
 	s           storage
 	stringifier stringifier
+	i           identifier
 }
 
 func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request) (ok bool) {
-	metric := chi.URLParam(r, vars.Metric)
-	val, ok := h.s.Get(metric)
+	metric, err := h.i.Process(r)
+	if metric == nil || err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return false
+	}
+	val, ok := h.s.Get(metric.ID)
 	if !ok {
 		w.WriteHeader(http.StatusNotFound)
 		return false
@@ -33,6 +36,6 @@ func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request) (ok
 	return true
 }
 
-func New(s storage, stringifier stringifier) *fetchMetricsHandler {
-	return &fetchMetricsHandler{s, stringifier}
+func New(s storage, stringifier stringifier, i identifier) *fetchMetricsHandler {
+	return &fetchMetricsHandler{s, stringifier, i}
 }

@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchallmetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchmetrics"
@@ -13,6 +14,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/conveyor"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsidentifier"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricstringifier"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsupdater"
 	"github.com/go-chi/chi/v5"
@@ -44,12 +46,12 @@ func Run(c *config.Config) error {
 		r.Get(fmt.Sprintf("/counter/{%v}", vars.Metric), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
 			middlewares.HasMetricOr404(),
-			fetchmetrics.New(&modelCounterStorage, metricstringifier.MetricsValueStringifier{}),
+			fetchmetrics.New(&modelCounterStorage, metricstringifier.MetricsValueStringifier{}, metricsidentifier.NewURLIdentifier(metrics.Counter)),
 		}).Handler())
 		r.Get(fmt.Sprintf("/gauge/{%v}", vars.Metric), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
 			middlewares.HasMetricOr404(),
-			fetchmetrics.New(&modelGaugeStorage, metricstringifier.MetricsValueStringifier{}),
+			fetchmetrics.New(&modelGaugeStorage, metricstringifier.MetricsValueStringifier{}, metricsidentifier.NewURLIdentifier(metrics.Gauge)),
 		}).Handler())
 		r.Get(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
