@@ -4,26 +4,26 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories"
-	"strconv"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsvaluesetter"
 )
 
 type gaugeUpdater struct {
 	storage repositories.Storage[*models.Metrics]
+	setter  metricsSetter
 }
 
 func NewGaugeUpdater(storage repositories.Storage[*models.Metrics]) *gaugeUpdater {
-	return &gaugeUpdater{storage: storage}
+	return &gaugeUpdater{storage: storage, setter: &metricsvaluesetter.GaugeValueSetter{}}
 }
 
 func (u *gaugeUpdater) Update(name string, value string) error {
-	converted, err := strconv.ParseFloat(value, 64)
-	if err != nil {
-		return err
+	current, exist := u.storage.Get(name)
+	if !exist {
+		current = &models.Metrics{
+			ID:    name,
+			MType: metrics.Gauge,
+		}
+		u.storage.Insert(name, current)
 	}
-	u.storage.Insert(name, &models.Metrics{
-		ID:    name,
-		MType: metrics.Counter,
-		Value: &converted,
-	})
-	return nil
+	return u.setter.Set(current, value)
 }

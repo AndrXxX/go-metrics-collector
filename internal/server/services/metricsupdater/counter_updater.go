@@ -4,31 +4,26 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories"
-	"strconv"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsvaluesetter"
 )
 
 type counterUpdater struct {
 	storage repositories.Storage[*models.Metrics]
+	setter  metricsSetter
 }
 
 func NewCounterUpdater(storage repositories.Storage[*models.Metrics]) *counterUpdater {
-	return &counterUpdater{storage: storage}
+	return &counterUpdater{storage: storage, setter: &metricsvaluesetter.CounterValueSetter{}}
 }
 
 func (u *counterUpdater) Update(name string, value string) error {
-	converted, err := strconv.ParseInt(value, 10, 64)
-	if err != nil {
-		return err
-	}
 	current, exist := u.storage.Get(name)
 	if !exist {
-		u.storage.Insert(name, &models.Metrics{
+		current = &models.Metrics{
 			ID:    name,
 			MType: metrics.Counter,
-			Delta: &converted,
-		})
-		return nil
+		}
+		u.storage.Insert(name, current)
 	}
-	current.Delta = &converted
-	return nil
+	return u.setter.Set(current, value)
 }
