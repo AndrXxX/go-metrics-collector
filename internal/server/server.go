@@ -3,9 +3,9 @@ package server
 import (
 	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchallmetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchcounter"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchgauge"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchmetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/logger"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/middlewares"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updatecounter"
@@ -61,7 +61,7 @@ func Run(c *config.Config) error {
 	})
 	r.Get("/", cFactory.From([]interfaces.Handler{
 		middlewares.SetContentType("text/html; charset=utf-8"),
-		fetchmetrics.New(&modelGaugeStorage, &modelCounterStorage),
+		fetchallmetrics.New(&modelGaugeStorage, &modelCounterStorage),
 	}).Handler())
 
 	return http.ListenAndServe(c.Host, r)

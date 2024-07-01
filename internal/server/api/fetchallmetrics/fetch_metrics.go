@@ -1,4 +1,4 @@
-package fetchmetrics
+package fetchallmetrics
 
 import (
 	"fmt"
