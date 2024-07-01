@@ -5,10 +5,10 @@ import (
 	"strconv"
 )
 
-type CounterValueSetter struct {
+type counterValueSetter struct {
 }
 
-func (i *CounterValueSetter) Set(m *models.Metrics, value string) error {
+func (i *counterValueSetter) Set(m *models.Metrics, value string) error {
 	converted, err := strconv.ParseInt(value, 10, 64)
 	if err != nil {
 		return err

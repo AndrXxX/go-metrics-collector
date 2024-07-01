@@ -13,7 +13,7 @@ type gaugeUpdater struct {
 }
 
 func NewGaugeUpdater(storage repositories.Storage[*models.Metrics]) *gaugeUpdater {
-	return &gaugeUpdater{storage: storage, setter: &metricsvaluesetter.GaugeValueSetter{}}
+	return &gaugeUpdater{storage: storage, setter: metricsvaluesetter.Factory().GaugeValueSetter()}
 }
 
 func (u *gaugeUpdater) Update(name string, value string) error {

@@ -5,10 +5,10 @@ import (
 	"strconv"
 )
 
-type GaugeValueSetter struct {
+type gaugeValueSetter struct {
 }
 
-func (i *GaugeValueSetter) Set(m *models.Metrics, value string) error {
+func (i *gaugeValueSetter) Set(m *models.Metrics, value string) error {
 	converted, err := strconv.ParseFloat(value, 64)
 	if err != nil {
 		return err

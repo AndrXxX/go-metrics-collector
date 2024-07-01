@@ -13,7 +13,7 @@ type counterUpdater struct {
 }
 
 func NewCounterUpdater(storage repositories.Storage[*models.Metrics]) *counterUpdater {
-	return &counterUpdater{storage: storage, setter: &metricsvaluesetter.CounterValueSetter{}}
+	return &counterUpdater{storage: storage, setter: metricsvaluesetter.Factory().CounterValueSetter()}
 }
 
 func (u *counterUpdater) Update(name string, value string) error {
