@@ -38,6 +38,11 @@ func Run(c *config.Config) error {
 			middlewares.HasMetricOr404(),
 			updatemetrics.New(metricsupdater.New(sp), metricstringifier.MetricsEmptyStringifier{}, metricsidentifier.NewURLIdentifier()),
 		}).Handler())
+
+		r.Post("/", cFactory.From([]interfaces.Handler{
+			middlewares.SetContentType(contenttypes.ApplicationJSON),
+			updatemetrics.New(metricsupdater.New(sp), metricstringifier.MetricsJSONStringifier{}, metricsidentifier.NewJsonIdentifier()),
+		}).Handler())
 	})
 
 	r.Route("/value", func(r chi.Router) {
