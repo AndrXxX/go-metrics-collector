@@ -17,8 +17,8 @@ func New(c Client) *RequestSender {
 	return &RequestSender{c}
 }
 
-func (s *RequestSender) Post(url string, contentType string) error {
-	resp, err := s.c.Post(url, contentType, nil)
+func (s *RequestSender) Post(url string, contentType string, body io.Reader) error {
+	resp, err := s.c.Post(url, contentType, body)
 	if err != nil {
 		return err
 	}

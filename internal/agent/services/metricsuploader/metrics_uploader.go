@@ -17,12 +17,12 @@ func (c *metricsUploader) Execute(result dto.MetricsDto) error {
 	for metric, value := range result.Gauge {
 		params := types.URLParams{"metricType": metrics.Gauge, "metric": metric, "value": value}
 		url := c.ub.Build(params)
-		_ = c.rs.Post(url, contenttypes.TextPlain)
+		_ = c.rs.Post(url, contenttypes.TextPlain, nil)
 	}
 	for metric, value := range result.Counter {
 		params := types.URLParams{"metricType": metrics.Counter, "metric": metric, "value": value}
 		url := c.ub.Build(params)
-		_ = c.rs.Post(url, contenttypes.TextPlain)
+		_ = c.rs.Post(url, contenttypes.TextPlain, nil)
 	}
 	return nil
 }
