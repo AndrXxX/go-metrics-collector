@@ -16,6 +16,6 @@ func (i *jsonMetricsIdentifier) Process(r *http.Request) (*models.Metrics, error
 	return m, err
 }
 
-func NewJsonIdentifier() *jsonMetricsIdentifier {
+func NewJSONIdentifier() *jsonMetricsIdentifier {
 	return &jsonMetricsIdentifier{}
 }

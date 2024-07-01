@@ -41,7 +41,7 @@ func Run(c *config.Config) error {
 
 		r.Post("/", cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
-			updatemetrics.New(metricsupdater.New(sp), metricstringifier.MetricsJSONStringifier{}, metricsidentifier.NewJsonIdentifier()),
+			updatemetrics.New(metricsupdater.New(sp), metricstringifier.MetricsJSONStringifier{}, metricsidentifier.NewJSONIdentifier()),
 		}).Handler())
 	})
 
@@ -54,7 +54,7 @@ func Run(c *config.Config) error {
 
 		r.Post("/", cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
-			fetchmetrics.New(sp, metricstringifier.MetricsJSONStringifier{}, metricsidentifier.NewJsonIdentifier()),
+			fetchmetrics.New(sp, metricstringifier.MetricsJSONStringifier{}, metricsidentifier.NewJSONIdentifier()),
 		}).Handler())
 	})
 
