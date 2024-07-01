@@ -28,7 +28,7 @@ func (u *metricsUpdater) Update(newModel *models.Metrics) (*models.Metrics, erro
 		currentModel.Value = newModel.Value
 		return currentModel, nil
 	}
-	if newModel.Delta != nil && currentModel.Delta != nil {
+	if newModel.Delta != nil && currentModel.Delta != nil && exist {
 		newVal := *currentModel.Delta + *newModel.Delta
 		currentModel.Delta = &newVal
 		return currentModel, nil
