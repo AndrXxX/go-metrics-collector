@@ -26,38 +26,45 @@ func Run(c *config.Config) error {
 	modelGaugeStorage := memory.New[*models.Metrics]()
 	cFactory := conveyor.Factory(logger.New())
 	r := chi.NewRouter()
+
 	r.Route("/update", func(r chi.Router) {
 		r.Post(fmt.Sprintf("/counter/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
 			middlewares.HasMetricOr404(),
 			updatemetrics.New(metricsupdater.NewCounterUpdater(&modelCounterStorage)),
 		}).Handler())
+
 		r.Post(fmt.Sprintf("/gauge/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
 			middlewares.HasMetricOr404(),
 			updatemetrics.New(metricsupdater.NewGaugeUpdater(&modelGaugeStorage)),
 		}).Handler())
+
 		r.Post(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
 			middlewares.SetHTTPError(http.StatusBadRequest),
 		}).Handler())
 	})
+
 	r.Route("/value", func(r chi.Router) {
 		r.Get(fmt.Sprintf("/counter/{%v}", vars.Metric), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
 			middlewares.HasMetricOr404(),
 			fetchmetrics.New(&modelCounterStorage, metricstringifier.MetricsValueStringifier{}, metricsidentifier.NewURLIdentifier(metrics.Counter)),
 		}).Handler())
+
 		r.Get(fmt.Sprintf("/gauge/{%v}", vars.Metric), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
 			middlewares.HasMetricOr404(),
 			fetchmetrics.New(&modelGaugeStorage, metricstringifier.MetricsValueStringifier{}, metricsidentifier.NewURLIdentifier(metrics.Gauge)),
 		}).Handler())
+
 		r.Get(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType("text/plain"),
 			middlewares.SetHTTPError(http.StatusBadRequest),
 		}).Handler())
 	})
+
 	r.Get("/", cFactory.From([]interfaces.Handler{
 		middlewares.SetContentType("text/html; charset=utf-8"),
 		fetchallmetrics.New(&modelGaugeStorage, &modelCounterStorage),
