@@ -2,10 +2,12 @@ package updatemetrics
 
 import (
 	"context"
+	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsupdater"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsvaluesetter"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -45,7 +47,8 @@ func TestUpdateMetricsHandlerGaugeHandle(t *testing.T) {
 		},
 	}
 	storage := memory.New[*models.Metrics]()
-	h := New(metricsupdater.NewGaugeUpdater(&storage))
+	mvsFactory := metricsvaluesetter.Factory()
+	h := New(metricsupdater.New(&storage, mvsFactory.GaugeValueSetter(), metrics.Gauge))
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			request := httptest.NewRequest(test.method, test.request, nil)
@@ -99,7 +102,8 @@ func TestUpdateMetricsHandlerCounterHandle(t *testing.T) {
 		},
 	}
 	storage := memory.New[*models.Metrics]()
-	h := New(metricsupdater.NewCounterUpdater(&storage))
+	mvsFactory := metricsvaluesetter.Factory()
+	h := New(metricsupdater.New(&storage, mvsFactory.CounterValueSetter(), metrics.Counter))
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			request := httptest.NewRequest(test.method, test.request, nil)
