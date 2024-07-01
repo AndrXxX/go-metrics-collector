@@ -16,17 +16,19 @@ func TestNewUploader(t *testing.T) {
 	tests := []struct {
 		name string
 		rs   *requestsender.RequestSender
+		ub   urlBuilder
 		want *metricsUploader
 	}{
 		{
 			name: "Test New metricsUploader #1 (Alloc)",
-			rs:   requestsender.New(metricurlbuilder.New(""), http.DefaultClient),
-			want: &metricsUploader{rs: requestsender.New(metricurlbuilder.New(""), http.DefaultClient)},
+			rs:   requestsender.New(http.DefaultClient),
+			ub:   metricurlbuilder.New(""),
+			want: &metricsUploader{rs: requestsender.New(http.DefaultClient), ub: metricurlbuilder.New("")},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, New(tt.rs), "New(%v)", tt.rs)
+			assert.Equalf(t, tt.want, New(tt.rs, tt.ub), "New(%v)", tt.rs)
 		})
 	}
 }
@@ -61,13 +63,13 @@ func Test_metricsUploader_Execute(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rs := requestsender.New(metricurlbuilder.New("host"), &mocks.MockClient{
+			rs := requestsender.New(&mocks.MockClient{
 				PostFunc: func(url, contentType string, body io.Reader) (*http.Response, error) {
 					assert.Equal(t, tt.url, url)
 					return nil, nil
 				},
 			})
-			c := &metricsUploader{rs: rs}
+			c := New(rs, metricurlbuilder.New("host"))
 			assert.NoError(t, c.Execute(tt.result))
 		})
 	}

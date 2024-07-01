@@ -17,8 +17,9 @@ func Run(config *config.Config) error {
 	s := scheduler.NewIntervalScheduler(config.Intervals.SleepInterval)
 	s.Add(metricscollector.New(&config.Metrics), time.Duration(config.Intervals.PollInterval)*time.Second)
 
-	rs := requestsender.New(metricurlbuilder.New(config.Common.Host), http.DefaultClient)
-	s.Add(metricsuploader.New(rs), time.Duration(config.Intervals.ReportInterval)*time.Second)
+	ub := metricurlbuilder.New(config.Common.Host)
+	rs := requestsender.New(http.DefaultClient)
+	s.Add(metricsuploader.New(rs, ub), time.Duration(config.Intervals.ReportInterval)*time.Second)
 
 	err := s.Run(*m)
 	return err

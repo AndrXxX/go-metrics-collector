@@ -27,7 +27,7 @@ func (m *closableReadableBodyMock) Read(_ []byte) (n int, err error) {
 
 func TestRequestSender_Post(t *testing.T) {
 	type fields struct {
-		ub urlBuilder
+		ub requestsender.urlBuilder
 		c  Client
 	}
 	type args struct {
@@ -95,7 +95,7 @@ func TestRequestSender_Post(t *testing.T) {
 
 func TestNewRequestSender(t *testing.T) {
 	type args struct {
-		ub urlBuilder
+		ub requestsender.urlBuilder
 		c  Client
 	}
 	tests := []struct {

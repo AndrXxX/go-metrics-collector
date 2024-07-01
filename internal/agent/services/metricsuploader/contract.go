@@ -1,4 +1,4 @@
-package requestsender
+package metricsuploader
 
 import "github.com/AndrXxX/go-metrics-collector/internal/agent/types"
 
