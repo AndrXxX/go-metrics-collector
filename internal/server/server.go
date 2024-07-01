@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"github.com/AndrXxX/go-metrics-collector/internal/enums/contenttypes"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchallmetrics"
@@ -29,44 +30,44 @@ func Run(c *config.Config) error {
 
 	r.Route("/update", func(r chi.Router) {
 		r.Post(fmt.Sprintf("/counter/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
-			middlewares.SetContentType("text/plain"),
+			middlewares.SetContentType(contenttypes.TextPlain),
 			middlewares.HasMetricOr404(),
 			updatemetrics.New(metricsupdater.NewCounterUpdater(&modelCounterStorage)),
 		}).Handler())
 
 		r.Post(fmt.Sprintf("/gauge/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
-			middlewares.SetContentType("text/plain"),
+			middlewares.SetContentType(contenttypes.TextPlain),
 			middlewares.HasMetricOr404(),
 			updatemetrics.New(metricsupdater.NewGaugeUpdater(&modelGaugeStorage)),
 		}).Handler())
 
 		r.Post(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
-			middlewares.SetContentType("text/plain"),
+			middlewares.SetContentType(contenttypes.TextPlain),
 			middlewares.SetHTTPError(http.StatusBadRequest),
 		}).Handler())
 	})
 
 	r.Route("/value", func(r chi.Router) {
 		r.Get(fmt.Sprintf("/counter/{%v}", vars.Metric), cFactory.From([]interfaces.Handler{
-			middlewares.SetContentType("text/plain"),
+			middlewares.SetContentType(contenttypes.TextPlain),
 			middlewares.HasMetricOr404(),
 			fetchmetrics.New(&modelCounterStorage, metricstringifier.MetricsValueStringifier{}, metricsidentifier.NewURLIdentifier(metrics.Counter)),
 		}).Handler())
 
 		r.Get(fmt.Sprintf("/gauge/{%v}", vars.Metric), cFactory.From([]interfaces.Handler{
-			middlewares.SetContentType("text/plain"),
+			middlewares.SetContentType(contenttypes.TextPlain),
 			middlewares.HasMetricOr404(),
 			fetchmetrics.New(&modelGaugeStorage, metricstringifier.MetricsValueStringifier{}, metricsidentifier.NewURLIdentifier(metrics.Gauge)),
 		}).Handler())
 
 		r.Get(fmt.Sprintf("/{unknownType}/{%v}/{%v}", vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
-			middlewares.SetContentType("text/plain"),
+			middlewares.SetContentType(contenttypes.TextPlain),
 			middlewares.SetHTTPError(http.StatusBadRequest),
 		}).Handler())
 	})
 
 	r.Get("/", cFactory.From([]interfaces.Handler{
-		middlewares.SetContentType("text/html; charset=utf-8"),
+		middlewares.SetContentType(contenttypes.TextHTML),
 		fetchallmetrics.New(&modelGaugeStorage, &modelCounterStorage),
 	}).Handler())
 
