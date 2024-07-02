@@ -5,6 +5,11 @@ import (
 	"net/http"
 )
 
+type storage[T any] interface {
+	Insert(metric string, value T)
+	Get(metric string) (value T, ok bool)
+}
+
 type storageProvider[T any] interface {
 	GetStorage(name string) T
 }

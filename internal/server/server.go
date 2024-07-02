@@ -3,7 +3,6 @@ package server
 import (
 	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/contenttypes"
-	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchallmetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchmetrics"
@@ -18,16 +17,12 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsidentifier"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricstringifier"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsupdater"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/storageprovider"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 )
 
 func Run(c *config.Config) error {
 	storage := memory.New[*models.Metrics]()
-	sp := storageprovider.New[interfaces.MetricsStorage]()
-	sp.RegisterStorage(metrics.Counter, &storage)
-	sp.RegisterStorage(metrics.Gauge, &storage)
 	cFactory := conveyor.Factory(logger.New())
 
 	r := chi.NewRouter()
@@ -49,13 +44,13 @@ func Run(c *config.Config) error {
 		r.Get(fmt.Sprintf("/{%v}/{%v}", vars.MetricType, vars.Metric), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType(contenttypes.TextPlain),
 			middlewares.HasMetricOr404(),
-			fetchmetrics.New(sp, metricstringifier.MetricsValueStringifier{}, metricsidentifier.NewURLIdentifier()),
+			fetchmetrics.New(&storage, metricstringifier.MetricsValueStringifier{}, metricsidentifier.NewURLIdentifier()),
 		}).Handler())
 
 		r.Post("/", cFactory.From([]interfaces.Handler{
 			middlewares.CompressGzip(),
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
-			fetchmetrics.New(sp, metricstringifier.MetricsJSONStringifier{}, metricsidentifier.NewJSONIdentifier()),
+			fetchmetrics.New(&storage, metricstringifier.MetricsJSONStringifier{}, metricsidentifier.NewJSONIdentifier()),
 		}).Handler())
 	})
 

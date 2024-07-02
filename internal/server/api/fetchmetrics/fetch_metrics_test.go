@@ -4,12 +4,10 @@ import (
 	"context"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsidentifier"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricstringifier"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/storageprovider"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -78,8 +76,6 @@ func TestFetchMetricsHandlerGaugeHandle(t *testing.T) {
 			}
 
 			storage := memory.New[*models.Metrics]()
-			sp := storageprovider.New[interfaces.MetricsStorage]()
-			sp.RegisterStorage(metrics.Gauge, &storage)
 			for k, v := range test.fields {
 				storage.Insert(k, &models.Metrics{
 					ID:    k,
@@ -88,7 +84,7 @@ func TestFetchMetricsHandlerGaugeHandle(t *testing.T) {
 				})
 			}
 			w := httptest.NewRecorder()
-			h := New(sp, metricstringifier.MetricsValueStringifier{}, identifier)
+			h := New(&storage, metricstringifier.MetricsValueStringifier{}, identifier)
 			h.Handle(w, request, nil)
 			result := w.Result()
 
@@ -163,8 +159,6 @@ func TestFetchMetricsHandlerCounterHandle(t *testing.T) {
 			}
 
 			storage := memory.New[*models.Metrics]()
-			sp := storageprovider.New[interfaces.MetricsStorage]()
-			sp.RegisterStorage(metrics.Counter, &storage)
 			for k, v := range test.fields {
 				storage.Insert(k, &models.Metrics{
 					ID:    k,
@@ -173,7 +167,7 @@ func TestFetchMetricsHandlerCounterHandle(t *testing.T) {
 				})
 			}
 			w := httptest.NewRecorder()
-			h := New(sp, metricstringifier.MetricsValueStringifier{}, identifier)
+			h := New(&storage, metricstringifier.MetricsValueStringifier{}, identifier)
 			h.Handle(w, request, nil)
 			result := w.Result()
 

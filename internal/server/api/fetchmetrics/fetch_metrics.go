@@ -2,15 +2,16 @@ package fetchmetrics
 
 import (
 	"fmt"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricschecker"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"net/http"
 )
 
 type fetchMetricsHandler struct {
-	sp storageProvider[interfaces.MetricsStorage]
-	s  stringifier
-	i  identifier
+	storage storage[*models.Metrics]
+	s       stringifier
+	i       identifier
 }
 
 func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
@@ -19,12 +20,12 @@ func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, nex
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	storage := h.sp.GetStorage(metric.MType)
-	if storage == nil {
+	mc := metricschecker.New()
+	if !mc.IsValid(metric) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	val, ok := storage.Get(metric.ID)
+	val, ok := h.storage.Get(metric.ID)
 	if !ok {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -44,6 +45,6 @@ func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, nex
 	}
 }
 
-func New(sp storageProvider[interfaces.MetricsStorage], s stringifier, i identifier) *fetchMetricsHandler {
-	return &fetchMetricsHandler{sp, s, i}
+func New(storage storage[*models.Metrics], s stringifier, i identifier) *fetchMetricsHandler {
+	return &fetchMetricsHandler{storage, s, i}
 }
