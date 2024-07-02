@@ -2,12 +2,13 @@ package fetchmetrics
 
 import (
 	"fmt"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"net/http"
 )
 
 type fetchMetricsHandler struct {
-	sp storageProvider
+	sp storageProvider[interfaces.MetricsStorage]
 	s  stringifier
 	i  identifier
 }
@@ -43,6 +44,6 @@ func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, nex
 	}
 }
 
-func New(sp storageProvider, s stringifier, i identifier) *fetchMetricsHandler {
+func New(sp storageProvider[interfaces.MetricsStorage], s stringifier, i identifier) *fetchMetricsHandler {
 	return &fetchMetricsHandler{sp, s, i}
 }

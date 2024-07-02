@@ -3,14 +3,15 @@ package metricsupdater
 import (
 	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 )
 
 type metricsUpdater struct {
-	sp storageProvider
+	sp storageProvider[interfaces.MetricsStorage]
 }
 
-func New(sp storageProvider) *metricsUpdater {
+func New(sp storageProvider[interfaces.MetricsStorage]) *metricsUpdater {
 	return &metricsUpdater{sp}
 }
 
