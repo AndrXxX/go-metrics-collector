@@ -40,6 +40,7 @@ func Run(c *config.Config) error {
 		}).Handler())
 
 		r.Post("/", cFactory.From([]interfaces.Handler{
+			middlewares.CompressGzip(),
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
 			updatemetrics.New(metricsupdater.New(sp), metricstringifier.MetricsJSONStringifier{}, metricsidentifier.NewJSONIdentifier()),
 		}).Handler())
@@ -53,12 +54,14 @@ func Run(c *config.Config) error {
 		}).Handler())
 
 		r.Post("/", cFactory.From([]interfaces.Handler{
+			middlewares.CompressGzip(),
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
 			fetchmetrics.New(sp, metricstringifier.MetricsJSONStringifier{}, metricsidentifier.NewJSONIdentifier()),
 		}).Handler())
 	})
 
 	r.Get("/", cFactory.From([]interfaces.Handler{
+		middlewares.CompressGzip(),
 		middlewares.SetContentType(contenttypes.TextHTML),
 		fetchallmetrics.New(&modelGaugeStorage, &modelCounterStorage),
 	}).Handler())
