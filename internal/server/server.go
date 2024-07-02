@@ -24,11 +24,10 @@ import (
 )
 
 func Run(c *config.Config) error {
-	modelCounterStorage := memory.New[*models.Metrics]()
-	modelGaugeStorage := memory.New[*models.Metrics]()
+	storage := memory.New[*models.Metrics]()
 	sp := storageprovider.New[interfaces.MetricsStorage]()
-	sp.RegisterStorage(metrics.Counter, &modelCounterStorage)
-	sp.RegisterStorage(metrics.Gauge, &modelGaugeStorage)
+	sp.RegisterStorage(metrics.Counter, &storage)
+	sp.RegisterStorage(metrics.Gauge, &storage)
 	cFactory := conveyor.Factory(logger.New())
 
 	r := chi.NewRouter()
@@ -63,7 +62,7 @@ func Run(c *config.Config) error {
 	r.Get("/", cFactory.From([]interfaces.Handler{
 		middlewares.CompressGzip(),
 		middlewares.SetContentType(contenttypes.TextHTML),
-		fetchallmetrics.New(&modelGaugeStorage, &modelCounterStorage),
+		fetchallmetrics.New(&storage),
 	}).Handler())
 
 	return http.ListenAndServe(c.Host, r)

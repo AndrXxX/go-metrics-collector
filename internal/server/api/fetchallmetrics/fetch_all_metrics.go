@@ -2,6 +2,7 @@ package fetchallmetrics
 
 import (
 	"fmt"
+	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/templates"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
@@ -10,8 +11,7 @@ import (
 )
 
 type fetchMetricsHandler struct {
-	gs storage[*models.Metrics]
-	cs storage[*models.Metrics]
+	s storage[*models.Metrics]
 }
 
 func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
@@ -44,15 +44,16 @@ func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, nex
 
 func (h *fetchMetricsHandler) fetchMetrics() map[string]string {
 	result := map[string]string{}
-	for k, v := range h.cs.All() {
-		result[k] = fmt.Sprintf("%d", *v.Delta)
-	}
-	for k, v := range h.gs.All() {
-		result[k] = fmt.Sprintf("%v", *v.Value)
+	for k, v := range h.s.All() {
+		if v.MType == metrics.Counter {
+			result[k] = fmt.Sprintf("%d", *v.Delta)
+		} else {
+			result[k] = fmt.Sprintf("%v", *v.Value)
+		}
 	}
 	return result
 }
 
-func New(gs storage[*models.Metrics], cs storage[*models.Metrics]) *fetchMetricsHandler {
-	return &fetchMetricsHandler{gs, cs}
+func New(s storage[*models.Metrics]) *fetchMetricsHandler {
+	return &fetchMetricsHandler{s}
 }
