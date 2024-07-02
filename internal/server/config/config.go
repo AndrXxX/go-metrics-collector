@@ -1,6 +1,7 @@
 package config
 
 type Config struct {
-	Host     string
-	LogLevel string
+	Host          string
+	LogLevel      string
+	StoreInterval int
 }
