@@ -5,4 +5,5 @@ type Config struct {
 	LogLevel        string
 	StoreInterval   int
 	FileStoragePath string
+	Restore         bool
 }

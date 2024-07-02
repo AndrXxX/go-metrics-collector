@@ -8,5 +8,6 @@ func NewConfig() *Config {
 		LogLevel:        defaults.LogLevel,
 		StoreInterval:   defaults.StoreInterval,
 		FileStoragePath: defaults.FileStoragePath,
+		Restore:         defaults.Restore,
 	}
 }
