@@ -8,12 +8,14 @@ import (
 )
 
 type EnvConfig struct {
-	Addr string `env:"ADDRESS"`
+	Addr          string `env:"ADDRESS"`
+	StoreInterval int    `env:"STORE_INTERVAL"`
 }
 
 func parseEnv(c *config.Config) {
 	cfg := EnvConfig{
-		Addr: c.Host,
+		Addr:          c.Host,
+		StoreInterval: c.StoreInterval,
 	}
 	err := env.Parse(&cfg)
 	if err != nil {
