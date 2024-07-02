@@ -9,7 +9,6 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"go.uber.org/zap"
-	"strings"
 )
 
 type JSONMetrics struct {
@@ -54,7 +53,7 @@ func (c *jsonMetricsUploader) send(m JSONMetrics) error {
 	if err != nil {
 		return err
 	}
-	return c.rs.Post(url, contenttypes.TextPlain, strings.NewReader(string(encoded)))
+	return c.rs.Post(url, contenttypes.ApplicationJSON, encoded)
 }
 
 func NewJSONUploader(rs *requestsender.RequestSender, ub urlBuilder) *jsonMetricsUploader {
