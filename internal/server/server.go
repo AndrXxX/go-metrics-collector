@@ -6,7 +6,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchallmetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchmetrics"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/api/logger"
+	apilogger "github.com/AndrXxX/go-metrics-collector/internal/server/api/logger"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/middlewares"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updatemetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
@@ -17,13 +17,23 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsidentifier"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricstringifier"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsupdater"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/storagesaver"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"github.com/go-chi/chi/v5"
+	"go.uber.org/zap"
 	"net/http"
 )
 
 func Run(c *config.Config) error {
 	storage := memory.New[*models.Metrics]()
-	cFactory := conveyor.Factory(logger.New())
+	ss := storagesaver.New(c.FileStoragePath)
+	if c.Restore {
+		err := ss.Restore(&storage)
+		if err != nil {
+			logger.Log.Error("Error restoring storage", zap.Error(err))
+		}
+	}
+	cFactory := conveyor.Factory(apilogger.New())
 
 	r := chi.NewRouter()
 	r.Route("/update", func(r chi.Router) {
