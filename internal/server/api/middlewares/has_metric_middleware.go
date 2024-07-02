@@ -9,13 +9,15 @@ import (
 type hasMetricOr404 struct {
 }
 
-func (m *hasMetricOr404) Handle(w http.ResponseWriter, r *http.Request) (ok bool) {
+func (m *hasMetricOr404) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	metric := chi.URLParam(r, vars.Metric)
 	if metric == "" {
 		w.WriteHeader(http.StatusNotFound)
-		return false
+		return
 	}
-	return true
+	if next != nil {
+		next(w, r)
+	}
 }
 
 func HasMetricOr404() *hasMetricOr404 {

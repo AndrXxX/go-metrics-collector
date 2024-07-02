@@ -3,5 +3,5 @@ package interfaces
 import "net/http"
 
 type Handler interface {
-	Handle(http.ResponseWriter, *http.Request) (ok bool)
+	Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc)
 }

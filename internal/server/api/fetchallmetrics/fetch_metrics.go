@@ -14,12 +14,12 @@ type fetchMetricsHandler struct {
 	cs storage[*models.Metrics]
 }
 
-func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, _ *http.Request) (ok bool) {
+func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	t, err := template.New("webpage").Parse(templates.MetricsList)
 	if err != nil {
 		logger.Log.Error(fmt.Sprintf("Error on parse MetricsList template: %s", err.Error()))
 		w.WriteHeader(http.StatusInternalServerError)
-		return false
+		return
 	}
 
 	data := struct {
@@ -34,10 +34,12 @@ func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, _ *http.Request) (ok
 	if err != nil {
 		logger.Log.Error(fmt.Sprintf("Error on execute MetricsList template: %s", err.Error()))
 		w.WriteHeader(http.StatusInternalServerError)
-		return false
+		return
 	}
 	w.WriteHeader(http.StatusOK)
-	return true
+	if next != nil {
+		next(w, r)
+	}
 }
 
 func (h *fetchMetricsHandler) fetchMetrics() map[string]string {

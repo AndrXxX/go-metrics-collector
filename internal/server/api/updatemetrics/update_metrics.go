@@ -12,16 +12,16 @@ type updateMetricsHandler struct {
 	i identifier
 }
 
-func (h *updateMetricsHandler) Handle(w http.ResponseWriter, r *http.Request) (ok bool) {
+func (h *updateMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	metric, err := h.i.Process(r)
 	if metric == nil || err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		return false
+		return
 	}
 	metric, err = h.u.Update(metric)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		return false
+		return
 	}
 	str, err := h.s.String(metric)
 	if err == nil {
@@ -30,10 +30,12 @@ func (h *updateMetricsHandler) Handle(w http.ResponseWriter, r *http.Request) (o
 	if err != nil {
 		logger.Log.Error("Failed to write metrics response")
 		w.WriteHeader(http.StatusInternalServerError)
-		return false
+		return
 	}
 	w.WriteHeader(http.StatusOK)
-	return true
+	if next != nil {
+		next(w, r)
+	}
 }
 
 func New(u updater, s stringifier, i identifier) *updateMetricsHandler {

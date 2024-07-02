@@ -12,21 +12,21 @@ type fetchMetricsHandler struct {
 	i  identifier
 }
 
-func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request) (ok bool) {
+func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	metric, err := h.i.Process(r)
 	if metric == nil || err != nil {
 		w.WriteHeader(http.StatusNotFound)
-		return false
+		return
 	}
 	storage := h.sp.GetStorage(metric.MType)
 	if storage == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		return false
+		return
 	}
 	val, ok := storage.Get(metric.ID)
 	if !ok {
 		w.WriteHeader(http.StatusNotFound)
-		return false
+		return
 	}
 	str, err := h.s.String(val)
 	if err == nil {
@@ -35,10 +35,12 @@ func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request) (ok
 	if err != nil {
 		logger.Log.Error("Failed to write metrics response")
 		w.WriteHeader(http.StatusInternalServerError)
-		return false
+		return
 	}
 	w.WriteHeader(http.StatusOK)
-	return true
+	if next != nil {
+		next(w, r)
+	}
 }
 
 func New(sp storageProvider, s stringifier, i identifier) *fetchMetricsHandler {

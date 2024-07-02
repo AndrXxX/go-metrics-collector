@@ -89,7 +89,7 @@ func TestFetchMetricsHandlerGaugeHandle(t *testing.T) {
 			}
 			w := httptest.NewRecorder()
 			h := New(sp, metricstringifier.MetricsValueStringifier{}, identifier)
-			h.Handle(w, request)
+			h.Handle(w, request, nil)
 			result := w.Result()
 
 			assert.Equal(t, test.want.statusCode, result.StatusCode)
@@ -174,7 +174,7 @@ func TestFetchMetricsHandlerCounterHandle(t *testing.T) {
 			}
 			w := httptest.NewRecorder()
 			h := New(sp, metricstringifier.MetricsValueStringifier{}, identifier)
-			h.Handle(w, request)
+			h.Handle(w, request, nil)
 			result := w.Result()
 
 			assert.Equal(t, test.want.statusCode, result.StatusCode)

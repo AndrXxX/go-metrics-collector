@@ -13,10 +13,17 @@ type handlersConveyor struct {
 
 func (c *handlersConveyor) Handler() http.HandlerFunc {
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		for _, handler := range c.stack.All() {
-			if !handler.Handle(w, r) {
+		newStack := c.stack.Copy()
+		var next http.HandlerFunc
+		next = func(w http.ResponseWriter, r *http.Request) {
+			newHandler, ok := newStack.Shift()
+			if !ok || newHandler == nil {
 				return
 			}
+			newHandler.Handle(w, r, next)
+		}
+		if next != nil {
+			next(w, r)
 		}
 	}
 	if c.logger != nil {
