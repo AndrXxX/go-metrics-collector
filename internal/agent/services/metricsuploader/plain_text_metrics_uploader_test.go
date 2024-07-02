@@ -7,7 +7,6 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/mocks"
 	"github.com/stretchr/testify/assert"
-	"io"
 	"net/http"
 	"testing"
 )
@@ -64,8 +63,8 @@ func Test_metricsUploader_Execute(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			rs := requestsender.New(&mocks.MockClient{
-				PostFunc: func(url, contentType string, body io.Reader) (*http.Response, error) {
-					assert.Equal(t, tt.url, url)
+				DoFunc: func(req *http.Request) (*http.Response, error) {
+					assert.Equal(t, tt.url, req.URL.String())
 					return nil, nil
 				},
 			})

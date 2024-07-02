@@ -1,12 +1,13 @@
 package requestsender
 
 import (
+	"compress/gzip"
 	"io"
 	"net/http"
 )
 
 type Client interface {
-	Post(url, contentType string, body io.Reader) (resp *http.Response, err error)
+	Do(req *http.Request) (*http.Response, error)
 }
 
 type RequestSender struct {
@@ -18,7 +19,20 @@ func New(c Client) *RequestSender {
 }
 
 func (s *RequestSender) Post(url string, contentType string, body io.Reader) error {
-	resp, err := s.c.Post(url, contentType, body)
+	var err error
+	if body != nil {
+		body, err = gzip.NewReader(body)
+	}
+	if err != nil {
+		return err
+	}
+	r, err := http.NewRequest("POST", url, body)
+	if err != nil {
+		return err
+	}
+	r.Header.Set("Content-Type", contentType)
+	r.Header.Set("Accept-Encoding", "gzip")
+	resp, err := s.c.Do(r)
 	if err != nil {
 		return err
 	}

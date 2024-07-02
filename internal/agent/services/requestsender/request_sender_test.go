@@ -41,7 +41,7 @@ func TestRequestSender_Post(t *testing.T) {
 			name: "Positive test #1",
 			fields: fields{
 				c: &mocks.MockClient{
-					PostFunc: func(url, contentType string, body io.Reader) (*http.Response, error) {
+					DoFunc: func(req *http.Request) (*http.Response, error) {
 						return nil, nil
 					},
 				},
@@ -53,7 +53,7 @@ func TestRequestSender_Post(t *testing.T) {
 			name: "Positive test #2 with body",
 			fields: fields{
 				c: &mocks.MockClient{
-					PostFunc: func(url, contentType string, body io.Reader) (*http.Response, error) {
+					DoFunc: func(req *http.Request) (*http.Response, error) {
 						return &http.Response{Header: http.Header{}, Body: &closableReadableBodyMock{}}, nil
 					},
 				},
@@ -65,7 +65,7 @@ func TestRequestSender_Post(t *testing.T) {
 			name: "Error test #1",
 			fields: fields{
 				c: &mocks.MockClient{
-					PostFunc: func(url, contentType string, body io.Reader) (*http.Response, error) {
+					DoFunc: func(req *http.Request) (*http.Response, error) {
 						return nil, errors.New("error from web server")
 					},
 				},
