@@ -16,15 +16,13 @@ func (c *handlersConveyor) Handler() http.HandlerFunc {
 		newStack := c.stack.Copy()
 		var next http.HandlerFunc
 		next = func(w http.ResponseWriter, r *http.Request) {
-			newHandler, ok := newStack.Shift()
-			if !ok || newHandler == nil {
+			h, ok := newStack.Shift()
+			if !ok || h == nil {
 				return
 			}
-			newHandler.Handle(w, r, next)
+			h.Handle(w, r, next)
 		}
-		if next != nil {
-			next(w, r)
-		}
+		next(w, r)
 	}
 	if c.logger != nil {
 		return c.logger.Handle(handler)
