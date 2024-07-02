@@ -148,3 +148,41 @@ func TestStackPush(t *testing.T) {
 		assert.Equal(t, tt.s, tt.want)
 	}
 }
+
+func TestStackShift(t *testing.T) {
+	type want[T any] struct {
+		val T
+		ok  bool
+		s   Stack[T]
+	}
+	type testCase[T any] struct {
+		name string
+		s    Stack[T]
+		want want[T]
+	}
+	tests := []testCase[int64]{
+		{
+			name: "test Shift with 5, 11, 44",
+			s:    Stack[int64]{elements: []int64{5, 11, 44}},
+			want: want[int64]{val: 5, ok: true, s: Stack[int64]{elements: []int64{11, 44}}},
+		},
+		{
+			name: "test Shift with 44, -1, 12, -1",
+			s:    Stack[int64]{elements: []int64{44, -1, 12, -1}},
+			want: want[int64]{val: 44, ok: true, s: Stack[int64]{elements: []int64{-1, 12, -1}}},
+		},
+		{
+			name: "test Shift with empty slice",
+			s:    Stack[int64]{elements: []int64{}},
+			want: want[int64]{val: 0, ok: false, s: Stack[int64]{elements: []int64{}}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			val, ok := tt.s.Shift()
+			assert.Equal(t, val, tt.want.val)
+			assert.Equal(t, ok, tt.want.ok)
+			assert.Equal(t, tt.s, tt.want.s)
+		})
+	}
+}

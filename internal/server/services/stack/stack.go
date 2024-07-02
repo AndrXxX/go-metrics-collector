@@ -18,6 +18,16 @@ func (s *Stack[T]) Pop() (T, bool) {
 	return last, true
 }
 
+func (s *Stack[T]) Shift() (T, bool) {
+	if len(s.elements) == 0 {
+		var zero T
+		return zero, false
+	}
+	first := s.elements[0]
+	s.elements = s.elements[1:len(s.elements)]
+	return first, true
+}
+
 func (s *Stack[T]) All() []T {
 	return s.elements
 }
