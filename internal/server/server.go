@@ -27,6 +27,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"time"
 )
 
 func Run(c *config.Config) error {
@@ -39,6 +40,10 @@ func Run(c *config.Config) error {
 		}
 	}
 	cFactory := conveyor.Factory(apilogger.New())
+
+	ctx, cancel := context.WithCancel(context.Background())
+	sst := savestoragetask.New(time.Duration(c.StoreInterval)*time.Second, ss)
+	go sst.Execute(ctx)
 
 	r := chi.NewRouter()
 	r.Route("/update", func(r chi.Router) {
@@ -83,6 +88,7 @@ func Run(c *config.Config) error {
 		signal.Notify(sigint, os.Interrupt)
 		<-sigint
 
+		cancel()
 		err := ss.Save()
 		if err != nil {
 			logger.Log.Error("Error on save storage", zap.Error(err))
