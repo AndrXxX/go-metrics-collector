@@ -11,6 +11,7 @@ type EnvConfig struct {
 	Addr            string `env:"ADDRESS"`
 	StoreInterval   int    `env:"STORE_INTERVAL"`
 	FileStoragePath string `env:"FILE_STORAGE_PATH"`
+	Restore         bool   `env:"RESTORE"`
 }
 
 func parseEnv(c *config.Config) {
@@ -18,6 +19,7 @@ func parseEnv(c *config.Config) {
 		Addr:            c.Host,
 		StoreInterval:   c.StoreInterval,
 		FileStoragePath: c.FileStoragePath,
+		Restore:         c.Restore,
 	}
 	err := env.Parse(&cfg)
 	if err != nil {
@@ -27,4 +29,5 @@ func parseEnv(c *config.Config) {
 	c.Host = cfg.Addr
 	c.StoreInterval = cfg.StoreInterval
 	c.FileStoragePath = cfg.FileStoragePath
+	c.Restore = cfg.Restore
 }
