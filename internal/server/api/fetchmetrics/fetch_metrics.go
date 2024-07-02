@@ -30,6 +30,7 @@ func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, nex
 	}
 	str, err := h.s.String(val)
 	if err == nil {
+		w.WriteHeader(http.StatusOK)
 		_, err = fmt.Fprintf(w, "%s", str)
 	}
 	if err != nil {
@@ -37,7 +38,6 @@ func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, nex
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 	if next != nil {
 		next(w, r)
 	}

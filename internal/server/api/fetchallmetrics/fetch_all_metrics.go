@@ -30,13 +30,13 @@ func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, nex
 		Items: h.fetchMetrics(),
 	}
 
+	w.WriteHeader(http.StatusOK)
 	err = t.Execute(w, data)
 	if err != nil {
 		logger.Log.Error(fmt.Sprintf("Error on execute MetricsList template: %s", err.Error()))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 	if next != nil {
 		next(w, r)
 	}
