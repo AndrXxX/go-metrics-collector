@@ -22,6 +22,10 @@ func (s *Stack[T]) All() []T {
 	return s.elements
 }
 
+func (s *Stack[T]) Copy() *Stack[T] {
+	return NewFromSlice(s.elements)
+}
+
 func NewFromSlice[T any](elements []T) *Stack[T] {
 	return &Stack[T]{elements: elements}
 }

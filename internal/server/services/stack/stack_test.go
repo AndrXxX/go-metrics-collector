@@ -55,6 +55,35 @@ func TestStackAll(t *testing.T) {
 	}
 }
 
+func TestStackCopy(t *testing.T) {
+	type testCase[T any] struct {
+		name string
+		s    *Stack[T]
+		want *Stack[T]
+	}
+	tests := []testCase[int64]{
+		{
+			name: "test Copy with 1, 2, 3",
+			s:    &Stack[int64]{elements: []int64{1, 2, 3}},
+			want: &Stack[int64]{elements: []int64{1, 2, 3}},
+		},
+		{
+			name: "test Copy with 5, 11, 44",
+			s:    &Stack[int64]{elements: []int64{5, 11, 44}},
+			want: &Stack[int64]{elements: []int64{5, 11, 44}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			newStack := tt.s.Copy()
+			assert.Equal(t, tt.s, newStack)
+			assert.Equal(t, tt.s, newStack)
+			tt.s.Pop()
+			assert.NotEqual(t, tt.s.All(), newStack.All())
+		})
+	}
+}
+
 func TestStackPop(t *testing.T) {
 	type want[T any] struct {
 		val T
