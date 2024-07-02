@@ -11,10 +11,7 @@ type metricsChecker struct {
 }
 
 func (c *metricsChecker) IsValid(m *models.Metrics) bool {
-	if !slices.Contains(c.validTypes, m.MType) {
-		return false
-	}
-	return true
+	return slices.Contains(c.validTypes, m.MType)
 }
 
 func New() *metricsChecker {
