@@ -29,6 +29,12 @@ func Test_parseFlags(t *testing.T) {
 			flags:  []string{"-a", "new-host"},
 			want:   &config.Config{Host: "new-host"},
 		},
+		{
+			name:   "-i=5",
+			config: &config.Config{StoreInterval: 1},
+			flags:  []string{"-i", "5"},
+			want:   &config.Config{Host: "", LogLevel: "", StoreInterval: 5},
+		},
 	}
 	for _, tt := range tests {
 		run(t, tt)
