@@ -20,6 +20,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricstringifier"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsupdater"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/storagesaver"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/tasks/savestoragetask"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
@@ -30,9 +31,9 @@ import (
 
 func Run(c *config.Config) error {
 	storage := memory.New[*models.Metrics]()
-	ss := storagesaver.New(c.FileStoragePath)
+	ss := storagesaver.New(c.FileStoragePath, &storage)
 	if c.Restore {
-		err := ss.Restore(&storage)
+		err := ss.Restore()
 		if err != nil {
 			logger.Log.Error("Error restoring storage", zap.Error(err))
 		}
@@ -82,7 +83,7 @@ func Run(c *config.Config) error {
 		signal.Notify(sigint, os.Interrupt)
 		<-sigint
 
-		err := ss.Save(&storage)
+		err := ss.Save()
 		if err != nil {
 			logger.Log.Error("Error on save storage", zap.Error(err))
 		}

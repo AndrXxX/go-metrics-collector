@@ -11,9 +11,10 @@ import (
 
 type storageSaver struct {
 	path string
+	s    storage[*models.Metrics]
 }
 
-func (ss *storageSaver) Save(s storage[*models.Metrics]) error {
+func (ss *storageSaver) Save() error {
 	file, err := os.OpenFile(ss.path, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return err
@@ -25,7 +26,7 @@ func (ss *storageSaver) Save(s storage[*models.Metrics]) error {
 		}
 	}(file)
 	encoder := json.NewEncoder(file)
-	for _, value := range s.All() {
+	for _, value := range ss.s.All() {
 		err := encoder.Encode(&value)
 		if err != nil {
 			logger.Log.Error("Error on encode value", zap.Error(err))
@@ -35,7 +36,7 @@ func (ss *storageSaver) Save(s storage[*models.Metrics]) error {
 	return nil
 }
 
-func (ss *storageSaver) Restore(s storage[*models.Metrics]) error {
+func (ss *storageSaver) Restore() error {
 	file, err := os.OpenFile(ss.path, os.O_RDONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return err
@@ -54,11 +55,11 @@ func (ss *storageSaver) Restore(s storage[*models.Metrics]) error {
 			logger.Log.Error("Error on unmarshall value", zap.Error(err))
 			continue
 		}
-		s.Insert(m.ID, m)
+		ss.s.Insert(m.ID, m)
 	}
 	return nil
 }
 
-func New(path string) *storageSaver {
-	return &storageSaver{path}
+func New(path string, s storage[*models.Metrics]) *storageSaver {
+	return &storageSaver{path, s}
 }
