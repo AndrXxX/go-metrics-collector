@@ -35,13 +35,13 @@ func Run(c *config.Config) error {
 		r.Post(fmt.Sprintf("/{%v}/{%v}/{%v}", vars.MetricType, vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType(contenttypes.TextPlain),
 			middlewares.HasMetricOr404(),
-			updatemetrics.New(metricsupdater.New(sp), metricstringifier.MetricsEmptyStringifier{}, metricsidentifier.NewURLIdentifier()),
+			updatemetrics.New(metricsupdater.New(&storage), metricstringifier.MetricsEmptyStringifier{}, metricsidentifier.NewURLIdentifier()),
 		}).Handler())
 
 		r.Post("/", cFactory.From([]interfaces.Handler{
 			middlewares.CompressGzip(),
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
-			updatemetrics.New(metricsupdater.New(sp), metricstringifier.MetricsJSONStringifier{}, metricsidentifier.NewJSONIdentifier()),
+			updatemetrics.New(metricsupdater.New(&storage), metricstringifier.MetricsJSONStringifier{}, metricsidentifier.NewJSONIdentifier()),
 		}).Handler())
 	})
 

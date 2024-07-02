@@ -4,13 +4,11 @@ import (
 	"context"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsidentifier"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricstringifier"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsupdater"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/storageprovider"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -50,9 +48,7 @@ func TestUpdateMetricsHandlerGaugeHandle(t *testing.T) {
 		},
 	}
 	storage := memory.New[*models.Metrics]()
-	sp := storageprovider.New[interfaces.MetricsStorage]()
-	sp.RegisterStorage(metrics.Gauge, &storage)
-	h := New(metricsupdater.New(sp), metricstringifier.MetricsEmptyStringifier{}, metricsidentifier.NewURLIdentifier())
+	h := New(metricsupdater.New(&storage), metricstringifier.MetricsEmptyStringifier{}, metricsidentifier.NewURLIdentifier())
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			request := httptest.NewRequest(test.method, test.request, nil)
@@ -106,9 +102,7 @@ func TestUpdateMetricsHandlerCounterHandle(t *testing.T) {
 		},
 	}
 	storage := memory.New[*models.Metrics]()
-	sp := storageprovider.New[interfaces.MetricsStorage]()
-	sp.RegisterStorage(metrics.Counter, &storage)
-	h := New(metricsupdater.New(sp), metricstringifier.MetricsEmptyStringifier{}, metricsidentifier.NewURLIdentifier())
+	h := New(metricsupdater.New(&storage), metricstringifier.MetricsEmptyStringifier{}, metricsidentifier.NewURLIdentifier())
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			request := httptest.NewRequest(test.method, test.request, nil)

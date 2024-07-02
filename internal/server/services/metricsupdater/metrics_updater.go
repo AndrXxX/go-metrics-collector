@@ -1,29 +1,23 @@
 package metricsupdater
 
 import (
-	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 )
 
 type metricsUpdater struct {
-	sp storageProvider[interfaces.MetricsStorage]
+	s storage[*models.Metrics]
 }
 
-func New(sp storageProvider[interfaces.MetricsStorage]) *metricsUpdater {
-	return &metricsUpdater{sp}
+func New(s storage[*models.Metrics]) *metricsUpdater {
+	return &metricsUpdater{s}
 }
 
 func (u *metricsUpdater) Update(newModel *models.Metrics) (*models.Metrics, error) {
-	storage := u.sp.GetStorage(newModel.MType)
-	if storage == nil {
-		return nil, fmt.Errorf("not found storage for metrics type %s", newModel.MType)
-	}
-	currentModel, exist := storage.Get(newModel.ID)
+	currentModel, exist := u.s.Get(newModel.ID)
 	if !exist {
 		currentModel = newModel
-		storage.Insert(currentModel.ID, currentModel)
+		u.s.Insert(currentModel.ID, currentModel)
 	}
 	if newModel.MType == metrics.Gauge {
 		currentModel.Value = newModel.Value
