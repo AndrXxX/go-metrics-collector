@@ -1,6 +1,8 @@
 package server
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/contenttypes"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
@@ -22,6 +24,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 	"net/http"
+	"os"
+	"os/signal"
 )
 
 func Run(c *config.Config) error {
@@ -70,5 +74,30 @@ func Run(c *config.Config) error {
 		fetchallmetrics.New(&storage),
 	}).Handler())
 
-	return http.ListenAndServe(c.Host, r)
+	srv := &http.Server{Addr: c.Host, Handler: r}
+
+	idleConnsClosed := make(chan struct{})
+	go func() {
+		sigint := make(chan os.Signal, 1)
+		signal.Notify(sigint, os.Interrupt)
+		<-sigint
+
+		err := ss.Save(&storage)
+		if err != nil {
+			logger.Log.Error("Error on save storage", zap.Error(err))
+		}
+
+		if err := srv.Shutdown(context.Background()); err != nil {
+			logger.Log.Info("HTTP server Shutdown", zap.Error(err))
+		}
+		close(idleConnsClosed)
+	}()
+
+	if err := srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+		logger.Log.Info("HTTP server ListenAndServe", zap.Error(err))
+	}
+
+	<-idleConnsClosed
+
+	return nil
 }
