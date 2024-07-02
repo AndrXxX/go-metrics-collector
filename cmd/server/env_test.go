@@ -32,6 +32,12 @@ func Test_parseEnv(t *testing.T) {
 			env:    map[string]string{"STORE_INTERVAL": "5"},
 			want:   &config.Config{StoreInterval: 5},
 		},
+		{
+			name:   "FILE_STORAGE_PATH=/tmp/metrics-test-db.json",
+			config: &config.Config{FileStoragePath: "/tmp/temp"},
+			env:    map[string]string{"FILE_STORAGE_PATH": "/tmp/metrics-test-db.json"},
+			want:   &config.Config{FileStoragePath: "/tmp/metrics-test-db.json"},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
