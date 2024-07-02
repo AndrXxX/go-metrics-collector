@@ -88,6 +88,7 @@ func TestStackPop(t *testing.T) {
 	type want[T any] struct {
 		val T
 		ok  bool
+		s   Stack[T]
 	}
 	type testCase[T any] struct {
 		name string
@@ -98,17 +99,17 @@ func TestStackPop(t *testing.T) {
 		{
 			name: "test Pop with 5, 11, 44",
 			s:    Stack[int64]{elements: []int64{5, 11, 44}},
-			want: want[int64]{val: 44, ok: true},
+			want: want[int64]{val: 44, ok: true, s: Stack[int64]{elements: []int64{5, 11}}},
 		},
 		{
 			name: "test Pop with 44, -1, 12, -1",
 			s:    Stack[int64]{elements: []int64{44, -1, 12, -1}},
-			want: want[int64]{val: -1, ok: true},
+			want: want[int64]{val: -1, ok: true, s: Stack[int64]{elements: []int64{44, -1, 12}}},
 		},
 		{
 			name: "test Pop with empty slice",
 			s:    Stack[int64]{elements: []int64{}},
-			want: want[int64]{val: 0, ok: false},
+			want: want[int64]{val: 0, ok: false, s: Stack[int64]{elements: []int64{}}},
 		},
 	}
 	for _, tt := range tests {
@@ -116,6 +117,7 @@ func TestStackPop(t *testing.T) {
 			val, ok := tt.s.Pop()
 			assert.Equal(t, val, tt.want.val)
 			assert.Equal(t, ok, tt.want.ok)
+			assert.Equal(t, tt.s, tt.want.s)
 		})
 	}
 }
