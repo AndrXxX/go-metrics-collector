@@ -10,10 +10,6 @@ type storage[T any] interface {
 	Get(metric string) (value T, ok bool)
 }
 
-type storageProvider[T any] interface {
-	GetStorage(name string) T
-}
-
 type formatter interface {
 	Format(m *models.Metrics) (string, error)
 }
