@@ -9,8 +9,8 @@ type updater interface {
 	Update(m *models.Metrics) (*models.Metrics, error)
 }
 
-type stringifier interface {
-	String(m *models.Metrics) (string, error)
+type formatter interface {
+	Format(m *models.Metrics) (string, error)
 }
 
 type identifier interface {

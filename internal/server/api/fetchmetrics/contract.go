@@ -14,8 +14,8 @@ type storageProvider[T any] interface {
 	GetStorage(name string) T
 }
 
-type stringifier interface {
-	String(m *models.Metrics) (string, error)
+type formatter interface {
+	Format(m *models.Metrics) (string, error)
 }
 
 type identifier interface {

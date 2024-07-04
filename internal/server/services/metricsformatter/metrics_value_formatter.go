@@ -1,4 +1,4 @@
-package metricstringifier
+package metricsformatter
 
 import (
 	"errors"
@@ -7,10 +7,10 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 )
 
-type MetricsValueStringifier struct {
+type MetricsValueFormatter struct {
 }
 
-func (s MetricsValueStringifier) String(m *models.Metrics) (string, error) {
+func (s MetricsValueFormatter) Format(m *models.Metrics) (string, error) {
 	switch m.MType {
 	case metrics.Counter:
 		if m.Delta == nil {

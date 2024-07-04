@@ -1,4 +1,4 @@
-package metricstringifier
+package metricsformatter
 
 import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestMetricsEmptyStringifierString(t *testing.T) {
+func TestMetricsEmptyFormatterFormat(t *testing.T) {
 	tests := []struct {
 		name    string
 		m       *models.Metrics
@@ -22,8 +22,8 @@ func TestMetricsEmptyStringifierString(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := MetricsEmptyStringifier{}
-			str, err := s.String(tt.m)
+			s := MetricsEmptyFormatter{}
+			str, err := s.Format(tt.m)
 			assert.Equal(t, tt.want, str)
 			assert.Equal(t, tt.wantErr, err != nil)
 		})

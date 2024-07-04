@@ -6,8 +6,8 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsformatter"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsidentifier"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricstringifier"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsupdater"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
@@ -48,7 +48,7 @@ func TestUpdateMetricsHandlerGaugeHandle(t *testing.T) {
 		},
 	}
 	storage := memory.New[*models.Metrics]()
-	h := New(metricsupdater.New(&storage), metricstringifier.MetricsEmptyStringifier{}, metricsidentifier.NewURLIdentifier())
+	h := New(metricsupdater.New(&storage), metricsformatter.MetricsEmptyFormatter{}, metricsidentifier.NewURLIdentifier())
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			request := httptest.NewRequest(test.method, test.request, nil)
@@ -102,7 +102,7 @@ func TestUpdateMetricsHandlerCounterHandle(t *testing.T) {
 		},
 	}
 	storage := memory.New[*models.Metrics]()
-	h := New(metricsupdater.New(&storage), metricstringifier.MetricsEmptyStringifier{}, metricsidentifier.NewURLIdentifier())
+	h := New(metricsupdater.New(&storage), metricsformatter.MetricsEmptyFormatter{}, metricsidentifier.NewURLIdentifier())
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			request := httptest.NewRequest(test.method, test.request, nil)

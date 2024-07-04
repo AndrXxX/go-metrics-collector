@@ -16,8 +16,8 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/conveyor"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsformatter"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsidentifier"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricstringifier"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsupdater"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/storagesaver"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/tasks/savestoragetask"
@@ -50,13 +50,13 @@ func Run(c *config.Config) error {
 		r.Post(fmt.Sprintf("/{%v}/{%v}/{%v}", vars.MetricType, vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType(contenttypes.TextPlain),
 			middlewares.HasMetricOr404(),
-			updatemetrics.New(metricsupdater.New(&storage), metricstringifier.MetricsEmptyStringifier{}, metricsidentifier.NewURLIdentifier()),
+			updatemetrics.New(metricsupdater.New(&storage), metricsformatter.MetricsEmptyFormatter{}, metricsidentifier.NewURLIdentifier()),
 		}).Handler())
 
 		r.Post("/", cFactory.From([]interfaces.Handler{
 			middlewares.CompressGzip(),
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
-			updatemetrics.New(metricsupdater.New(&storage), metricstringifier.MetricsJSONStringifier{}, metricsidentifier.NewJSONIdentifier()),
+			updatemetrics.New(metricsupdater.New(&storage), metricsformatter.MetricsJSONFormatter{}, metricsidentifier.NewJSONIdentifier()),
 		}).Handler())
 	})
 
@@ -64,13 +64,13 @@ func Run(c *config.Config) error {
 		r.Get(fmt.Sprintf("/{%v}/{%v}", vars.MetricType, vars.Metric), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType(contenttypes.TextPlain),
 			middlewares.HasMetricOr404(),
-			fetchmetrics.New(&storage, metricstringifier.MetricsValueStringifier{}, metricsidentifier.NewURLIdentifier()),
+			fetchmetrics.New(&storage, metricsformatter.MetricsValueFormatter{}, metricsidentifier.NewURLIdentifier()),
 		}).Handler())
 
 		r.Post("/", cFactory.From([]interfaces.Handler{
 			middlewares.CompressGzip(),
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
-			fetchmetrics.New(&storage, metricstringifier.MetricsJSONStringifier{}, metricsidentifier.NewJSONIdentifier()),
+			fetchmetrics.New(&storage, metricsformatter.MetricsJSONFormatter{}, metricsidentifier.NewJSONIdentifier()),
 		}).Handler())
 	})
 

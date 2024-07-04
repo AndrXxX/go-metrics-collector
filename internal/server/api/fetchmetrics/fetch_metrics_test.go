@@ -6,8 +6,8 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsformatter"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsidentifier"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricstringifier"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -84,7 +84,7 @@ func TestFetchMetricsHandlerGaugeHandle(t *testing.T) {
 				})
 			}
 			w := httptest.NewRecorder()
-			h := New(&storage, metricstringifier.MetricsValueStringifier{}, identifier)
+			h := New(&storage, metricsformatter.MetricsValueFormatter{}, identifier)
 			h.Handle(w, request, nil)
 			result := w.Result()
 
@@ -167,7 +167,7 @@ func TestFetchMetricsHandlerCounterHandle(t *testing.T) {
 				})
 			}
 			w := httptest.NewRecorder()
-			h := New(&storage, metricstringifier.MetricsValueStringifier{}, identifier)
+			h := New(&storage, metricsformatter.MetricsValueFormatter{}, identifier)
 			h.Handle(w, request, nil)
 			result := w.Result()
 

@@ -8,7 +8,7 @@ import (
 
 type updateMetricsHandler struct {
 	u updater
-	s stringifier
+	f formatter
 	i identifier
 }
 
@@ -23,7 +23,7 @@ func (h *updateMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, ne
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	str, err := h.s.String(metric)
+	str, err := h.f.Format(metric)
 	if err == nil {
 		w.WriteHeader(http.StatusOK)
 		_, err = fmt.Fprintf(w, "%s", str)
@@ -38,6 +38,6 @@ func (h *updateMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, ne
 	}
 }
 
-func New(u updater, s stringifier, i identifier) *updateMetricsHandler {
-	return &updateMetricsHandler{u, s, i}
+func New(u updater, f formatter, i identifier) *updateMetricsHandler {
+	return &updateMetricsHandler{u, f, i}
 }

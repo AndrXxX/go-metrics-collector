@@ -9,9 +9,9 @@ import (
 )
 
 type fetchMetricsHandler struct {
-	storage storage[*models.Metrics]
-	s       stringifier
-	i       identifier
+	s storage[*models.Metrics]
+	f formatter
+	i identifier
 }
 
 func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
@@ -25,12 +25,12 @@ func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, nex
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	val, ok := h.storage.Get(metric.ID)
+	val, ok := h.s.Get(metric.ID)
 	if !ok {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	str, err := h.s.String(val)
+	str, err := h.f.Format(val)
 	if err == nil {
 		w.WriteHeader(http.StatusOK)
 		_, err = fmt.Fprintf(w, "%s", str)
@@ -45,6 +45,6 @@ func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, nex
 	}
 }
 
-func New(storage storage[*models.Metrics], s stringifier, i identifier) *fetchMetricsHandler {
-	return &fetchMetricsHandler{storage, s, i}
+func New(s storage[*models.Metrics], f formatter, i identifier) *fetchMetricsHandler {
+	return &fetchMetricsHandler{s, f, i}
 }
