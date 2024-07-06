@@ -3,15 +3,15 @@ package fetchmetrics
 import (
 	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricschecker"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"net/http"
 )
 
 type fetchMetricsHandler struct {
-	s storage[*models.Metrics]
-	f formatter
-	i identifier
+	s  storage[*models.Metrics]
+	f  formatter
+	i  identifier
+	mc metricsChecker
 }
 
 func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
@@ -20,8 +20,7 @@ func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, nex
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	mc := metricschecker.New()
-	if !mc.IsValid(metric) {
+	if !h.mc.IsValid(metric) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -45,6 +44,6 @@ func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, nex
 	}
 }
 
-func New(s storage[*models.Metrics], f formatter, i identifier) *fetchMetricsHandler {
-	return &fetchMetricsHandler{s, f, i}
+func New(s storage[*models.Metrics], f formatter, i identifier, mc metricsChecker) *fetchMetricsHandler {
+	return &fetchMetricsHandler{s, f, i, mc}
 }

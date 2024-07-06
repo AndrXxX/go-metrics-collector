@@ -17,3 +17,7 @@ type formatter interface {
 type identifier interface {
 	Process(r *http.Request) (*models.Metrics, error)
 }
+
+type metricsChecker interface {
+	IsValid(m *models.Metrics) bool
+}
