@@ -14,7 +14,7 @@ func TestNew(t *testing.T) {
 	}{
 		{
 			name: "OK Test",
-			want: &metricsChecker{[]string{metrics.Counter, metrics.Gauge}},
+			want: &metricsChecker{map[string]struct{}{metrics.Counter: {}, metrics.Gauge: {}}},
 		},
 	}
 	for _, tt := range tests {
@@ -33,19 +33,19 @@ func TestMetricsCheckerIsValid(t *testing.T) {
 	}{
 		{
 			name: "Valid Counter Test",
-			mc:   &metricsChecker{[]string{metrics.Counter, metrics.Gauge}},
+			mc:   &metricsChecker{map[string]struct{}{metrics.Counter: {}, metrics.Gauge: {}}},
 			m:    &models.Metrics{MType: metrics.Counter},
 			want: true,
 		},
 		{
 			name: "Valid Gauge Test",
-			mc:   &metricsChecker{[]string{metrics.Counter, metrics.Gauge}},
-			m:    &models.Metrics{MType: metrics.Counter},
+			mc:   &metricsChecker{map[string]struct{}{metrics.Counter: {}, metrics.Gauge: {}}},
+			m:    &models.Metrics{MType: metrics.Gauge},
 			want: true,
 		},
 		{
 			name: "Not valid Test",
-			mc:   &metricsChecker{[]string{metrics.Counter, metrics.Gauge}},
+			mc:   &metricsChecker{map[string]struct{}{metrics.Counter: {}, metrics.Gauge: {}}},
 			m:    &models.Metrics{MType: "not valid"},
 			want: false,
 		},

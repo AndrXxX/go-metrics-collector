@@ -3,19 +3,22 @@ package metricschecker
 import (
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
-	"slices"
 )
 
 type metricsChecker struct {
-	validTypes []string
+	validTypes map[string]struct{}
 }
 
 func (c *metricsChecker) IsValid(m *models.Metrics) bool {
-	return slices.Contains(c.validTypes, m.MType)
+	_, ok := c.validTypes[m.MType]
+	return ok
 }
 
 func New() *metricsChecker {
 	return &metricsChecker{
-		validTypes: []string{metrics.Counter, metrics.Gauge},
+		validTypes: map[string]struct{}{
+			metrics.Counter: {},
+			metrics.Gauge:   {},
+		},
 	}
 }
