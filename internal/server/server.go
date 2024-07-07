@@ -2,10 +2,12 @@ package server
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/contenttypes"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/api/dbping"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchallmetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchmetrics"
 	apilogger "github.com/AndrXxX/go-metrics-collector/internal/server/api/logger"
@@ -24,6 +26,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/tasks/savestoragetask"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"github.com/go-chi/chi/v5"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"go.uber.org/zap"
 	"net/http"
 	"os"
@@ -43,11 +46,29 @@ func Run(c *config.Config) error {
 	cFactory := conveyor.Factory(apilogger.New())
 	mc := metricschecker.New()
 
+	var db *sql.DB
+
+	if c.DatabaseDSN != "" {
+		db, err := sql.Open("pgx", c.DatabaseDSN)
+		if err != nil {
+			panic(err)
+		}
+		defer func(db *sql.DB) {
+			err := db.Close()
+			if err != nil {
+				logger.Log.Error("Error closing db", zap.Error(err))
+			}
+		}(db)
+	}
+
 	ctx, cancel := context.WithCancel(context.Background())
 	sst := savestoragetask.New(time.Duration(c.StoreInterval)*time.Second, ss)
 	go sst.Execute(ctx)
 
 	r := chi.NewRouter()
+	r.Get("/ping", cFactory.From([]interfaces.Handler{
+		dbping.New(db),
+	}).Handler())
 	r.Route("/update", func(r chi.Router) {
 		r.Post(fmt.Sprintf("/{%v}/{%v}/{%v}", vars.MetricType, vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType(contenttypes.TextPlain),
