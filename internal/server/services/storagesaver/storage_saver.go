@@ -3,6 +3,7 @@ package storagesaver
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"go.uber.org/zap"
@@ -17,21 +18,26 @@ type storageSaver struct {
 func (ss *storageSaver) Save() error {
 	file, err := os.OpenFile(ss.path, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to open file: %w", err)
 	}
 	defer func(file *os.File) {
 		err := file.Close()
 		if err != nil {
-			logger.Log.Error("Error on close file on save value", zap.Error(err))
+			logger.Log.Info("failed to close file", zap.Error(err))
 		}
 	}(file)
-	encoder := json.NewEncoder(file)
+
+	bufWriter := bufio.NewWriter(file)
+	encoder := json.NewEncoder(bufWriter)
 	for _, value := range ss.s.All() {
 		err := encoder.Encode(&value)
 		if err != nil {
 			logger.Log.Error("Error on encode value", zap.Error(err))
 			continue
 		}
+	}
+	if err := bufWriter.Flush(); err != nil {
+		return fmt.Errorf("failed to flush buffer: %w", err)
 	}
 	return nil
 }
