@@ -29,6 +29,24 @@ func Test_parseFlags(t *testing.T) {
 			flags:  []string{"-a", "new-host"},
 			want:   &config.Config{Host: "new-host"},
 		},
+		{
+			name:   "-i=5",
+			config: &config.Config{StoreInterval: 1},
+			flags:  []string{"-i", "5"},
+			want:   &config.Config{StoreInterval: 5},
+		},
+		{
+			name:   "-f=/tmp/1.j",
+			config: &config.Config{FileStoragePath: "/tmp/2.j"},
+			flags:  []string{"-f", "/tmp/1.j"},
+			want:   &config.Config{FileStoragePath: "/tmp/1.j"},
+		},
+		{
+			name:   "-r=0",
+			config: &config.Config{Restore: false},
+			flags:  []string{"-r", "0"},
+			want:   &config.Config{Restore: true},
+		},
 	}
 	for _, tt := range tests {
 		run(t, tt)

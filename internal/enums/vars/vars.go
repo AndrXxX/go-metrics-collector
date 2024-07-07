@@ -1,4 +1,5 @@
 package vars
 
-const METRIC = "metric"
-const VALUE = "value"
+const MetricType = "metricType"
+const Metric = "metric"
+const Value = "value"

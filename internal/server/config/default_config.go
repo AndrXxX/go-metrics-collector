@@ -1,7 +1,13 @@
 package config
 
+import "github.com/AndrXxX/go-metrics-collector/internal/enums/vars/defaults"
+
 func NewConfig() *Config {
 	return &Config{
-		Host: "localhost:8080",
+		Host:            defaults.Host,
+		LogLevel:        defaults.LogLevel,
+		StoreInterval:   defaults.StoreInterval,
+		FileStoragePath: defaults.FileStoragePath,
+		Restore:         defaults.Restore,
 	}
 }

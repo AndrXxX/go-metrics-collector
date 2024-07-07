@@ -26,6 +26,24 @@ func Test_parseEnv(t *testing.T) {
 			env:    map[string]string{"ADDRESS": "new-host"},
 			want:   &config.Config{Host: "new-host"},
 		},
+		{
+			name:   "STORE_INTERVAL=5",
+			config: &config.Config{StoreInterval: 1},
+			env:    map[string]string{"STORE_INTERVAL": "5"},
+			want:   &config.Config{StoreInterval: 5},
+		},
+		{
+			name:   "FILE_STORAGE_PATH=/tmp/metrics-test-db.json",
+			config: &config.Config{FileStoragePath: "/tmp/temp"},
+			env:    map[string]string{"FILE_STORAGE_PATH": "/tmp/metrics-test-db.json"},
+			want:   &config.Config{FileStoragePath: "/tmp/metrics-test-db.json"},
+		},
+		{
+			name:   "RESTORE=1",
+			config: &config.Config{Restore: false},
+			env:    map[string]string{"RESTORE": "1"},
+			want:   &config.Config{Restore: true},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

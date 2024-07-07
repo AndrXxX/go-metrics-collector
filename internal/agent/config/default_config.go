@@ -1,41 +1,49 @@
 package config
 
-import me "github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
+import (
+	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
+	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars/defaults"
+)
 
 func NewConfig() *Config {
 	return &Config{
 		Common: CommonConfig{
-			Host: "localhost:8080",
+			Host:     defaults.Host,
+			LogLevel: defaults.LogLevel,
 		},
-		Intervals: Intervals{PollInterval: 2, ReportInterval: 10},
+		Intervals: Intervals{
+			PollInterval:   defaults.PollInterval,
+			ReportInterval: defaults.ReportInterval,
+			SleepInterval:  defaults.SleepInterval,
+		},
 		Metrics: MetricsList{
-			me.Alloc,
-			me.BuckHashSys,
-			me.Frees,
-			me.GCCPUFraction,
-			me.GCSys,
-			me.HeapAlloc,
-			me.HeapIdle,
-			me.HeapInuse,
-			me.HeapObjects,
-			me.HeapReleased,
-			me.HeapSys,
-			me.LastGC,
-			me.Lookups,
-			me.MCacheInuse,
-			me.MCacheSys,
-			me.MSpanInuse,
-			me.MSpanSys,
-			me.Mallocs,
-			me.NextGC,
-			me.NumForcedGC,
-			me.NumGC,
-			me.OtherSys,
-			me.PauseTotalNs,
-			me.StackInuse,
-			me.StackSys,
-			me.Sys,
-			me.TotalAlloc,
+			metrics.Alloc,
+			metrics.BuckHashSys,
+			metrics.Frees,
+			metrics.GCCPUFraction,
+			metrics.GCSys,
+			metrics.HeapAlloc,
+			metrics.HeapIdle,
+			metrics.HeapInuse,
+			metrics.HeapObjects,
+			metrics.HeapReleased,
+			metrics.HeapSys,
+			metrics.LastGC,
+			metrics.Lookups,
+			metrics.MCacheInuse,
+			metrics.MCacheSys,
+			metrics.MSpanInuse,
+			metrics.MSpanSys,
+			metrics.Mallocs,
+			metrics.NextGC,
+			metrics.NumForcedGC,
+			metrics.NumGC,
+			metrics.OtherSys,
+			metrics.PauseTotalNs,
+			metrics.StackInuse,
+			metrics.StackSys,
+			metrics.Sys,
+			metrics.TotalAlloc,
 		},
 	}
 }
