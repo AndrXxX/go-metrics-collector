@@ -15,8 +15,9 @@ type metricsCollector struct {
 }
 
 func (c *metricsCollector) Execute(result dto.MetricsDto) error {
-	memStatsDto := dto.NewMemStatsDto()
-	runtime.ReadMemStats(&memStatsDto.Stats)
+	ms := runtime.MemStats{}
+	runtime.ReadMemStats(&ms)
+	memStatsDto := dto.NewMemStatsDto(&ms)
 
 	for _, name := range *c.ml {
 		metricFn, ok := memStatsDto.FetchGetter(name)

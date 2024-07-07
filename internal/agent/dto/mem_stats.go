@@ -8,7 +8,6 @@ import (
 type getter func() float64
 
 type memStatsDto struct {
-	Stats      runtime.MemStats
 	gettersMap map[string]getter
 }
 
@@ -17,9 +16,8 @@ func (ms *memStatsDto) FetchGetter(name string) (getter, bool) {
 	return getter, ok
 }
 
-func NewMemStatsDto() memStatsDto {
-	ms := runtime.MemStats{}
-	return memStatsDto{Stats: ms, gettersMap: buildMap(&ms)}
+func NewMemStatsDto(ms *runtime.MemStats) memStatsDto {
+	return memStatsDto{gettersMap: buildMap(ms)}
 }
 
 func buildMap(s *runtime.MemStats) map[string]getter {
