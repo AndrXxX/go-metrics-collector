@@ -9,13 +9,12 @@ type Config struct {
 type MetricsList []string
 
 type Intervals struct {
-	PollInterval   int64
-	ReportInterval int64
-	SleepInterval  int64
-	// TODO:  Perederey 2 weeks ago Лучше использовать struct tags для валидации значений конфигурации.
+	PollInterval   int64 `valid:"range(1|999)"`
+	ReportInterval int64 `valid:"range(1|999)"`
+	SleepInterval  int64 `valid:"range(1|20)"`
 }
 
 type CommonConfig struct {
-	Host     string
-	LogLevel string
+	Host     string `valid:"minstringlength(3)"`
+	LogLevel string `valid:"in(debug|info|warn|error|fatal)"`
 }
