@@ -1,6 +1,7 @@
 package stack
 
 type Stack[T any] struct {
+	//TODO: Perederey Еще бы, рассмотри возможность использования sync.Mutex для обеспечения потокобезопасности операций со стеком
 	elements []T
 }
 
