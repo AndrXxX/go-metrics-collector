@@ -19,12 +19,12 @@ func (c *metricsCollector) Execute(result dto.MetricsDto) error {
 	runtime.ReadMemStats(&memStatsDto.Stats)
 
 	for _, name := range *c.ml {
-		val, err := memStatsDto.GetValue(name)
-		if err != nil {
-			logger.Log.Error(fmt.Sprintf("Failed to get value for metric %s: %s", name, err.Error()))
+		metricFn, ok := memStatsDto.FetchGetter(name)
+		if !ok {
+			logger.Log.Error(fmt.Sprintf("Failed to fetch value getter for metric %s", name))
 			continue
 		}
-		result.Gauge[name] = val
+		result.Gauge[name] = metricFn()
 	}
 	result.Counter[metrics.PollCount]++
 	result.Gauge[metrics.RandomValue] = rand.Float64()

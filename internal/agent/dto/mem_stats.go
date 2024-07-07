@@ -1,76 +1,55 @@
 package dto
 
 import (
-	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"runtime"
 )
 
+type getter func() float64
+
 type memStatsDto struct {
-	Stats runtime.MemStats
+	Stats      runtime.MemStats
+	gettersMap map[string]getter
+}
+
+func (ms *memStatsDto) FetchGetter(name string) (getter, bool) {
+	getter, ok := ms.gettersMap[name]
+	return getter, ok
 }
 
 func NewMemStatsDto() memStatsDto {
-	return memStatsDto{Stats: runtime.MemStats{}}
+	ms := runtime.MemStats{}
+	return memStatsDto{Stats: ms, gettersMap: buildMap(&ms)}
 }
 
-func (ms *memStatsDto) GetValue(name string) (float64, error) {
-	switch name {
-	case metrics.Alloc:
-		return float64(ms.Stats.Alloc), nil
-	case metrics.BuckHashSys:
-		return float64(ms.Stats.BuckHashSys), nil
-	case metrics.Frees:
-		return float64(ms.Stats.Frees), nil
-	case metrics.GCCPUFraction:
-		return ms.Stats.GCCPUFraction, nil
-	case metrics.GCSys:
-		return float64(ms.Stats.GCSys), nil
-	case metrics.HeapAlloc:
-		return float64(ms.Stats.HeapAlloc), nil
-	case metrics.HeapIdle:
-		return float64(ms.Stats.HeapIdle), nil
-	case metrics.HeapInuse:
-		return float64(ms.Stats.HeapInuse), nil
-	case metrics.HeapObjects:
-		return float64(ms.Stats.HeapObjects), nil
-	case metrics.HeapReleased:
-		return float64(ms.Stats.HeapReleased), nil
-	case metrics.HeapSys:
-		return float64(ms.Stats.HeapSys), nil
-	case metrics.LastGC:
-		return float64(ms.Stats.LastGC), nil
-	case metrics.Lookups:
-		return float64(ms.Stats.Lookups), nil
-	case metrics.MCacheInuse:
-		return float64(ms.Stats.MCacheInuse), nil
-	case metrics.MCacheSys:
-		return float64(ms.Stats.MCacheSys), nil
-	case metrics.MSpanInuse:
-		return float64(ms.Stats.MSpanInuse), nil
-	case metrics.MSpanSys:
-		return float64(ms.Stats.MSpanSys), nil
-	case metrics.Mallocs:
-		return float64(ms.Stats.Mallocs), nil
-	case metrics.NextGC:
-		return float64(ms.Stats.NextGC), nil
-	case metrics.NumForcedGC:
-		return float64(ms.Stats.NumForcedGC), nil
-	case metrics.NumGC:
-		return float64(ms.Stats.NumGC), nil
-	case metrics.OtherSys:
-		return float64(ms.Stats.OtherSys), nil
-	case metrics.PauseTotalNs:
-		return float64(ms.Stats.PauseTotalNs), nil
-	case metrics.StackInuse:
-		return float64(ms.Stats.StackInuse), nil
-	case metrics.StackSys:
-		return float64(ms.Stats.StackSys), nil
-	case metrics.Sys:
-		return float64(ms.Stats.Sys), nil
-	case metrics.TotalAlloc:
-		return float64(ms.Stats.TotalAlloc), nil
-	default:
-		return 0, fmt.Errorf("no such metric")
-	}
+func buildMap(s *runtime.MemStats) map[string]getter {
+	m := make(map[string]getter)
+	m[metrics.Alloc] = func() float64 { return float64(s.Alloc) }
+	m[metrics.BuckHashSys] = func() float64 { return float64(s.BuckHashSys) }
+	m[metrics.Frees] = func() float64 { return float64(s.Frees) }
+	m[metrics.GCCPUFraction] = func() float64 { return s.GCCPUFraction }
+	m[metrics.GCSys] = func() float64 { return float64(s.GCSys) }
+	m[metrics.HeapAlloc] = func() float64 { return float64(s.HeapAlloc) }
+	m[metrics.HeapIdle] = func() float64 { return float64(s.HeapIdle) }
+	m[metrics.HeapInuse] = func() float64 { return float64(s.HeapInuse) }
+	m[metrics.HeapObjects] = func() float64 { return float64(s.HeapObjects) }
+	m[metrics.HeapReleased] = func() float64 { return float64(s.HeapReleased) }
+	m[metrics.HeapSys] = func() float64 { return float64(s.HeapSys) }
+	m[metrics.LastGC] = func() float64 { return float64(s.LastGC) }
+	m[metrics.Lookups] = func() float64 { return float64(s.Lookups) }
+	m[metrics.MCacheInuse] = func() float64 { return float64(s.MCacheInuse) }
+	m[metrics.MCacheSys] = func() float64 { return float64(s.MCacheSys) }
+	m[metrics.MSpanInuse] = func() float64 { return float64(s.MSpanInuse) }
+	m[metrics.MSpanSys] = func() float64 { return float64(s.MSpanSys) }
+	m[metrics.Mallocs] = func() float64 { return float64(s.Mallocs) }
+	m[metrics.NextGC] = func() float64 { return float64(s.NextGC) }
+	m[metrics.NumForcedGC] = func() float64 { return float64(s.NumForcedGC) }
+	m[metrics.NumGC] = func() float64 { return float64(s.NumGC) }
+	m[metrics.OtherSys] = func() float64 { return float64(s.OtherSys) }
+	m[metrics.PauseTotalNs] = func() float64 { return float64(s.PauseTotalNs) }
+	m[metrics.StackInuse] = func() float64 { return float64(s.StackInuse) }
+	m[metrics.StackSys] = func() float64 { return float64(s.StackSys) }
+	m[metrics.Sys] = func() float64 { return float64(s.Sys) }
+	m[metrics.TotalAlloc] = func() float64 { return float64(s.TotalAlloc) }
+	return m
 }
