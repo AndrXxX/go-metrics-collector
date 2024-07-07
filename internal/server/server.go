@@ -46,20 +46,16 @@ func Run(c *config.Config) error {
 	cFactory := conveyor.Factory(apilogger.New())
 	mc := metricschecker.New()
 
-	var db *sql.DB
-
-	if c.DatabaseDSN != "" {
-		db, err := sql.Open("pgx", c.DatabaseDSN)
-		if err != nil {
-			panic(err)
-		}
-		defer func(db *sql.DB) {
-			err := db.Close()
-			if err != nil {
-				logger.Log.Error("Error closing db", zap.Error(err))
-			}
-		}(db)
+	db, err := sql.Open("pgx", c.DatabaseDSN)
+	if err != nil {
+		logger.Log.Error("Error opening db", zap.Error(err))
 	}
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			logger.Log.Error("Error closing db", zap.Error(err))
+		}
+	}(db)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	sst := savestoragetask.New(time.Duration(c.StoreInterval)*time.Second, ss)
