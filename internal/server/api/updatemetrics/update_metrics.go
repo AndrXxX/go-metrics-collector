@@ -12,6 +12,7 @@ type updateMetricsHandler struct {
 	i identifier
 }
 
+// Handle updates metrics from request
 func (h *updateMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	metric, err := h.i.Process(r)
 	if metric == nil || err != nil {
@@ -38,6 +39,7 @@ func (h *updateMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, ne
 	}
 }
 
+// New Return updateMetricsHandler
 func New(u updater, f formatter, i identifier) *updateMetricsHandler {
 	return &updateMetricsHandler{u, f, i}
 }
