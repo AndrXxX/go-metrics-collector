@@ -6,4 +6,5 @@ type Config struct {
 	StoreInterval   int    `valid:"range(1|999)"`
 	FileStoragePath string `valid:"minstringlength(3)"`
 	Restore         bool
+	DatabaseDSN     string
 }
