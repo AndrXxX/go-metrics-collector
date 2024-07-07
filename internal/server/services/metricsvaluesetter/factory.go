@@ -10,6 +10,7 @@ type setter interface {
 }
 
 type factory struct {
+	setters map[string]setter
 }
 
 func (f *factory) CounterValueSetter() *counterValueSetter {
@@ -20,17 +21,16 @@ func (f *factory) GaugeValueSetter() *gaugeValueSetter {
 	return &gaugeValueSetter{}
 }
 
-func (f *factory) SetterByType(mType string) setter {
-	switch mType {
-	case metrics.Counter:
-		return f.CounterValueSetter()
-	case metrics.Gauge:
-		return f.GaugeValueSetter()
-	default:
-		return nil
-	}
+func (f *factory) SetterByType(mType string) (setter, bool) {
+	s, ok := f.setters[mType]
+	return s, ok
 }
 
 func Factory() *factory {
-	return &factory{}
+	return &factory{
+		setters: map[string]setter{
+			metrics.Counter: &counterValueSetter{},
+			metrics.Gauge:   &gaugeValueSetter{},
+		},
+	}
 }

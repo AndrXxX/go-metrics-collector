@@ -21,8 +21,8 @@ func (i *urlMetricsIdentifier) Process(r *http.Request) (*models.Metrics, error)
 	if value == "" {
 		return &m, nil
 	}
-	setter := metricsvaluesetter.Factory().SetterByType(m.MType)
-	if setter == nil {
+	setter, ok := metricsvaluesetter.Factory().SetterByType(m.MType)
+	if !ok {
 		return nil, fmt.Errorf("unknown metrics type %q", m.MType)
 	}
 	err := setter.Set(&m, value)
