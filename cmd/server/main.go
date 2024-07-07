@@ -15,7 +15,7 @@ func main() {
 	}
 	parseFlags(settings)
 	parseEnv(settings)
-	if _, err := govalidator.ValidateStruct(c.Intervals); err != nil {
+	if _, err := govalidator.ValidateStruct(settings); err != nil {
 		log.Fatal(err)
 	}
 	if err := server.Run(settings); err != nil {
