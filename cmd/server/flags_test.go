@@ -47,6 +47,12 @@ func Test_parseFlags(t *testing.T) {
 			flags:  []string{"-r", "0"},
 			want:   &config.Config{Restore: true},
 		},
+		{
+			name:   "-d=test",
+			config: &config.Config{DatabaseDSN: ""},
+			flags:  []string{"-d", "test"},
+			want:   &config.Config{DatabaseDSN: "test"},
+		},
 	}
 	for _, tt := range tests {
 		run(t, tt)
