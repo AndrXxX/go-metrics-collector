@@ -12,7 +12,7 @@ type dbPingHandler struct {
 }
 
 func (h *dbPingHandler) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	err := h.db.Ping()
+	err := h.db.PingContext(r.Context())
 	if err != nil {
 		logger.Log.Error("Error on ping db", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
