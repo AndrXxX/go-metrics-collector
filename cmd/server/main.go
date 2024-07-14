@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/storageprovider"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"github.com/asaskevich/govalidator"
 	"log"
@@ -18,7 +19,8 @@ func main() {
 	if _, err := govalidator.ValidateStruct(settings); err != nil {
 		log.Fatal(err)
 	}
-	app := server.NewApp(settings)
+	sp := storageprovider.New(settings)
+	app := server.New(settings, sp.Storage())
 	if err := app.Run(); err != nil {
 		log.Fatal(err)
 	}

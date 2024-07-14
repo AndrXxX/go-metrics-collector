@@ -15,10 +15,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updatemetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/filestorage"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/conveyor"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricschecker"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsformatter"
@@ -41,8 +38,8 @@ type app struct {
 	c  *config.Config
 }
 
-func NewApp(c *config.Config) *app {
-	return &app{getStorage(c), getDb(c), c}
+func New(c *config.Config, s interfaces.MetricsStorage) *app {
+	return &app{s, getDb(c), c}
 }
 
 func (a *app) Run() error {
@@ -125,17 +122,6 @@ func (a *app) Run() error {
 	<-idleConnsClosed
 
 	return nil
-}
-
-func getStorage(c *config.Config) interfaces.MetricsStorage {
-	// TODO: Вынести в другое место
-	if c.FileStoragePath != "" {
-		ms := memory.New[*models.Metrics]()
-		s := filestorage.New(c, &ms)
-		return &s
-	}
-	s := memory.New[*models.Metrics]()
-	return &s
 }
 
 func getDb(c *config.Config) *sql.DB {
