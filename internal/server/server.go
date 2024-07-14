@@ -16,13 +16,14 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/filestorage"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/conveyor"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricschecker"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsformatter"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsidentifier"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsupdater"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/storagesaver"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/tasks/savestoragetask"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"github.com/go-chi/chi/v5"
@@ -45,19 +46,16 @@ func NewApp(c *config.Config) *app {
 }
 
 func (a *app) Run() error {
-	ss := storagesaver.New(a.c.FileStoragePath, a.s)
-	if a.c.Restore {
-		err := ss.Restore()
-		if err != nil {
-			logger.Log.Error("Error restoring storage", zap.Error(err))
-		}
-	}
+
 	cFactory := conveyor.Factory(apilogger.New())
 	mc := metricschecker.New()
 
 	ctx, cancel := context.WithCancel(context.Background())
-	sst := savestoragetask.New(time.Duration(a.c.StoreInterval)*time.Second, ss)
-	go sst.Execute(ctx)
+
+	if ss, ok := a.s.(repositories.StorageSaver); ok {
+		sst := savestoragetask.New(time.Duration(a.c.StoreInterval)*time.Second, ss)
+		go sst.Execute(ctx)
+	}
 
 	r := chi.NewRouter()
 	r.Get("/ping", cFactory.From([]interfaces.Handler{
@@ -106,9 +104,12 @@ func (a *app) Run() error {
 		<-sigint
 
 		cancel()
-		err := ss.Save()
-		if err != nil {
-			logger.Log.Error("Error on save storage", zap.Error(err))
+
+		if ss, ok := a.s.(repositories.StorageShutdowner); ok {
+			err := ss.Shutdown()
+			if err != nil {
+				logger.Log.Error("Error on shutdown storage", zap.Error(err))
+			}
 		}
 
 		if err := srv.Shutdown(context.Background()); err != nil {
@@ -126,8 +127,13 @@ func (a *app) Run() error {
 	return nil
 }
 
-func getStorage(_ *config.Config) interfaces.MetricsStorage {
+func getStorage(c *config.Config) interfaces.MetricsStorage {
 	// TODO: Вынести в другое место
+	if c.FileStoragePath != "" {
+		ms := memory.New[*models.Metrics]()
+		s := filestorage.New(c, &ms)
+		return &s
+	}
 	s := memory.New[*models.Metrics]()
 	return &s
 }

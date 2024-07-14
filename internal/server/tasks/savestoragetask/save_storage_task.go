@@ -2,14 +2,15 @@ package savestoragetask
 
 import (
 	"context"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"go.uber.org/zap"
 	"time"
 )
 
 type saveStorageTask struct {
-	i  time.Duration
-	ss storageSaver
+	i time.Duration
+	s repositories.StorageSaver
 }
 
 func (t *saveStorageTask) Execute(ctx context.Context) {
@@ -18,7 +19,7 @@ func (t *saveStorageTask) Execute(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		default:
-			err := t.ss.Save()
+			err := t.s.Save()
 			if err != nil {
 				logger.Log.Error("save storage task failed", zap.Error(err))
 			}
@@ -27,6 +28,6 @@ func (t *saveStorageTask) Execute(ctx context.Context) {
 	}
 }
 
-func New(i time.Duration, ss storageSaver) *saveStorageTask {
-	return &saveStorageTask{i, ss}
+func New(i time.Duration, s repositories.StorageSaver) *saveStorageTask {
+	return &saveStorageTask{i, s}
 }
