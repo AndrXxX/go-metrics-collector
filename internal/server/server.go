@@ -38,8 +38,8 @@ type app struct {
 	c  *config.Config
 }
 
-func New(c *config.Config, s interfaces.MetricsStorage) *app {
-	return &app{s, getDb(c), c}
+func New(c *config.Config, s interfaces.MetricsStorage, db *sql.DB) *app {
+	return &app{s, db, c}
 }
 
 func (a *app) Run() error {
@@ -122,20 +122,4 @@ func (a *app) Run() error {
 	<-idleConnsClosed
 
 	return nil
-}
-
-func getDb(c *config.Config) *sql.DB {
-	// TODO: Вынести в другое место
-	db, err := sql.Open("pgx", c.DatabaseDSN)
-	if err != nil {
-		logger.Log.Error("Error opening db", zap.Error(err))
-		return nil
-	}
-	defer func(db *sql.DB) {
-		err := db.Close()
-		if err != nil {
-			logger.Log.Error("Error closing db", zap.Error(err))
-		}
-	}(db)
-	return db
 }
