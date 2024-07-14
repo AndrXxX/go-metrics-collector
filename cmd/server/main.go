@@ -18,7 +18,8 @@ func main() {
 	if _, err := govalidator.ValidateStruct(settings); err != nil {
 		log.Fatal(err)
 	}
-	if err := server.Run(settings); err != nil {
+	app := server.NewApp(settings)
+	if err := app.Run(); err != nil {
 		log.Fatal(err)
 	}
 }

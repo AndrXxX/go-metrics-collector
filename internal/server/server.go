@@ -34,10 +34,19 @@ import (
 	"time"
 )
 
-func Run(c *config.Config) error {
-	storage := memory.New[*models.Metrics]()
-	ss := storagesaver.New(c.FileStoragePath, &storage)
-	if c.Restore {
+type app struct {
+	s  interfaces.MetricsStorage
+	db *sql.DB
+	c  *config.Config
+}
+
+func NewApp(c *config.Config) *app {
+	return &app{getStorage(c), getDb(c), c}
+}
+
+func (a *app) Run() error {
+	ss := storagesaver.New(a.c.FileStoragePath, a.s)
+	if a.c.Restore {
 		err := ss.Restore()
 		if err != nil {
 			logger.Log.Error("Error restoring storage", zap.Error(err))
@@ -46,36 +55,25 @@ func Run(c *config.Config) error {
 	cFactory := conveyor.Factory(apilogger.New())
 	mc := metricschecker.New()
 
-	db, err := sql.Open("pgx", c.DatabaseDSN)
-	if err != nil {
-		logger.Log.Error("Error opening db", zap.Error(err))
-	}
-	defer func(db *sql.DB) {
-		err := db.Close()
-		if err != nil {
-			logger.Log.Error("Error closing db", zap.Error(err))
-		}
-	}(db)
-
 	ctx, cancel := context.WithCancel(context.Background())
-	sst := savestoragetask.New(time.Duration(c.StoreInterval)*time.Second, ss)
+	sst := savestoragetask.New(time.Duration(a.c.StoreInterval)*time.Second, ss)
 	go sst.Execute(ctx)
 
 	r := chi.NewRouter()
 	r.Get("/ping", cFactory.From([]interfaces.Handler{
-		dbping.New(db),
+		dbping.New(a.db),
 	}).Handler())
 	r.Route("/update", func(r chi.Router) {
 		r.Post(fmt.Sprintf("/{%v}/{%v}/{%v}", vars.MetricType, vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType(contenttypes.TextPlain),
 			middlewares.HasMetricOr404(),
-			updatemetrics.New(metricsupdater.New(&storage), metricsformatter.MetricsEmptyFormatter{}, metricsidentifier.NewURLIdentifier()),
+			updatemetrics.New(metricsupdater.New(a.s), metricsformatter.MetricsEmptyFormatter{}, metricsidentifier.NewURLIdentifier()),
 		}).Handler())
 
 		r.Post("/", cFactory.From([]interfaces.Handler{
 			middlewares.CompressGzip(),
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
-			updatemetrics.New(metricsupdater.New(&storage), metricsformatter.MetricsJSONFormatter{}, metricsidentifier.NewJSONIdentifier()),
+			updatemetrics.New(metricsupdater.New(a.s), metricsformatter.MetricsJSONFormatter{}, metricsidentifier.NewJSONIdentifier()),
 		}).Handler())
 	})
 
@@ -83,23 +81,23 @@ func Run(c *config.Config) error {
 		r.Get(fmt.Sprintf("/{%v}/{%v}", vars.MetricType, vars.Metric), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType(contenttypes.TextPlain),
 			middlewares.HasMetricOr404(),
-			fetchmetrics.New(&storage, metricsformatter.MetricsValueFormatter{}, metricsidentifier.NewURLIdentifier(), mc),
+			fetchmetrics.New(a.s, metricsformatter.MetricsValueFormatter{}, metricsidentifier.NewURLIdentifier(), mc),
 		}).Handler())
 
 		r.Post("/", cFactory.From([]interfaces.Handler{
 			middlewares.CompressGzip(),
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
-			fetchmetrics.New(&storage, metricsformatter.MetricsJSONFormatter{}, metricsidentifier.NewJSONIdentifier(), mc),
+			fetchmetrics.New(a.s, metricsformatter.MetricsJSONFormatter{}, metricsidentifier.NewJSONIdentifier(), mc),
 		}).Handler())
 	})
 
 	r.Get("/", cFactory.From([]interfaces.Handler{
 		middlewares.CompressGzip(),
 		middlewares.SetContentType(contenttypes.TextHTML),
-		fetchallmetrics.New(&storage),
+		fetchallmetrics.New(a.s),
 	}).Handler())
 
-	srv := &http.Server{Addr: c.Host, Handler: r}
+	srv := &http.Server{Addr: a.c.Host, Handler: r}
 
 	idleConnsClosed := make(chan struct{})
 	go func() {
@@ -126,4 +124,26 @@ func Run(c *config.Config) error {
 	<-idleConnsClosed
 
 	return nil
+}
+
+func getStorage(_ *config.Config) interfaces.MetricsStorage {
+	// TODO: Вынести в другое место
+	s := memory.New[*models.Metrics]()
+	return &s
+}
+
+func getDb(c *config.Config) *sql.DB {
+	// TODO: Вынести в другое место
+	db, err := sql.Open("pgx", c.DatabaseDSN)
+	if err != nil {
+		logger.Log.Error("Error opening db", zap.Error(err))
+		return nil
+	}
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			logger.Log.Error("Error closing db", zap.Error(err))
+		}
+	}(db)
+	return db
 }
