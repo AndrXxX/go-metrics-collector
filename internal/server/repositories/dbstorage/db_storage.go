@@ -17,7 +17,7 @@ func New(db *sql.DB) dbStorage {
 }
 
 func (s *dbStorage) Insert(ctx context.Context, name string, value *models.Metrics) {
-	stmt := `INSERT INTO metrics (name, type, delta, value) VALUES(?, ?, ?, ?)`
+	stmt := `INSERT INTO metrics (name, type, delta, value) VALUES($1, $2, $3, $4)`
 	_, err := s.db.ExecContext(ctx, stmt, name, value.MType, value.Delta, value.Value)
 	if err != nil {
 		logger.Log.Error("Failed to insert metrics", zap.Error(err))
@@ -26,11 +26,10 @@ func (s *dbStorage) Insert(ctx context.Context, name string, value *models.Metri
 
 func (s *dbStorage) Get(name string) (value *models.Metrics, ok bool) {
 	// TODO: realise with context
-	row := s.db.QueryRow("SELECT name, type, delta, value FROM metrics WHERE name = ?", name)
+	row := s.db.QueryRow("SELECT name, type, delta, value FROM metrics WHERE name = $1", name)
 	v := models.Metrics{}
 	err := row.Scan(&v.ID, &v.MType, &v.Delta, &v.Value)
 	if err != nil {
-		logger.Log.Error("error on scan all", zap.Error(err))
 		return nil, false
 	}
 	return &v, false
