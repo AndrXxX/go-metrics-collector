@@ -27,7 +27,7 @@ func main() {
 	defer stop()
 	db := dbprovider.New(settings).DB()
 	sp := storageprovider.New(settings, db)
-	app := server.New(settings, sp.Storage(), db)
+	app := server.New(settings, sp.Storage(ctx), db)
 	if err := app.Run(ctx); err != nil {
 		log.Fatal(err)
 	}

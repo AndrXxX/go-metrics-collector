@@ -21,7 +21,6 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsformatter"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsidentifier"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsupdater"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/tasks/savestoragetask"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
@@ -46,13 +45,6 @@ func (a *app) Run(commonCtx context.Context) error {
 
 	cFactory := conveyor.Factory(apilogger.New())
 	mc := metricschecker.New()
-
-	ctx, cancel := context.WithCancel(commonCtx)
-
-	if ss, ok := a.s.(repositories.StorageSaver); ok {
-		sst := savestoragetask.New(time.Duration(a.c.StoreInterval)*time.Second, ss)
-		go sst.Execute(ctx)
-	}
 
 	r := chi.NewRouter()
 	r.Get("/ping", cFactory.From([]interfaces.Handler{
