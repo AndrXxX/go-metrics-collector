@@ -25,11 +25,12 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
+	"log"
 	"net/http"
-	"os"
-	"os/signal"
 	"time"
 )
+
+const shutdownTimeout = 5 * time.Second
 
 type app struct {
 	s  interfaces.MetricsStorage
@@ -41,12 +42,12 @@ func New(c *config.Config, s interfaces.MetricsStorage, db *sql.DB) *app {
 	return &app{s, db, c}
 }
 
-func (a *app) Run() error {
+func (a *app) Run(commonCtx context.Context) error {
 
 	cFactory := conveyor.Factory(apilogger.New())
 	mc := metricschecker.New()
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(commonCtx)
 
 	if ss, ok := a.s.(repositories.StorageSaver); ok {
 		sst := savestoragetask.New(time.Duration(a.c.StoreInterval)*time.Second, ss)
@@ -93,16 +94,28 @@ func (a *app) Run() error {
 
 	srv := &http.Server{Addr: a.c.Host, Handler: r}
 
-	idleConnsClosed := make(chan struct{})
 	go func() {
-		sigint := make(chan os.Signal, 1)
-		signal.Notify(sigint, os.Interrupt)
-		<-sigint
+		if err := srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+			logger.Log.Info("HTTP server ListenAndServe", zap.Error(err))
+		}
+	}()
 
-		cancel()
+	logger.Log.Info(fmt.Sprintf("listening on %s", a.c.Host))
 
+	<-commonCtx.Done()
+	logger.Log.Info("shutting down server gracefully")
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	defer cancel()
+
+	if err := srv.Shutdown(shutdownCtx); err != nil {
+		return fmt.Errorf("shutdown: %w", err)
+	}
+
+	shutdown := make(chan struct{}, 1)
+	go func() {
 		if ss, ok := a.s.(repositories.StorageShutdowner); ok {
-			err := ss.Shutdown(ctx)
+			err := ss.Shutdown(shutdownCtx)
 			if err != nil {
 				logger.Log.Error("Error on shutdown storage", zap.Error(err))
 			}
@@ -110,18 +123,15 @@ func (a *app) Run() error {
 		if a.db != nil {
 			_ = a.db.Close()
 		}
-
-		if err := srv.Shutdown(context.Background()); err != nil {
-			logger.Log.Info("HTTP server Shutdown", zap.Error(err))
-		}
-		close(idleConnsClosed)
+		shutdown <- struct{}{}
 	}()
 
-	if err := srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
-		logger.Log.Info("HTTP server ListenAndServe", zap.Error(err))
+	select {
+	case <-shutdownCtx.Done():
+		return fmt.Errorf("server shutdown: %w", shutdownCtx.Err())
+	case <-shutdown:
+		log.Println("finished")
 	}
-
-	<-idleConnsClosed
 
 	return nil
 }
