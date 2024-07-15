@@ -12,6 +12,11 @@ type dbPingHandler struct {
 }
 
 func (h *dbPingHandler) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+	if h.db == nil {
+		logger.Log.Error("db is not initialized")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	err := h.db.PingContext(r.Context())
 	if err != nil {
 		logger.Log.Error("Error on ping db", zap.Error(err))
