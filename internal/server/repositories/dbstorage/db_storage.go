@@ -16,10 +16,9 @@ func New(db *sql.DB) dbStorage {
 	return dbStorage{db}
 }
 
-func (s *dbStorage) Insert(name string, value *models.Metrics) {
-	// TODO: realise with context
+func (s *dbStorage) Insert(ctx context.Context, name string, value *models.Metrics) {
 	stmt := `INSERT INTO metrics (name, type, delta, value) VALUES(?, ?, ?, ?)`
-	_, err := s.db.Exec(stmt, name, value.MType, value.Delta, value.Value)
+	_, err := s.db.ExecContext(ctx, stmt, name, value.MType, value.Delta, value.Value)
 	if err != nil {
 		logger.Log.Error("Failed to insert metrics", zap.Error(err))
 	}

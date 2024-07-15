@@ -20,7 +20,7 @@ type fileStorage struct {
 func New(c *config.Config, s repositories.Storage[*models.Metrics]) fileStorage {
 	ss := storagesaver.New(c.FileStoragePath, s)
 	if c.Restore {
-		err := ss.Restore()
+		err := ss.Restore(context.TODO())
 		if err != nil {
 			logger.Log.Error("Error restoring storage", zap.Error(err))
 		}
@@ -32,8 +32,8 @@ func New(c *config.Config, s repositories.Storage[*models.Metrics]) fileStorage 
 	}
 }
 
-func (s *fileStorage) Insert(name string, value *models.Metrics) {
-	s.s.Insert(name, value)
+func (s *fileStorage) Insert(ctx context.Context, name string, value *models.Metrics) {
+	s.s.Insert(ctx, name, value)
 }
 
 func (s *fileStorage) Get(name string) (value *models.Metrics, ok bool) {

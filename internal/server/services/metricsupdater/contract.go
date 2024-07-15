@@ -1,6 +1,8 @@
 package metricsupdater
 
+import "context"
+
 type storage[T any] interface {
-	Insert(metric string, value T)
+	Insert(ctx context.Context, metric string, value T)
 	Get(metric string) (value T, ok bool)
 }

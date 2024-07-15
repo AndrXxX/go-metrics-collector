@@ -1,6 +1,7 @@
 package metricsupdater
 
 import (
+	"context"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 )
@@ -13,11 +14,11 @@ func New(s storage[*models.Metrics]) *metricsUpdater {
 	return &metricsUpdater{s}
 }
 
-func (u *metricsUpdater) Update(newModel *models.Metrics) (*models.Metrics, error) {
+func (u *metricsUpdater) Update(ctx context.Context, newModel *models.Metrics) (*models.Metrics, error) {
 	currentModel, exist := u.s.Get(newModel.ID)
 	if !exist {
 		currentModel = newModel
-		u.s.Insert(currentModel.ID, currentModel)
+		u.s.Insert(ctx, currentModel.ID, currentModel)
 	}
 	if newModel.MType == metrics.Gauge {
 		currentModel.Value = newModel.Value

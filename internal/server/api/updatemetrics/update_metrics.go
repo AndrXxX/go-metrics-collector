@@ -19,7 +19,7 @@ func (h *updateMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, ne
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	metric, err = h.u.Update(metric)
+	metric, err = h.u.Update(r.Context(), metric)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return

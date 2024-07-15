@@ -43,7 +43,7 @@ func (ss *storageSaver) Save(ctx context.Context) error {
 	return nil
 }
 
-func (ss *storageSaver) Restore() error {
+func (ss *storageSaver) Restore(ctx context.Context) error {
 	file, err := os.OpenFile(ss.path, os.O_RDONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return err
@@ -62,7 +62,7 @@ func (ss *storageSaver) Restore() error {
 			logger.Log.Error("Error on unmarshall value", zap.Error(err))
 			continue
 		}
-		ss.s.Insert(m.ID, m)
+		ss.s.Insert(ctx, m.ID, m)
 	}
 	return nil
 }

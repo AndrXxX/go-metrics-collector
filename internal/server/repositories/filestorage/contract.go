@@ -4,5 +4,5 @@ import "context"
 
 type storageSaver interface {
 	Save(ctx context.Context) error
-	Restore() error
+	Restore(ctx context.Context) error
 }

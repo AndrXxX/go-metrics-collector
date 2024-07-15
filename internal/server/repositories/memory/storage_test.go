@@ -30,10 +30,11 @@ func TestStorageInsertInt64(t *testing.T) {
 			want:  map[string]int64{"metric": 10},
 		},
 	}
+	ctx := context.TODO()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &storage[int64]{store: tt.store}
-			s.Insert(tt.args.metric, tt.args.value)
+			s.Insert(ctx, tt.args.metric, tt.args.value)
 			assert.Equal(t, tt.want, tt.store)
 		})
 	}
@@ -134,10 +135,11 @@ func TestStorageSetFloat64(t *testing.T) {
 			want:  map[string]float64{"metric": -1},
 		},
 	}
+	ctx := context.TODO()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &storage[float64]{store: tt.store}
-			s.Insert(tt.args.metric, tt.args.value)
+			s.Insert(ctx, tt.args.metric, tt.args.value)
 			assert.Equal(t, tt.want, tt.store)
 		})
 	}

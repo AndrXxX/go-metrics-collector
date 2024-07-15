@@ -12,7 +12,7 @@ func New[T any]() storage[T] {
 	}
 }
 
-func (s *storage[T]) Insert(name string, value T) {
+func (s *storage[T]) Insert(_ context.Context, name string, value T) {
 	s.store[name] = value
 }
 
