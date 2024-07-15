@@ -17,7 +17,7 @@ func New(c *config.Config) *dbProvider {
 	return &dbProvider{c}
 }
 
-func (p *dbProvider) Db() *sql.DB {
+func (p *dbProvider) DB() *sql.DB {
 	if p.c.DatabaseDSN == "" {
 		return nil
 	}
