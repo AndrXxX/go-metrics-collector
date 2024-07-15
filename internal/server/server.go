@@ -24,7 +24,6 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/tasks/savestoragetask"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"github.com/go-chi/chi/v5"
-	_ "github.com/jackc/pgx/v5/stdlib"
 	"go.uber.org/zap"
 	"net/http"
 	"os"
