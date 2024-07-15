@@ -21,7 +21,7 @@ func (s *dbStorage) Insert(name string, value *models.Metrics) {
 
 func (s *dbStorage) Get(name string) (value *models.Metrics, ok bool) {
 	// TODO: realise with context
-	row := s.db.QueryRow("SELECT * FROM metrics WHERE id = ?", name)
+	row := s.db.QueryRow("SELECT name, type, delta, value FROM metrics WHERE name = ?", name)
 	v := models.Metrics{}
 	err := row.Scan(&v.ID, &v.MType, &v.Delta, &v.Value)
 	if err != nil {
@@ -35,7 +35,7 @@ func (s *dbStorage) All() map[string]*models.Metrics {
 	list := make(map[string]*models.Metrics)
 
 	// TODO: realise with context
-	rows, err := s.db.Query("SELECT * from metrics ")
+	rows, err := s.db.Query("SELECT name, type, delta, value from metrics ")
 	if err != nil {
 		logger.Log.Error("error on select all", zap.Error(err))
 		return list
