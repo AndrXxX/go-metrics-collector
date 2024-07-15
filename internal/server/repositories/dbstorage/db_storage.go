@@ -24,9 +24,8 @@ func (s *dbStorage) Insert(ctx context.Context, name string, value *models.Metri
 	}
 }
 
-func (s *dbStorage) Get(name string) (value *models.Metrics, ok bool) {
-	// TODO: realise with context
-	row := s.db.QueryRow("SELECT name, type, delta, value FROM metrics WHERE name = $1", name)
+func (s *dbStorage) Get(ctx context.Context, name string) (value *models.Metrics, ok bool) {
+	row := s.db.QueryRowContext(ctx, "SELECT name, type, delta, value FROM metrics WHERE name = $1", name)
 	v := models.Metrics{}
 	err := row.Scan(&v.ID, &v.MType, &v.Delta, &v.Value)
 	if err != nil {

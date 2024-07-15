@@ -64,10 +64,11 @@ func TestStorageGetInt64(t *testing.T) {
 			want:   want{value: 0, ok: false},
 		},
 	}
+	ctx := context.TODO()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &storage[int64]{store: tt.store}
-			value, ok := s.Get(tt.metric)
+			value, ok := s.Get(ctx, tt.metric)
 			assert.Equal(t, tt.want.value, value)
 			assert.Equal(t, tt.want.ok, ok)
 		})
@@ -169,10 +170,11 @@ func TestStorageGetFloat64(t *testing.T) {
 			want:   want{value: 0, ok: false},
 		},
 	}
+	ctx := context.TODO()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &storage[float64]{store: tt.gauge}
-			value, ok := s.Get(tt.metric)
+			value, ok := s.Get(ctx, tt.metric)
 			assert.Equal(t, tt.want.value, value)
 			assert.Equal(t, tt.want.ok, ok)
 		})

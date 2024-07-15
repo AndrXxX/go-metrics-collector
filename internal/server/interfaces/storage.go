@@ -7,6 +7,6 @@ import (
 
 type MetricsStorage interface {
 	Insert(ctx context.Context, metric string, value *models.Metrics)
-	Get(metric string) (value *models.Metrics, ok bool)
+	Get(ctx context.Context, metric string) (value *models.Metrics, ok bool)
 	All(ctx context.Context) map[string]*models.Metrics
 }

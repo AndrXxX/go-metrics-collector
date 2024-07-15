@@ -16,7 +16,7 @@ func (s *storage[T]) Insert(_ context.Context, name string, value T) {
 	s.store[name] = value
 }
 
-func (s *storage[T]) Get(name string) (value T, ok bool) {
+func (s *storage[T]) Get(_ context.Context, name string) (value T, ok bool) {
 	val, found := s.store[name]
 	return val, found
 }

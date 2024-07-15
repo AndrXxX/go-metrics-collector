@@ -36,8 +36,8 @@ func (s *fileStorage) Insert(ctx context.Context, name string, value *models.Met
 	s.s.Insert(ctx, name, value)
 }
 
-func (s *fileStorage) Get(name string) (value *models.Metrics, ok bool) {
-	val, found := s.s.Get(name)
+func (s *fileStorage) Get(ctx context.Context, name string) (value *models.Metrics, ok bool) {
+	val, found := s.s.Get(ctx, name)
 	return val, found
 }
 

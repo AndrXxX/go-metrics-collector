@@ -15,7 +15,7 @@ func New(s storage[*models.Metrics]) *metricsUpdater {
 }
 
 func (u *metricsUpdater) Update(ctx context.Context, newModel *models.Metrics) (*models.Metrics, error) {
-	currentModel, exist := u.s.Get(newModel.ID)
+	currentModel, exist := u.s.Get(ctx, newModel.ID)
 	if !exist {
 		currentModel = newModel
 		u.s.Insert(ctx, currentModel.ID, currentModel)
