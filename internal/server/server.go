@@ -107,6 +107,9 @@ func (a *app) Run() error {
 				logger.Log.Error("Error on shutdown storage", zap.Error(err))
 			}
 		}
+		if a.db != nil {
+			_ = a.db.Close()
+		}
 
 		if err := srv.Shutdown(context.Background()); err != nil {
 			logger.Log.Info("HTTP server Shutdown", zap.Error(err))

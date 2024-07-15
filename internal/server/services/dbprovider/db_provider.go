@@ -26,12 +26,6 @@ func (p *dbProvider) DB() *sql.DB {
 		logger.Log.Error("Error opening db", zap.Error(err))
 		return nil
 	}
-	defer func(db *sql.DB) {
-		err := db.Close()
-		if err != nil {
-			logger.Log.Error("Error closing db", zap.Error(err))
-		}
-	}(db)
 
 	if err := goose.SetDialect("postgres"); err != nil {
 		logger.Log.Error("Error on goose SetDialect", zap.Error(err))
