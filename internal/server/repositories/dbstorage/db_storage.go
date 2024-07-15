@@ -31,7 +31,7 @@ func (s *dbStorage) Get(ctx context.Context, name string) (value *models.Metrics
 	if err != nil {
 		return nil, false
 	}
-	return &v, false
+	return &v, true
 }
 
 func (s *dbStorage) All(ctx context.Context) map[string]*models.Metrics {
