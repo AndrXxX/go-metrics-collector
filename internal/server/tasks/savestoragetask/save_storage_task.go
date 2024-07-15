@@ -2,7 +2,6 @@ package savestoragetask
 
 import (
 	"context"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"go.uber.org/zap"
 	"time"
@@ -10,7 +9,7 @@ import (
 
 type saveStorageTask struct {
 	i time.Duration
-	s repositories.StorageSaver
+	s storageSaver
 }
 
 func (t *saveStorageTask) Execute(ctx context.Context) {
@@ -28,6 +27,6 @@ func (t *saveStorageTask) Execute(ctx context.Context) {
 	}
 }
 
-func New(i time.Duration, s repositories.StorageSaver) *saveStorageTask {
+func New(i time.Duration, s storageSaver) *saveStorageTask {
 	return &saveStorageTask{i, s}
 }
