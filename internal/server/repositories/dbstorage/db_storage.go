@@ -20,8 +20,15 @@ func (s *dbStorage) Insert(name string, value *models.Metrics) {
 }
 
 func (s *dbStorage) Get(name string) (value *models.Metrics, ok bool) {
-	// TODO
-	return &models.Metrics{}, false
+	// TODO: realise with context
+	row := s.db.QueryRow("SELECT * FROM metrics WHERE id = ?", name)
+	v := models.Metrics{}
+	err := row.Scan(&v.ID, &v.MType, &v.Delta, &v.Value)
+	if err != nil {
+		logger.Log.Error("error on scan all", zap.Error(err))
+		return nil, false
+	}
+	return &v, false
 }
 
 func (s *dbStorage) All() map[string]*models.Metrics {
