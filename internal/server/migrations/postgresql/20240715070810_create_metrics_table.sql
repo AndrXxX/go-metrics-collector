@@ -2,6 +2,7 @@
 -- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS metrics (
     id SERIAL PRIMARY KEY,
+    name text,
     type text,
     delta int,
     value double precision
