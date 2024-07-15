@@ -3,6 +3,8 @@ package dbstorage
 import (
 	"database/sql"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
+	"go.uber.org/zap"
 )
 
 type dbStorage struct {
@@ -23,6 +25,34 @@ func (s *dbStorage) Get(name string) (value *models.Metrics, ok bool) {
 }
 
 func (s *dbStorage) All() map[string]*models.Metrics {
-	// TODO
-	return make(map[string]*models.Metrics)
+	list := make(map[string]*models.Metrics)
+
+	// TODO: realise with context
+	rows, err := s.db.Query("SELECT * from metrics ")
+	if err != nil {
+		logger.Log.Error("error on select all", zap.Error(err))
+		return list
+	}
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			logger.Log.Error("close rows on all failed", zap.Error(err))
+		}
+	}(rows)
+
+	for rows.Next() {
+		v := models.Metrics{}
+		err = rows.Scan(&v.ID, &v.MType, &v.Delta, &v.Value)
+		if err != nil {
+			logger.Log.Error("error on scan all", zap.Error(err))
+			return list
+		}
+		list[v.ID] = &v
+	}
+
+	err = rows.Err()
+	if err != nil {
+		logger.Log.Error("error on fetch all", zap.Error(err))
+	}
+	return list
 }
