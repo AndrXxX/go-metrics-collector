@@ -1,5 +1,7 @@
 package memory
 
+import "context"
+
 type storage[T any] struct {
 	store map[string]T
 }
@@ -19,6 +21,6 @@ func (s *storage[T]) Get(name string) (value T, ok bool) {
 	return val, found
 }
 
-func (s *storage[T]) All() map[string]T {
+func (s *storage[T]) All(_ context.Context) map[string]T {
 	return s.store
 }

@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"context"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -94,10 +95,11 @@ func TestStorageAllInt64(t *testing.T) {
 			want:  map[string]int64{"metric": 1, "metric2": 10},
 		},
 	}
+	ctx := context.TODO()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &storage[int64]{store: tt.store}
-			assert.Equal(t, tt.want, s.All())
+			assert.Equal(t, tt.want, s.All(ctx))
 		})
 	}
 }
@@ -197,10 +199,11 @@ func TestStorageAllFloat64(t *testing.T) {
 			want:  map[string]float64{"metric": 1.1, "metric2": 10.5},
 		},
 	}
+	ctx := context.TODO()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &storage[float64]{store: tt.store}
-			assert.Equal(t, tt.want, s.All())
+			assert.Equal(t, tt.want, s.All(ctx))
 		})
 	}
 }

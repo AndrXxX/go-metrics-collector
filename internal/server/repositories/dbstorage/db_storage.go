@@ -1,6 +1,7 @@
 package dbstorage
 
 import (
+	"context"
 	"database/sql"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
@@ -36,11 +37,10 @@ func (s *dbStorage) Get(name string) (value *models.Metrics, ok bool) {
 	return &v, false
 }
 
-func (s *dbStorage) All() map[string]*models.Metrics {
+func (s *dbStorage) All(ctx context.Context) map[string]*models.Metrics {
 	list := make(map[string]*models.Metrics)
 
-	// TODO: realise with context
-	rows, err := s.db.Query("SELECT name, type, delta, value from metrics ")
+	rows, err := s.db.QueryContext(ctx, "SELECT name, type, delta, value from metrics ")
 	if err != nil {
 		logger.Log.Error("error on select all", zap.Error(err))
 		return list

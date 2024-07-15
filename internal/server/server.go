@@ -102,7 +102,7 @@ func (a *app) Run() error {
 		cancel()
 
 		if ss, ok := a.s.(repositories.StorageShutdowner); ok {
-			err := ss.Shutdown()
+			err := ss.Shutdown(ctx)
 			if err != nil {
 				logger.Log.Error("Error on shutdown storage", zap.Error(err))
 			}

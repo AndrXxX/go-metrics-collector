@@ -1,15 +1,17 @@
 package repositories
 
+import "context"
+
 type Storage[T any] interface {
 	Insert(metric string, value T)
 	Get(metric string) (value T, ok bool)
-	All() map[string]T
+	All(ctx context.Context) map[string]T
 }
 
 type StorageShutdowner interface {
-	Shutdown() error
+	Shutdown(ctx context.Context) error
 }
 
 type StorageSaver interface {
-	Save() error
+	Save(ctx context.Context) error
 }

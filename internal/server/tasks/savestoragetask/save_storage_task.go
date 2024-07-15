@@ -18,7 +18,7 @@ func (t *saveStorageTask) Execute(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		default:
-			err := t.s.Save()
+			err := t.s.Save(ctx)
 			if err != nil {
 				logger.Log.Error("save storage task failed", zap.Error(err))
 			}

@@ -1,6 +1,7 @@
 package filestorage
 
 import (
+	"context"
 	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
@@ -40,16 +41,16 @@ func (s *fileStorage) Get(name string) (value *models.Metrics, ok bool) {
 	return val, found
 }
 
-func (s *fileStorage) All() map[string]*models.Metrics {
-	return s.s.All()
+func (s *fileStorage) All(ctx context.Context) map[string]*models.Metrics {
+	return s.s.All(ctx)
 }
 
-func (s *fileStorage) Shutdown() error {
-	return s.Save()
+func (s *fileStorage) Shutdown(ctx context.Context) error {
+	return s.Save(ctx)
 }
 
-func (s *fileStorage) Save() error {
-	err := s.ss.Save()
+func (s *fileStorage) Save(ctx context.Context) error {
+	err := s.ss.Save(ctx)
 	if err != nil {
 		return fmt.Errorf("error saving storage: %w", err)
 	}

@@ -1,6 +1,8 @@
 package filestorage
 
+import "context"
+
 type storageSaver interface {
-	Save() error
+	Save(ctx context.Context) error
 	Restore() error
 }

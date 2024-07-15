@@ -1,5 +1,7 @@
 package fetchallmetrics
 
+import "context"
+
 type storage[T any] interface {
-	All() map[string]T
+	All(ctx context.Context) map[string]T
 }
