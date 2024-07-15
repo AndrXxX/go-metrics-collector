@@ -20,9 +20,9 @@ func main() {
 	if _, err := govalidator.ValidateStruct(settings); err != nil {
 		log.Fatal(err)
 	}
-	sp := storageprovider.New(settings)
-	dbp := dbprovider.New(settings)
-	app := server.New(settings, sp.Storage(), dbp.Db())
+	db := dbprovider.New(settings).Db()
+	sp := storageprovider.New(settings, db)
+	app := server.New(settings, sp.Storage(), db)
 	if err := app.Run(); err != nil {
 		log.Fatal(err)
 	}
