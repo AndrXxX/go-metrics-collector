@@ -12,6 +12,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchmetrics"
 	apilogger "github.com/AndrXxX/go-metrics-collector/internal/server/api/logger"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/middlewares"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updatemanymetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updatemetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
@@ -50,6 +51,15 @@ func (a *app) Run(commonCtx context.Context) error {
 	r.Get("/ping", cFactory.From([]interfaces.Handler{
 		dbping.New(a.db),
 	}).Handler())
+
+	r.Route("/updates", func(r chi.Router) {
+		r.Post("/", cFactory.From([]interfaces.Handler{
+			middlewares.CompressGzip(),
+			middlewares.SetContentType(contenttypes.ApplicationJSON),
+			updatemanymetrics.New(metricsupdater.New(a.s)),
+		}).Handler())
+	})
+
 	r.Route("/update", func(r chi.Router) {
 		r.Post(fmt.Sprintf("/{%v}/{%v}/{%v}", vars.MetricType, vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType(contenttypes.TextPlain),
