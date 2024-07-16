@@ -24,25 +24,24 @@ type jsonMetricsUploader struct {
 }
 
 func (c *jsonMetricsUploader) Execute(result dto.MetricsDto) error {
+	var list []JSONMetrics
 	for metric, value := range result.Gauge {
-		err := c.send(JSONMetrics{
+		list = append(list, JSONMetrics{
 			ID:    metric,
 			MType: metrics.Gauge,
 			Value: &value,
 		})
-		if err != nil {
-			logger.Log.Error("error send response", zap.Error(err))
-		}
 	}
 	for metric, value := range result.Counter {
-		err := c.send(JSONMetrics{
+		list = append(list, JSONMetrics{
 			ID:    metric,
 			MType: metrics.Counter,
 			Delta: &value,
 		})
-		if err != nil {
-			logger.Log.Error("error send response", zap.Error(err))
-		}
+	}
+	err := c.sendMany(list)
+	if err != nil {
+		logger.Log.Error("error send response", zap.Error(err))
 	}
 	return nil
 }
@@ -50,6 +49,15 @@ func (c *jsonMetricsUploader) Execute(result dto.MetricsDto) error {
 func (c *jsonMetricsUploader) send(m JSONMetrics) error {
 	url := c.ub.Build(types.URLParams{})
 	encoded, err := json.Marshal(m)
+	if err != nil {
+		return err
+	}
+	return c.rs.Post(url, contenttypes.ApplicationJSON, encoded)
+}
+
+func (c *jsonMetricsUploader) sendMany(l []JSONMetrics) error {
+	url := c.ub.Build(types.URLParams{"endpoint": "updates"})
+	encoded, err := json.Marshal(l)
 	if err != nil {
 		return err
 	}
