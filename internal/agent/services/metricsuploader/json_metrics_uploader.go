@@ -12,8 +12,6 @@ import (
 	"time"
 )
 
-var repeatIntervals = []int{1, 3, 5}
-
 type JSONMetrics struct {
 	ID    string   `json:"id"`              // Имя метрики
 	MType string   `json:"type"`            // Параметр, принимающий значение gauge или counter
@@ -22,8 +20,9 @@ type JSONMetrics struct {
 }
 
 type jsonMetricsUploader struct {
-	rs *requestsender.RequestSender
-	ub urlBuilder
+	rs              *requestsender.RequestSender
+	ub              urlBuilder
+	repeatIntervals []int
 }
 
 func (c *jsonMetricsUploader) Execute(result dto.MetricsDto) error {
@@ -71,7 +70,7 @@ func (c *jsonMetricsUploader) sendMany(l []JSONMetrics) error {
 	if err == nil {
 		return nil
 	}
-	for _, repeatInterval := range repeatIntervals {
+	for _, repeatInterval := range c.repeatIntervals {
 		time.Sleep(time.Duration(repeatInterval) * time.Second)
 		err = c.rs.Post(url, contenttypes.ApplicationJSON, encoded)
 		if err == nil {
@@ -81,6 +80,6 @@ func (c *jsonMetricsUploader) sendMany(l []JSONMetrics) error {
 	return err
 }
 
-func NewJSONUploader(rs *requestsender.RequestSender, ub urlBuilder) *jsonMetricsUploader {
-	return &jsonMetricsUploader{rs, ub}
+func NewJSONUploader(rs *requestsender.RequestSender, ub urlBuilder, repeatIntervals []int) *jsonMetricsUploader {
+	return &jsonMetricsUploader{rs, ub, repeatIntervals}
 }

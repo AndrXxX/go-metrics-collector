@@ -19,7 +19,7 @@ func Run(config *config.Config) error {
 
 	ub := metricurlbuilder.New(config.Common.Host)
 	rs := requestsender.New(http.DefaultClient)
-	s.Add(metricsuploader.NewJSONUploader(rs, ub), time.Duration(config.Intervals.ReportInterval)*time.Second)
+	s.Add(metricsuploader.NewJSONUploader(rs, ub, config.Intervals.RepeatIntervals), time.Duration(config.Intervals.ReportInterval)*time.Second)
 
 	err := s.Run(*m)
 	return err

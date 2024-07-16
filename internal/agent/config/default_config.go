@@ -12,9 +12,10 @@ func NewConfig() *Config {
 			LogLevel: defaults.LogLevel,
 		},
 		Intervals: Intervals{
-			PollInterval:   defaults.PollInterval,
-			ReportInterval: defaults.ReportInterval,
-			SleepInterval:  defaults.SleepInterval,
+			PollInterval:    defaults.PollInterval,
+			ReportInterval:  defaults.ReportInterval,
+			SleepInterval:   defaults.SleepInterval,
+			RepeatIntervals: defaults.RepeatIntervals,
 		},
 		Metrics: MetricsList{
 			metrics.Alloc,

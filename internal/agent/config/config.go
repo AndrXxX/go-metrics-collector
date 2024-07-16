@@ -9,9 +9,10 @@ type Config struct {
 type MetricsList []string
 
 type Intervals struct {
-	PollInterval   int64 `valid:"range(1|999)"`
-	ReportInterval int64 `valid:"range(1|999)"`
-	SleepInterval  int64 `valid:"range(1|20)"`
+	PollInterval    int64 `valid:"range(1|999)"`
+	ReportInterval  int64 `valid:"range(1|999)"`
+	SleepInterval   int64 `valid:"range(1|20)"`
+	RepeatIntervals []int
 }
 
 type CommonConfig struct {
