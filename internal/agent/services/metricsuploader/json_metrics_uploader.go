@@ -9,7 +9,10 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"go.uber.org/zap"
+	"time"
 )
+
+var repeatIntervals = []int{1, 3, 5}
 
 type JSONMetrics struct {
 	ID    string   `json:"id"`              // Имя метрики
@@ -64,7 +67,18 @@ func (c *jsonMetricsUploader) sendMany(l []JSONMetrics) error {
 	if err != nil {
 		return err
 	}
-	return c.rs.Post(url, contenttypes.ApplicationJSON, encoded)
+	err = c.rs.Post(url, contenttypes.ApplicationJSON, encoded)
+	if err == nil {
+		return nil
+	}
+	for _, repeatInterval := range repeatIntervals {
+		time.Sleep(time.Duration(repeatInterval) * time.Second)
+		err = c.rs.Post(url, contenttypes.ApplicationJSON, encoded)
+		if err == nil {
+			return nil
+		}
+	}
+	return err
 }
 
 func NewJSONUploader(rs *requestsender.RequestSender, ub urlBuilder) *jsonMetricsUploader {
