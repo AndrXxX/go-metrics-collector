@@ -6,19 +6,28 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"go.uber.org/zap"
+	"time"
 )
 
 type dbStorage struct {
 	db *sql.DB
+	ri []int
 }
 
-func New(db *sql.DB) dbStorage {
-	return dbStorage{db}
+func New(db *sql.DB, repeatIntervals []int) dbStorage {
+	return dbStorage{db, repeatIntervals}
 }
 
 func (s *dbStorage) Insert(ctx context.Context, name string, value *models.Metrics) {
 	stmt := `INSERT INTO metrics (name, type, delta, value) VALUES($1, $2, $3, $4)`
-	_, err := s.db.ExecContext(ctx, stmt, name, value.MType, value.Delta, value.Value)
+	op := func() error {
+		_, err := s.db.ExecContext(ctx, stmt, name, value.MType, value.Delta, value.Value)
+		return err
+	}
+	err := op()
+	if err != nil {
+		err = s.repeat(op)
+	}
 	if err != nil {
 		logger.Log.Error("Failed to insert metrics", zap.Error(err))
 	}
@@ -74,4 +83,15 @@ func (s *dbStorage) Delete(ctx context.Context, name string) (ok bool) {
 		return false
 	}
 	return true
+}
+
+func (s *dbStorage) repeat(f func() error) (err error) {
+	for _, repeatInterval := range s.ri {
+		time.Sleep(time.Duration(repeatInterval) * time.Second)
+		err = f()
+		if err == nil {
+			return nil
+		}
+	}
+	return err
 }

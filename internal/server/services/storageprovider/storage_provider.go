@@ -24,7 +24,7 @@ func New(c *config.Config, db *sql.DB) *storageProvider {
 
 func (sp *storageProvider) Storage(ctx context.Context) interfaces.MetricsStorage {
 	if sp.c.DatabaseDSN != "" {
-		s := dbstorage.New(sp.db)
+		s := dbstorage.New(sp.db, sp.c.RepeatIntervals)
 		return &s
 	}
 	if sp.c.FileStoragePath != "" {
