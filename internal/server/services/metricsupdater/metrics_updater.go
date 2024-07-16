@@ -16,20 +16,14 @@ func New(s storage[*models.Metrics]) *metricsUpdater {
 
 func (u *metricsUpdater) Update(ctx context.Context, newModel *models.Metrics) (*models.Metrics, error) {
 	currentModel, exist := u.s.Get(ctx, newModel.ID)
-	if !exist {
-		currentModel = newModel
-		u.s.Insert(ctx, currentModel.ID, currentModel)
+	if exist {
+		u.s.Delete(ctx, newModel.ID)
 	}
-	if newModel.MType == metrics.Gauge {
-		currentModel.Value = newModel.Value
-		return currentModel, nil
-	}
-	if newModel.Delta != nil && currentModel.Delta != nil && exist {
+	if exist && newModel.MType == metrics.Counter {
 		newVal := *currentModel.Delta + *newModel.Delta
-		currentModel.Delta = &newVal
-		return currentModel, nil
+		newModel.Delta = &newVal
 	}
-	currentModel.Delta = newModel.Delta
+	u.s.Insert(ctx, newModel.ID, newModel)
 	return currentModel, nil
 }
 
