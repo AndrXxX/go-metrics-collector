@@ -24,3 +24,8 @@ func (s *storage[T]) Get(_ context.Context, name string) (value T, ok bool) {
 func (s *storage[T]) All(_ context.Context) map[string]T {
 	return s.store
 }
+
+func (s *storage[T]) Delete(_ context.Context, name string) (ok bool) {
+	delete(s.store, name)
+	return true
+}

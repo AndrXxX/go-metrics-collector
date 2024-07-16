@@ -65,3 +65,13 @@ func (s *dbStorage) All(ctx context.Context) map[string]*models.Metrics {
 	}
 	return list
 }
+
+func (s *dbStorage) Delete(ctx context.Context, name string) (ok bool) {
+	stmt := `DELETE FROM metrics WHERE name = $1`
+	_, err := s.db.ExecContext(ctx, stmt, name)
+	if err != nil {
+		logger.Log.Error("Failed to delete metrics", zap.Error(err))
+		return false
+	}
+	return true
+}

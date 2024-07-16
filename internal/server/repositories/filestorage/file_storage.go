@@ -45,6 +45,10 @@ func (s *fileStorage) All(ctx context.Context) map[string]*models.Metrics {
 	return s.s.All(ctx)
 }
 
+func (s *fileStorage) Delete(ctx context.Context, name string) (ok bool) {
+	return s.s.Delete(ctx, name)
+}
+
 func (s *fileStorage) Shutdown(ctx context.Context) error {
 	return s.Save(ctx)
 }
