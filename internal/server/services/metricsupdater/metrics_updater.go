@@ -32,3 +32,13 @@ func (u *metricsUpdater) Update(ctx context.Context, newModel *models.Metrics) (
 	currentModel.Delta = newModel.Delta
 	return currentModel, nil
 }
+
+func (u *metricsUpdater) UpdateMany(ctx context.Context, list []*models.Metrics) error {
+	for _, model := range list {
+		_, err := u.Update(ctx, model)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
