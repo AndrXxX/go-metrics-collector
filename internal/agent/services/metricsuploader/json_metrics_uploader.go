@@ -39,6 +39,9 @@ func (c *jsonMetricsUploader) Execute(result dto.MetricsDto) error {
 			Delta: &value,
 		})
 	}
+	if len(list) == 0 {
+		return nil
+	}
 	err := c.sendMany(list)
 	if err != nil {
 		logger.Log.Error("error send response", zap.Error(err))
