@@ -18,7 +18,7 @@ type fileStorage struct {
 }
 
 func New(c *config.Config, s repositories.Storage[*models.Metrics]) fileStorage {
-	ss := storagesaver.New(c.FileStoragePath, s)
+	ss := storagesaver.New(c.FileStoragePath, s, c.RepeatIntervals)
 	if c.Restore {
 		err := ss.Restore(context.TODO())
 		if err != nil {
