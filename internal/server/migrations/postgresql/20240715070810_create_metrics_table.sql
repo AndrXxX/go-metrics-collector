@@ -3,7 +3,7 @@
 CREATE TABLE IF NOT EXISTS metrics (
     name text,
     type text,
-    delta big int,
+    delta bigint,
     value double precision
 );
 -- +goose StatementEnd
