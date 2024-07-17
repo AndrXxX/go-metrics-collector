@@ -21,14 +21,17 @@ func main() {
 	parseFlags(settings)
 	parseEnv(settings)
 	if _, err := govalidator.ValidateStruct(settings); err != nil {
-		log.Fatal(err)
+		logger.Log.Fatal(err.Error())
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
-	db := dbprovider.New(settings).DB()
+	err, db := dbprovider.New(settings).DB()
+	if err != nil {
+		logger.Log.Error(err.Error())
+	}
 	sp := storageprovider.New(settings, db)
 	app := server.New(settings, sp.Storage(ctx), db)
 	if err := app.Run(ctx); err != nil {
-		log.Fatal(err)
+		logger.Log.Fatal(err.Error())
 	}
 }
