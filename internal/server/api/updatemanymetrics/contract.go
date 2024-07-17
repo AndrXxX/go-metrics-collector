@@ -6,5 +6,5 @@ import (
 )
 
 type updater interface {
-	UpdateMany(context.Context, []*models.Metrics) error
+	UpdateMany(context.Context, []models.Metrics) error
 }

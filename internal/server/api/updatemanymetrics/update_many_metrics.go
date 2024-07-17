@@ -12,7 +12,7 @@ type updateManyMetricsHandler struct {
 
 // Handle updates metrics from request
 func (h *updateManyMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	var list []*models.Metrics
+	var list []models.Metrics
 	dec := json.NewDecoder(r.Body)
 	err := dec.Decode(&list)
 	if err != nil {

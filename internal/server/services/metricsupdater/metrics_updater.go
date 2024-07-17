@@ -27,9 +27,9 @@ func (u *metricsUpdater) Update(ctx context.Context, newModel *models.Metrics) (
 	return currentModel, nil
 }
 
-func (u *metricsUpdater) UpdateMany(ctx context.Context, list []*models.Metrics) error {
+func (u *metricsUpdater) UpdateMany(ctx context.Context, list []models.Metrics) error {
 	for _, model := range list {
-		_, err := u.Update(ctx, model)
+		_, err := u.Update(ctx, &model)
 		if err != nil {
 			return err
 		}
