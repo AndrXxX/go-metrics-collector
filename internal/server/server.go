@@ -33,13 +33,25 @@ import (
 const shutdownTimeout = 5 * time.Second
 
 type app struct {
-	s  interfaces.MetricsStorage
-	db *sql.DB
-	c  *config.Config
+	config struct {
+		c *config.Config
+	}
+	storage struct {
+		s  interfaces.MetricsStorage
+		db *sql.DB
+	}
 }
 
 func New(c *config.Config, s interfaces.MetricsStorage, db *sql.DB) *app {
-	return &app{s, db, c}
+	return &app{
+		config: struct {
+			c *config.Config
+		}{c: c},
+		storage: struct {
+			s  interfaces.MetricsStorage
+			db *sql.DB
+		}{s: s, db: db},
+	}
 }
 
 func (a *app) Run(commonCtx context.Context) error {
@@ -49,14 +61,14 @@ func (a *app) Run(commonCtx context.Context) error {
 
 	r := chi.NewRouter()
 	r.Get("/ping", cFactory.From([]interfaces.Handler{
-		dbping.New(a.db),
+		dbping.New(a.storage.db),
 	}).Handler())
 
 	r.Route("/updates", func(r chi.Router) {
 		r.Post("/", cFactory.From([]interfaces.Handler{
 			middlewares.CompressGzip(),
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
-			updatemanymetrics.New(metricsupdater.New(a.s)),
+			updatemanymetrics.New(metricsupdater.New(a.storage.s)),
 		}).Handler())
 	})
 
@@ -64,13 +76,13 @@ func (a *app) Run(commonCtx context.Context) error {
 		r.Post(fmt.Sprintf("/{%v}/{%v}/{%v}", vars.MetricType, vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType(contenttypes.TextPlain),
 			middlewares.HasMetricOr404(),
-			updatemetrics.New(metricsupdater.New(a.s), metricsformatter.MetricsEmptyFormatter{}, metricsidentifier.NewURLIdentifier()),
+			updatemetrics.New(metricsupdater.New(a.storage.s), metricsformatter.MetricsEmptyFormatter{}, metricsidentifier.NewURLIdentifier()),
 		}).Handler())
 
 		r.Post("/", cFactory.From([]interfaces.Handler{
 			middlewares.CompressGzip(),
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
-			updatemetrics.New(metricsupdater.New(a.s), metricsformatter.MetricsJSONFormatter{}, metricsidentifier.NewJSONIdentifier()),
+			updatemetrics.New(metricsupdater.New(a.storage.s), metricsformatter.MetricsJSONFormatter{}, metricsidentifier.NewJSONIdentifier()),
 		}).Handler())
 	})
 
@@ -78,23 +90,23 @@ func (a *app) Run(commonCtx context.Context) error {
 		r.Get(fmt.Sprintf("/{%v}/{%v}", vars.MetricType, vars.Metric), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType(contenttypes.TextPlain),
 			middlewares.HasMetricOr404(),
-			fetchmetrics.New(a.s, metricsformatter.MetricsValueFormatter{}, metricsidentifier.NewURLIdentifier(), mc),
+			fetchmetrics.New(a.storage.s, metricsformatter.MetricsValueFormatter{}, metricsidentifier.NewURLIdentifier(), mc),
 		}).Handler())
 
 		r.Post("/", cFactory.From([]interfaces.Handler{
 			middlewares.CompressGzip(),
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
-			fetchmetrics.New(a.s, metricsformatter.MetricsJSONFormatter{}, metricsidentifier.NewJSONIdentifier(), mc),
+			fetchmetrics.New(a.storage.s, metricsformatter.MetricsJSONFormatter{}, metricsidentifier.NewJSONIdentifier(), mc),
 		}).Handler())
 	})
 
 	r.Get("/", cFactory.From([]interfaces.Handler{
 		middlewares.CompressGzip(),
 		middlewares.SetContentType(contenttypes.TextHTML),
-		fetchallmetrics.New(a.s),
+		fetchallmetrics.New(a.storage.s),
 	}).Handler())
 
-	srv := &http.Server{Addr: a.c.Host, Handler: r}
+	srv := &http.Server{Addr: a.config.c.Host, Handler: r}
 
 	go func() {
 		if err := srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
@@ -102,7 +114,7 @@ func (a *app) Run(commonCtx context.Context) error {
 		}
 	}()
 
-	logger.Log.Info(fmt.Sprintf("listening on %s", a.c.Host))
+	logger.Log.Info(fmt.Sprintf("listening on %s", a.config.c.Host))
 
 	<-commonCtx.Done()
 	logger.Log.Info("shutting down server gracefully")
@@ -116,14 +128,14 @@ func (a *app) Run(commonCtx context.Context) error {
 
 	shutdown := make(chan struct{}, 1)
 	go func() {
-		if ss, ok := a.s.(repositories.StorageShutdowner); ok {
+		if ss, ok := a.storage.s.(repositories.StorageShutdowner); ok {
 			err := ss.Shutdown(shutdownCtx)
 			if err != nil {
 				logger.Log.Error("Error on shutdown storage", zap.Error(err))
 			}
 		}
-		if a.db != nil {
-			_ = a.db.Close()
+		if a.storage.db != nil {
+			_ = a.storage.db.Close()
 		}
 		shutdown <- struct{}{}
 	}()
