@@ -19,12 +19,23 @@ func New(db *sql.DB, repeatIntervals []int) dbStorage {
 }
 
 func (s *dbStorage) Insert(ctx context.Context, name string, value *models.Metrics) {
-	stmt := `INSERT INTO metrics (name, type, delta, value) VALUES($1, $2, $3, $4)`
+	stmt, err := s.db.PrepareContext(ctx, "INSERT INTO metrics (name, type, delta, value) VALUES($1, $2, $3, $4)")
+	if err != nil {
+		logger.Log.Error("Failed to insert metrics", zap.Error(err))
+		return
+	}
+	defer func(stmt *sql.Stmt) {
+		err := stmt.Close()
+		if err != nil {
+			logger.Log.Error("error on close stmt", zap.Error(err))
+		}
+	}(stmt)
+
 	op := func() error {
-		_, err := s.db.ExecContext(ctx, stmt, name, value.MType, value.Delta, value.Value)
+		_, err := stmt.ExecContext(ctx, name, value.MType, value.Delta, value.Value)
 		return err
 	}
-	err := op()
+	err = op()
 	if err != nil {
 		err = s.repeat(op)
 	}
