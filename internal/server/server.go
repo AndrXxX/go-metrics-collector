@@ -18,6 +18,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/conveyor"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/dbchecker"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricschecker"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsformatter"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsidentifier"
@@ -61,7 +62,7 @@ func (a *app) Run(commonCtx context.Context) error {
 
 	r := chi.NewRouter()
 	r.Get("/ping", cFactory.From([]interfaces.Handler{
-		dbping.New(a.storage.db),
+		dbping.New(dbchecker.New(a.storage.db)),
 	}).Handler())
 
 	r.Route("/updates", func(r chi.Router) {
