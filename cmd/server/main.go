@@ -25,7 +25,7 @@ func main() {
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
-	err, db := dbprovider.New(settings).DB()
+	db, err := dbprovider.New(settings).DB()
 	if err != nil {
 		logger.Log.Error(err.Error())
 	}

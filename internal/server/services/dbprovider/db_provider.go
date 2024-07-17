@@ -16,21 +16,21 @@ func New(c *config.Config) *dbProvider {
 	return &dbProvider{c}
 }
 
-func (p *dbProvider) DB() (error, *sql.DB) {
+func (p *dbProvider) DB() (*sql.DB, error) {
 	if p.c.DatabaseDSN == "" {
-		return fmt.Errorf("empty DatabaseDSN"), nil
+		return nil, fmt.Errorf("empty DatabaseDSN")
 	}
 	db, err := sql.Open("pgx", p.c.DatabaseDSN)
 	if err != nil {
-		return fmt.Errorf("error opening db %w", err), nil
+		return nil, fmt.Errorf("error opening db %w", err)
 	}
 
 	if err := goose.SetDialect("postgres"); err != nil {
-		return fmt.Errorf("error on goose SetDialect %w", err), nil
+		return nil, fmt.Errorf("error on goose SetDialect %w", err)
 	}
 
 	if err := goose.Up(db, "internal/server/migrations/postgresql"); err != nil {
-		return fmt.Errorf("error on up migrations %w", err), nil
+		return nil, fmt.Errorf("error on up migrations %w", err)
 	}
-	return nil, db
+	return db, nil
 }
