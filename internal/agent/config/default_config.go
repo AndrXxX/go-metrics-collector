@@ -10,6 +10,7 @@ func NewConfig() *Config {
 		Common: CommonConfig{
 			Host:     defaults.Host,
 			LogLevel: defaults.LogLevel,
+			Key:      defaults.Key,
 		},
 		Intervals: Intervals{
 			PollInterval:    defaults.PollInterval,

@@ -8,5 +8,6 @@ const SleepInterval = 1
 const StoreInterval = 300
 const FileStoragePath = "/tmp/metrics-db.json"
 const Restore = true
+const Key = ""
 
 var RepeatIntervals = []int{1, 3, 5}
