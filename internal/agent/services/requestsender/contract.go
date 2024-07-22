@@ -9,5 +9,5 @@ type client interface {
 }
 
 type hashGenerator interface {
-	Generate(data []byte) (string, error)
+	Generate(data []byte) ([]byte, error)
 }

@@ -34,7 +34,7 @@ func (s *RequestSender) Post(url string, contentType string, data []byte) error 
 		if err != nil {
 			return err
 		}
-		r.Header.Set("HashSHA256", hash)
+		r.Header.Set("HashSHA256", string(hash))
 	}
 
 	resp, err := s.c.Do(r)

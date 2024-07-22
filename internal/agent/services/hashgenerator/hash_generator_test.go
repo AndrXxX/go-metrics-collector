@@ -55,14 +55,14 @@ func TestHashGeneratorGenerate(t *testing.T) {
 		name    string
 		key     string
 		data    []byte
-		want    string
+		want    []byte
 		wantErr bool
 	}{
 		{
 			name:    "Test with empty key",
 			key:     "",
 			data:    []byte(""),
-			want:    "",
+			want:    nil,
 			wantErr: true,
 		},
 	}
