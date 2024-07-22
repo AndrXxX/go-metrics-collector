@@ -81,14 +81,14 @@ func Test_parseEnv(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "ADDRESS=new-host REPORT_INTERVAL=2 POLL_INTERVAL=2",
+			name: "ADDRESS=new-host REPORT_INTERVAL=2 POLL_INTERVAL=2 KEY=abc",
 			config: &config.Config{
 				Common:    config.CommonConfig{Host: "host"},
 				Intervals: config.Intervals{PollInterval: 1, ReportInterval: 1},
 			},
-			env: map[string]string{"ADDRESS": "new-host", "REPORT_INTERVAL": "2", "POLL_INTERVAL": "2"},
+			env: map[string]string{"ADDRESS": "new-host", "REPORT_INTERVAL": "2", "POLL_INTERVAL": "2", "KEY": "abc"},
 			want: &config.Config{
-				Common:    config.CommonConfig{Host: "new-host"},
+				Common:    config.CommonConfig{Host: "new-host", Key: "abc"},
 				Intervals: config.Intervals{PollInterval: 2, ReportInterval: 2},
 			},
 			wantErr: false,
