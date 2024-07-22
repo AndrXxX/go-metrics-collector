@@ -7,15 +7,11 @@ import (
 	"net/http"
 )
 
-type Client interface {
-	Do(req *http.Request) (*http.Response, error)
-}
-
 type RequestSender struct {
-	c Client
+	c client
 }
 
-func New(c Client) *RequestSender {
+func New(c client) *RequestSender {
 	return &RequestSender{c}
 }
 
