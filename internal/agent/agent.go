@@ -18,7 +18,7 @@ func Run(config *config.Config) error {
 	s.Add(metricscollector.New(&config.Metrics), time.Duration(config.Intervals.PollInterval)*time.Second)
 
 	ub := metricurlbuilder.New(config.Common.Host)
-	rs := requestsender.New(http.DefaultClient)
+	rs := requestsender.New(http.DefaultClient, nil)
 	s.Add(metricsuploader.NewJSONUploader(rs, ub, config.Intervals.RepeatIntervals), time.Duration(config.Intervals.ReportInterval)*time.Second)
 
 	err := s.Run(*m)
