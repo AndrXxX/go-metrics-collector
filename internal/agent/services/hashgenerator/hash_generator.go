@@ -5,14 +5,20 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"fmt"
+	"slices"
 )
+
+var keySizes = []int{aes.BlockSize, 1.5 * aes.BlockSize, 2 * aes.BlockSize}
 
 type hashGenerator struct {
 	key string
 }
 
-func New(key string) *hashGenerator {
-	return &hashGenerator{key: key}
+func New(key string) (*hashGenerator, error) {
+	if !slices.Contains(keySizes, len(key)) {
+		return nil, fmt.Errorf("invalid key size %s", key)
+	}
+	return &hashGenerator{key: key}, nil
 }
 
 func (h *hashGenerator) Generate(data []byte) ([]byte, error) {
@@ -20,9 +26,6 @@ func (h *hashGenerator) Generate(data []byte) ([]byte, error) {
 	//if err != nil {
 	//	return "", fmt.Errorf("error on generate random %w", err)
 	//}
-	if h.key == "" {
-		return nil, fmt.Errorf("empty key provided")
-	}
 
 	aesBlock, err := aes.NewCipher([]byte(h.key))
 	if err != nil {
