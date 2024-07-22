@@ -8,8 +8,8 @@ import (
 )
 
 type saveStorageTask struct {
-	i  time.Duration
-	ss storageSaver
+	i time.Duration
+	s storageSaver
 }
 
 func (t *saveStorageTask) Execute(ctx context.Context) {
@@ -18,7 +18,7 @@ func (t *saveStorageTask) Execute(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		default:
-			err := t.ss.Save()
+			err := t.s.Save(ctx)
 			if err != nil {
 				logger.Log.Error("save storage task failed", zap.Error(err))
 			}
@@ -27,6 +27,6 @@ func (t *saveStorageTask) Execute(ctx context.Context) {
 	}
 }
 
-func New(i time.Duration, ss storageSaver) *saveStorageTask {
-	return &saveStorageTask{i, ss}
+func New(i time.Duration, s storageSaver) *saveStorageTask {
+	return &saveStorageTask{i, s}
 }

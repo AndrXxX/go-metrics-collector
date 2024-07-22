@@ -7,6 +7,7 @@ func NewConfig() *Config {
 		Host:            defaults.Host,
 		LogLevel:        defaults.LogLevel,
 		StoreInterval:   defaults.StoreInterval,
+		RepeatIntervals: defaults.RepeatIntervals,
 		FileStoragePath: defaults.FileStoragePath,
 		Restore:         defaults.Restore,
 	}

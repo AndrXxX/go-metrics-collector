@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"context"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -29,10 +30,11 @@ func TestStorageInsertInt64(t *testing.T) {
 			want:  map[string]int64{"metric": 10},
 		},
 	}
+	ctx := context.TODO()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &storage[int64]{store: tt.store}
-			s.Insert(tt.args.metric, tt.args.value)
+			s.Insert(ctx, tt.args.metric, tt.args.value)
 			assert.Equal(t, tt.want, tt.store)
 		})
 	}
@@ -62,10 +64,11 @@ func TestStorageGetInt64(t *testing.T) {
 			want:   want{value: 0, ok: false},
 		},
 	}
+	ctx := context.TODO()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &storage[int64]{store: tt.store}
-			value, ok := s.Get(tt.metric)
+			value, ok := s.Get(ctx, tt.metric)
 			assert.Equal(t, tt.want.value, value)
 			assert.Equal(t, tt.want.ok, ok)
 		})
@@ -94,10 +97,11 @@ func TestStorageAllInt64(t *testing.T) {
 			want:  map[string]int64{"metric": 1, "metric2": 10},
 		},
 	}
+	ctx := context.TODO()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &storage[int64]{store: tt.store}
-			assert.Equal(t, tt.want, s.All())
+			assert.Equal(t, tt.want, s.All(ctx))
 		})
 	}
 }
@@ -132,10 +136,11 @@ func TestStorageSetFloat64(t *testing.T) {
 			want:  map[string]float64{"metric": -1},
 		},
 	}
+	ctx := context.TODO()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &storage[float64]{store: tt.store}
-			s.Insert(tt.args.metric, tt.args.value)
+			s.Insert(ctx, tt.args.metric, tt.args.value)
 			assert.Equal(t, tt.want, tt.store)
 		})
 	}
@@ -165,10 +170,11 @@ func TestStorageGetFloat64(t *testing.T) {
 			want:   want{value: 0, ok: false},
 		},
 	}
+	ctx := context.TODO()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &storage[float64]{store: tt.gauge}
-			value, ok := s.Get(tt.metric)
+			value, ok := s.Get(ctx, tt.metric)
 			assert.Equal(t, tt.want.value, value)
 			assert.Equal(t, tt.want.ok, ok)
 		})
@@ -197,10 +203,11 @@ func TestStorageAllFloat64(t *testing.T) {
 			want:  map[string]float64{"metric": 1.1, "metric2": 10.5},
 		},
 	}
+	ctx := context.TODO()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &storage[float64]{store: tt.store}
-			assert.Equal(t, tt.want, s.All())
+			assert.Equal(t, tt.want, s.All(ctx))
 		})
 	}
 }

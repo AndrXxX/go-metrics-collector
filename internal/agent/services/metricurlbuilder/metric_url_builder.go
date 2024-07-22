@@ -28,6 +28,9 @@ func New(host string) *metricURLBuilder {
 
 func (b *metricURLBuilder) Build(params types.URLParams) string {
 	u := fmt.Sprintf("%v/update", b.host)
+	if params["endpoint"] != nil {
+		u = fmt.Sprintf("%v/%v", b.host, params["endpoint"])
+	}
 	if params["metricType"] != nil {
 		u = fmt.Sprintf("%v/%v", u, params["metricType"])
 	}

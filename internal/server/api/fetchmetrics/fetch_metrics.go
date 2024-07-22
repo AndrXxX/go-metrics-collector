@@ -24,7 +24,7 @@ func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, nex
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	val, ok := h.s.Get(metric.ID)
+	val, ok := h.s.Get(r.Context(), metric.ID)
 	if !ok {
 		w.WriteHeader(http.StatusNotFound)
 		return

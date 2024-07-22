@@ -70,15 +70,16 @@ func TestFetchMetricsHandlerGaugeHandle(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			request := httptest.NewRequest(test.method, test.request, nil)
-			ctx := chi.NewRouteContext()
-			request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, ctx))
+			rc := chi.NewRouteContext()
+			request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, rc))
 			for k, v := range test.vars {
-				ctx.URLParams.Add(k, v)
+				rc.URLParams.Add(k, v)
 			}
 
 			storage := memory.New[*models.Metrics]()
+			ctx := context.TODO()
 			for k, v := range test.fields {
-				storage.Insert(k, &models.Metrics{
+				storage.Insert(ctx, k, &models.Metrics{
 					ID:    k,
 					MType: metrics.Gauge,
 					Value: &v,
@@ -153,15 +154,16 @@ func TestFetchMetricsHandlerCounterHandle(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			request := httptest.NewRequest(test.method, test.request, nil)
-			ctx := chi.NewRouteContext()
-			request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, ctx))
+			rc := chi.NewRouteContext()
+			request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, rc))
 			for k, v := range test.vars {
-				ctx.URLParams.Add(k, v)
+				rc.URLParams.Add(k, v)
 			}
 
+			ctx := context.TODO()
 			storage := memory.New[*models.Metrics]()
 			for k, v := range test.fields {
-				storage.Insert(k, &models.Metrics{
+				storage.Insert(ctx, k, &models.Metrics{
 					ID:    k,
 					MType: metrics.Counter,
 					Delta: &v,

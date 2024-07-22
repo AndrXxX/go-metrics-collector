@@ -1,12 +1,13 @@
 package updatemetrics
 
 import (
+	"context"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"net/http"
 )
 
 type updater interface {
-	Update(m *models.Metrics) (*models.Metrics, error)
+	Update(ctx context.Context, m *models.Metrics) (*models.Metrics, error)
 }
 
 type formatter interface {

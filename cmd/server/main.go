@@ -1,11 +1,16 @@
 package main
 
 import (
+	"context"
 	"github.com/AndrXxX/go-metrics-collector/internal/server"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/dbprovider"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/storageprovider"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"github.com/asaskevich/govalidator"
 	"log"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
@@ -16,9 +21,17 @@ func main() {
 	parseFlags(settings)
 	parseEnv(settings)
 	if _, err := govalidator.ValidateStruct(settings); err != nil {
-		log.Fatal(err)
+		logger.Log.Fatal(err.Error())
 	}
-	if err := server.Run(settings); err != nil {
-		log.Fatal(err)
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+	db, err := dbprovider.New(settings).DB()
+	if err != nil {
+		logger.Log.Error(err.Error())
+	}
+	sp := storageprovider.New(settings, db)
+	app := server.New(settings, sp.Storage(ctx), db)
+	if err := app.Run(ctx); err != nil {
+		logger.Log.Fatal(err.Error())
 	}
 }

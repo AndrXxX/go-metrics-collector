@@ -27,7 +27,7 @@ func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, nex
 		Items map[string]string
 	}{
 		Title: "Metrics List",
-		Items: h.fetchMetrics(),
+		Items: h.fetchMetrics(r),
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -42,9 +42,9 @@ func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, nex
 	}
 }
 
-func (h *fetchMetricsHandler) fetchMetrics() map[string]string {
+func (h *fetchMetricsHandler) fetchMetrics(r *http.Request) map[string]string {
 	result := map[string]string{}
-	for k, v := range h.s.All() {
+	for k, v := range h.s.All(r.Context()) {
 		if v.MType == metrics.Counter {
 			result[k] = fmt.Sprintf("%d", *v.Delta)
 		} else {
