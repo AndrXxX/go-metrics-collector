@@ -3,6 +3,7 @@ package agent
 import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/hashgenerator"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricscollector"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricsuploader"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricurlbuilder"
@@ -18,7 +19,7 @@ func Run(config *config.Config) error {
 	s.Add(metricscollector.New(&config.Metrics), time.Duration(config.Intervals.PollInterval)*time.Second)
 
 	ub := metricurlbuilder.New(config.Common.Host)
-	rs := requestsender.New(http.DefaultClient, nil)
+	rs := requestsender.New(http.DefaultClient, hashgenerator.New(config.Common.Key))
 	s.Add(metricsuploader.NewJSONUploader(rs, ub, config.Intervals.RepeatIntervals), time.Duration(config.Intervals.ReportInterval)*time.Second)
 
 	err := s.Run(*m)
