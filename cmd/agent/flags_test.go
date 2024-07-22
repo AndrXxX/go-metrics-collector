@@ -66,14 +66,14 @@ func Test_parseFlags(t *testing.T) {
 			},
 		},
 		{
-			name: "-a=new-host -r=2 -p=2",
+			name: "-a=new-host -r=2 -p=2 -k=abc",
 			config: &config.Config{
 				Common:    config.CommonConfig{Host: "host"},
 				Intervals: config.Intervals{PollInterval: 1, ReportInterval: 1},
 			},
-			flags: []string{"-a", "new-host", "-p", "2", "-r", "2"},
+			flags: []string{"-a", "new-host", "-p", "2", "-r", "2", "-k", "abc"},
 			want: &config.Config{
-				Common:    config.CommonConfig{Host: "new-host"},
+				Common:    config.CommonConfig{Host: "new-host", Key: "abc"},
 				Intervals: config.Intervals{PollInterval: 2, ReportInterval: 2},
 			},
 		},
