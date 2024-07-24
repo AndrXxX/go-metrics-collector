@@ -4,6 +4,9 @@ import (
 	"bytes"
 	"compress/gzip"
 	"fmt"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
+	"go.uber.org/zap"
+	"io"
 	"net/http"
 )
 
@@ -21,6 +24,11 @@ func (s *RequestSender) Post(url string, contentType string, data []byte) error 
 	if err != nil {
 		return err
 	}
+	encoded, err := io.ReadAll(buf)
+	if err != nil {
+		logger.Log.Error("Error on read encoded data", zap.Error(err))
+	}
+	buf = bytes.NewBuffer(encoded)
 	r, err := http.NewRequest("POST", url, buf)
 	if err != nil {
 		return err
@@ -30,7 +38,7 @@ func (s *RequestSender) Post(url string, contentType string, data []byte) error 
 	r.Header.Set("Accept-Encoding", "gzip")
 
 	if s.hg != nil {
-		r.Header.Set("HashSHA256", s.hg.Generate(data))
+		r.Header.Set("HashSHA256", s.hg.Generate(encoded))
 	}
 
 	resp, err := s.c.Do(r)
