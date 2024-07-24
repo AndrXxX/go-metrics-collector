@@ -75,6 +75,7 @@ func (a *app) Run(commonCtx context.Context) error {
 			middlewares.HasCorrectSHA256HashOr500(hg),
 			middlewares.CompressGzip(),
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
+			middlewares.AddSHA256HashHeader(hg),
 			updatemanymetrics.New(metricsupdater.New(a.storage.s)),
 		}).Handler())
 	})
@@ -84,6 +85,7 @@ func (a *app) Run(commonCtx context.Context) error {
 			middlewares.HasCorrectSHA256HashOr500(hg),
 			middlewares.SetContentType(contenttypes.TextPlain),
 			middlewares.HasMetricOr404(),
+			middlewares.AddSHA256HashHeader(hg),
 			updatemetrics.New(metricsupdater.New(a.storage.s), metricsformatter.MetricsEmptyFormatter{}, metricsidentifier.NewURLIdentifier()),
 		}).Handler())
 
@@ -91,6 +93,7 @@ func (a *app) Run(commonCtx context.Context) error {
 			middlewares.HasCorrectSHA256HashOr500(hg),
 			middlewares.CompressGzip(),
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
+			middlewares.AddSHA256HashHeader(hg),
 			updatemetrics.New(metricsupdater.New(a.storage.s), metricsformatter.MetricsJSONFormatter{}, metricsidentifier.NewJSONIdentifier()),
 		}).Handler())
 	})
@@ -99,12 +102,14 @@ func (a *app) Run(commonCtx context.Context) error {
 		r.Get(fmt.Sprintf("/{%v}/{%v}", vars.MetricType, vars.Metric), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType(contenttypes.TextPlain),
 			middlewares.HasMetricOr404(),
+			middlewares.AddSHA256HashHeader(hg),
 			fetchmetrics.New(a.storage.s, metricsformatter.MetricsValueFormatter{}, metricsidentifier.NewURLIdentifier(), mc),
 		}).Handler())
 
 		r.Post("/", cFactory.From([]interfaces.Handler{
 			middlewares.CompressGzip(),
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
+			middlewares.AddSHA256HashHeader(hg),
 			fetchmetrics.New(a.storage.s, metricsformatter.MetricsJSONFormatter{}, metricsidentifier.NewJSONIdentifier(), mc),
 		}).Handler())
 	})
@@ -112,6 +117,7 @@ func (a *app) Run(commonCtx context.Context) error {
 	r.Get("/", cFactory.From([]interfaces.Handler{
 		middlewares.CompressGzip(),
 		middlewares.SetContentType(contenttypes.TextHTML),
+		middlewares.AddSHA256HashHeader(hg),
 		fetchallmetrics.New(a.storage.s),
 	}).Handler())
 
