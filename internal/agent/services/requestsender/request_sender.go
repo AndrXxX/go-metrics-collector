@@ -30,11 +30,7 @@ func (s *RequestSender) Post(url string, contentType string, data []byte) error 
 	r.Header.Set("Accept-Encoding", "gzip")
 
 	if s.hg != nil {
-		hash, err := s.hg.Generate(data)
-		if err != nil {
-			return err
-		}
-		r.Header.Set("HashSHA256", string(hash))
+		r.Header.Set("HashSHA256", s.hg.Generate(data))
 	}
 
 	resp, err := s.c.Do(r)
