@@ -6,7 +6,8 @@ import (
 )
 
 type addSHA256HashHeaderMiddleware struct {
-	hg SHA256hashGenerator
+	hg  SHA256hashGenerator
+	key string
 }
 
 func (m *addSHA256HashHeaderMiddleware) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
@@ -17,20 +18,21 @@ func (m *addSHA256HashHeaderMiddleware) Handle(w http.ResponseWriter, r *http.Re
 }
 
 func (m *addSHA256HashHeaderMiddleware) processWriter(w http.ResponseWriter) http.ResponseWriter {
-	if m.hg == nil {
+	if m.key == "" {
 		return w
 	}
-	return &sha256RequestWriter{m.hg, w, &bytes.Buffer{}}
+	return &sha256RequestWriter{m.hg, w, &bytes.Buffer{}, m.key}
 }
 
-func AddSHA256HashHeader(hg SHA256hashGenerator) *addSHA256HashHeaderMiddleware {
-	return &addSHA256HashHeaderMiddleware{hg}
+func AddSHA256HashHeader(hg SHA256hashGenerator, key string) *addSHA256HashHeaderMiddleware {
+	return &addSHA256HashHeaderMiddleware{hg, key}
 }
 
 type sha256RequestWriter struct {
 	hg   SHA256hashGenerator
 	orig http.ResponseWriter
 	buff *bytes.Buffer
+	key  string
 }
 
 func (w *sha256RequestWriter) Header() http.Header {
@@ -43,6 +45,6 @@ func (w *sha256RequestWriter) Write(data []byte) (int, error) {
 }
 
 func (w *sha256RequestWriter) WriteHeader(statusCode int) {
-	w.Header().Add("HashSHA256", w.hg.Generate(w.buff.Bytes()))
+	w.Header().Add("HashSHA256", w.hg.Generate(w.key, w.buff.Bytes()))
 	w.orig.WriteHeader(statusCode)
 }

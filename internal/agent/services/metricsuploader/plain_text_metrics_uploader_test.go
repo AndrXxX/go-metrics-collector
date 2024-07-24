@@ -20,9 +20,9 @@ func TestNewUploader(t *testing.T) {
 	}{
 		{
 			name: "Test NewPlainTextUploader plainTextMetricsUploader #1 (Alloc)",
-			rs:   requestsender.New(http.DefaultClient, nil),
+			rs:   requestsender.New(http.DefaultClient, nil, ""),
 			ub:   metricurlbuilder.New(""),
-			want: &plainTextMetricsUploader{rs: requestsender.New(http.DefaultClient, nil), ub: metricurlbuilder.New("")},
+			want: &plainTextMetricsUploader{rs: requestsender.New(http.DefaultClient, nil, ""), ub: metricurlbuilder.New("")},
 		},
 	}
 	for _, tt := range tests {
@@ -67,7 +67,7 @@ func Test_metricsUploader_Execute(t *testing.T) {
 					assert.Equal(t, tt.url, req.URL.String())
 					return nil, nil
 				},
-			}, nil)
+			}, nil, "")
 			c := NewPlainTextUploader(rs, metricurlbuilder.New("host"))
 			assert.NoError(t, c.Execute(tt.result))
 		})

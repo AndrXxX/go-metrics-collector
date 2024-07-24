@@ -7,7 +7,8 @@ import (
 )
 
 type hasCorrectSHA256HashMiddleware struct {
-	hg SHA256hashGenerator
+	hg  SHA256hashGenerator
+	key string
 }
 
 func (m *hasCorrectSHA256HashMiddleware) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
@@ -21,7 +22,7 @@ func (m *hasCorrectSHA256HashMiddleware) Handle(w http.ResponseWriter, r *http.R
 }
 
 func (m *hasCorrectSHA256HashMiddleware) check(r *http.Request) bool {
-	if m.hg == nil {
+	if m.key == "" {
 		return true
 	}
 	requestHash := r.Header.Get("HashSHA256")
@@ -35,10 +36,10 @@ func (m *hasCorrectSHA256HashMiddleware) check(r *http.Request) bool {
 	_ = r.Body.Close()
 	r.Body = io.NopCloser(bytes.NewBuffer(data))
 
-	actualHash := m.hg.Generate(data)
+	actualHash := m.hg.Generate(m.key, data)
 	return actualHash == requestHash
 }
 
-func HasCorrectSHA256HashOr500(hg SHA256hashGenerator) *hasCorrectSHA256HashMiddleware {
-	return &hasCorrectSHA256HashMiddleware{hg}
+func HasCorrectSHA256HashOr500(hg SHA256hashGenerator, key string) *hasCorrectSHA256HashMiddleware {
+	return &hasCorrectSHA256HashMiddleware{hg, key}
 }

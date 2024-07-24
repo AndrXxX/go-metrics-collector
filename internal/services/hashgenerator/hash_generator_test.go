@@ -7,29 +7,17 @@ import (
 
 func TestNew(t *testing.T) {
 	tests := []struct {
-		name    string
-		key     string
-		want    *hashGenerator
-		wantErr bool
+		name string
+		want *hashGenerator
 	}{
 		{
-			name:    "Test with empty key",
-			key:     "",
-			want:    nil,
-			wantErr: true,
-		},
-		{
-			name:    "Test OK with key 123",
-			key:     "123",
-			want:    &hashGenerator{key: "123"},
-			wantErr: false,
+			name: "Test Ok",
+			want: &hashGenerator{},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := New(tt.key)
-			assert.Equal(t, tt.wantErr, err != nil)
-			assert.Equal(t, got, tt.want)
+			assert.Equal(t, New(), tt.want)
 		})
 	}
 }
@@ -68,8 +56,8 @@ func TestHashGeneratorGenerate(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			g := hashGenerator{key: tt.key}
-			got := g.Generate(tt.data)
+			g := New()
+			got := g.Generate(tt.key, tt.data)
 			assert.Equal(t, tt.want, got)
 		})
 	}

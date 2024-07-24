@@ -11,12 +11,13 @@ import (
 )
 
 type RequestSender struct {
-	c  client
-	hg hashGenerator
+	c   client
+	hg  hashGenerator
+	key string
 }
 
-func New(c client, hg hashGenerator) *RequestSender {
-	return &RequestSender{c, hg}
+func New(c client, hg hashGenerator, key string) *RequestSender {
+	return &RequestSender{c, hg, key}
 }
 
 func (s *RequestSender) Post(url string, contentType string, data []byte) error {
@@ -24,11 +25,15 @@ func (s *RequestSender) Post(url string, contentType string, data []byte) error 
 	if err != nil {
 		return err
 	}
-	encoded, err := io.ReadAll(buf)
-	if err != nil {
-		logger.Log.Error("Error on read encoded data", zap.Error(err))
+	var encoded []byte
+	if s.key != "" {
+		encoded, err = io.ReadAll(buf)
+		if err != nil {
+			logger.Log.Error("Error on read encoded data", zap.Error(err))
+		}
+		buf = bytes.NewBuffer(encoded)
 	}
-	buf = bytes.NewBuffer(encoded)
+
 	r, err := http.NewRequest("POST", url, buf)
 	if err != nil {
 		return err
@@ -36,9 +41,8 @@ func (s *RequestSender) Post(url string, contentType string, data []byte) error 
 	r.Header.Set("Content-Type", contentType)
 	r.Header.Set("Content-Encoding", "gzip")
 	r.Header.Set("Accept-Encoding", "gzip")
-
-	if s.hg != nil {
-		r.Header.Set("HashSHA256", s.hg.Generate(encoded))
+	if s.key != "" {
+		r.Header.Set("HashSHA256", s.hg.Generate(s.key, encoded))
 	}
 
 	resp, err := s.c.Do(r)
