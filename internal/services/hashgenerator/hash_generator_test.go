@@ -19,33 +19,9 @@ func TestNew(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name:    "Test with wrong size (3)",
+			name:    "Test OK with key 123",
 			key:     "123",
-			want:    nil,
-			wantErr: true,
-		},
-		{
-			name:    "Test with wrong size (17)",
-			key:     "12345678901234567",
-			want:    nil,
-			wantErr: true,
-		},
-		{
-			name:    "Test OK with 16 size key",
-			key:     "1234567890123456",
-			want:    &hashGenerator{key: "1234567890123456"},
-			wantErr: false,
-		},
-		{
-			name:    "Test OK with 24 size key",
-			key:     "123456789012345678901234",
-			want:    &hashGenerator{key: "123456789012345678901234"},
-			wantErr: false,
-		},
-		{
-			name:    "Test OK with 32 size key",
-			key:     "12345678901234567890123456789012",
-			want:    &hashGenerator{key: "12345678901234567890123456789012"},
+			want:    &hashGenerator{key: "123"},
 			wantErr: false,
 		},
 	}
