@@ -23,6 +23,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsformatter"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsidentifier"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsupdater"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/hashgenerator"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
@@ -59,6 +60,10 @@ func (a *app) Run(commonCtx context.Context) error {
 
 	cFactory := conveyor.Factory(apilogger.New())
 	mc := metricschecker.New()
+	hg, err := hashgenerator.New(a.config.c.Key)
+	if err != nil {
+		logger.Log.Error("Error on create hash generator", zap.Error(err))
+	}
 
 	r := chi.NewRouter()
 	r.Get("/ping", cFactory.From([]interfaces.Handler{
@@ -67,6 +72,7 @@ func (a *app) Run(commonCtx context.Context) error {
 
 	r.Route("/updates", func(r chi.Router) {
 		r.Post("/", cFactory.From([]interfaces.Handler{
+			middlewares.HasCorrectSHA256HashOr500(hg),
 			middlewares.CompressGzip(),
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
 			updatemanymetrics.New(metricsupdater.New(a.storage.s)),
@@ -75,12 +81,14 @@ func (a *app) Run(commonCtx context.Context) error {
 
 	r.Route("/update", func(r chi.Router) {
 		r.Post(fmt.Sprintf("/{%v}/{%v}/{%v}", vars.MetricType, vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
+			middlewares.HasCorrectSHA256HashOr500(hg),
 			middlewares.SetContentType(contenttypes.TextPlain),
 			middlewares.HasMetricOr404(),
 			updatemetrics.New(metricsupdater.New(a.storage.s), metricsformatter.MetricsEmptyFormatter{}, metricsidentifier.NewURLIdentifier()),
 		}).Handler())
 
 		r.Post("/", cFactory.From([]interfaces.Handler{
+			middlewares.HasCorrectSHA256HashOr500(hg),
 			middlewares.CompressGzip(),
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
 			updatemetrics.New(metricsupdater.New(a.storage.s), metricsformatter.MetricsJSONFormatter{}, metricsidentifier.NewJSONIdentifier()),
