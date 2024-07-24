@@ -3,12 +3,12 @@ package agent
 import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/hashgenerator"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricscollector"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricsuploader"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricurlbuilder"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/requestsender"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/scheduler"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/hashgenerator"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"go.uber.org/zap"
 	"net/http"
