@@ -81,6 +81,17 @@ func Test_parseEnv(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "RATE_LIMIT=5",
+			config: &config.Config{
+				Common: config.CommonConfig{RateLimit: 1},
+			},
+			env: map[string]string{"RATE_LIMIT": "5"},
+			want: &config.Config{
+				Common: config.CommonConfig{RateLimit: 5},
+			},
+			wantErr: false,
+		},
+		{
 			name: "ADDRESS=new-host REPORT_INTERVAL=2 POLL_INTERVAL=2 KEY=abc",
 			config: &config.Config{
 				Common:    config.CommonConfig{Host: "host"},
