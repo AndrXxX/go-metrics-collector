@@ -66,6 +66,16 @@ func Test_parseFlags(t *testing.T) {
 			},
 		},
 		{
+			name: "-l=2",
+			config: &config.Config{
+				Common: config.CommonConfig{RateLimit: 1},
+			},
+			flags: []string{"-l", "2"},
+			want: &config.Config{
+				Common: config.CommonConfig{RateLimit: 2},
+			},
+		},
+		{
 			name: "-a=new-host -r=2 -p=2 -k=abc",
 			config: &config.Config{
 				Common:    config.CommonConfig{Host: "host"},
