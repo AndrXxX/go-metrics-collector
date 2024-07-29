@@ -16,7 +16,8 @@ type Intervals struct {
 }
 
 type CommonConfig struct {
-	Host     string `valid:"minstringlength(3)"`
-	LogLevel string `valid:"in(debug|info|warn|error|fatal)"`
-	Key      string
+	Host      string `valid:"minstringlength(3)"`
+	LogLevel  string `valid:"in(debug|info|warn|error|fatal)"`
+	Key       string
+	RateLimit int64
 }
