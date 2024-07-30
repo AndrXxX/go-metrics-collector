@@ -30,3 +30,7 @@ const StackInuse = "StackInuse"
 const StackSys = "StackSys"
 const Sys = "Sys"
 const TotalAlloc = "TotalAlloc"
+
+const TotalMemory = "TotalMemory"
+const FreeMemory = "FreeMemory"
+const CPUutilization = "CPUutilization"
