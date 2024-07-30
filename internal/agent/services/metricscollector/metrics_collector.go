@@ -40,6 +40,16 @@ func (c *metricsCollector) Execute(result dto.MetricsDto) error {
 	return nil
 }
 
+func (c *metricsCollector) Collect(results chan<- dto.MetricsDto) error {
+	m := dto.NewMetricsDto()
+	err := c.Execute(*m)
+	if err != nil {
+		return err
+	}
+	results <- *m
+	return nil
+}
+
 func New(ml *config.MetricsList) *metricsCollector {
 	return &metricsCollector{ml}
 }

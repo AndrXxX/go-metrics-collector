@@ -32,6 +32,16 @@ func (c *jsonMetricsUploader) Execute(result dto.MetricsDto) error {
 	return nil
 }
 
+func (c *jsonMetricsUploader) Process(results <-chan dto.MetricsDto) error {
+	for result := range results {
+		err := c.Execute(result)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (c *jsonMetricsUploader) send(m dto.JSONMetrics) error {
 	url := c.ub.Build(types.URLParams{})
 	encoded, err := json.Marshal(m)
