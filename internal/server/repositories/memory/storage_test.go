@@ -215,17 +215,17 @@ func TestStorageAllFloat64(t *testing.T) {
 func TestNew(t *testing.T) {
 	tests := []struct {
 		name string
-		want storage[any]
+		want *storage[any]
 	}{
 		{
 			name: "Test New storage",
-			want: storage[any]{store: map[string]any{}},
+			want: &storage[any]{store: map[string]any{}},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := New[any]()
-			assert.Equal(t, tt.want, s)
+			assert.Equal(t, tt.want, &s)
 		})
 	}
 }
