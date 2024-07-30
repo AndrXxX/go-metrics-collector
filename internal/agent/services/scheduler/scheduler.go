@@ -1,6 +1,7 @@
 package scheduler
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
@@ -14,6 +15,7 @@ type intervalScheduler struct {
 	processors    []processorItem
 	collectors    []collectorItem
 	running       bool
+	stopping      bool
 	sleepInterval int64
 	wg            sync.WaitGroup
 }
@@ -36,6 +38,7 @@ func (s *intervalScheduler) Run() error {
 	}
 	logger.Log.Info("Scheduler running")
 	s.running = true
+	s.stopping = false
 	for {
 		for _, c := range s.collectors {
 			if !canExecute(c.lastExecuted, c.interval) {
@@ -57,8 +60,31 @@ func (s *intervalScheduler) Run() error {
 				s.wg.Done()
 			}()
 		}
+		if s.stopping {
+			s.wg.Done()
+			s.stopping = false
+			s.running = false
+			logger.Log.Info("Scheduler stopped")
+			return nil
+		}
+		s.wg.Wait()
 		time.Sleep(time.Duration(s.sleepInterval) * time.Second)
 	}
+}
+
+func (s *intervalScheduler) Shutdown(ctx context.Context) error {
+	select {
+	default:
+		logger.Log.Info("Scheduler shutting down")
+		s.wg.Add(1)
+		go func() {
+			s.stopping = true
+		}()
+		s.wg.Wait()
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+	return nil
 }
 
 func (s *intervalScheduler) process(ch <-chan dto.MetricsDto) {

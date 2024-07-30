@@ -20,6 +20,7 @@ import (
 const shutdownTimeout = 5 * time.Second
 
 func Run(commonCtx context.Context, config *config.Config) error {
+	ctx, ctxCancel := context.WithCancel(commonCtx)
 	s := scheduler.NewIntervalScheduler(config.Intervals.SleepInterval)
 	rmc := runtimemetricscollector.New(&config.Metrics)
 	s.AddCollector(rmc, time.Duration(config.Intervals.PollInterval)*time.Second)
@@ -33,12 +34,15 @@ func Run(commonCtx context.Context, config *config.Config) error {
 	processor := metricsuploader.NewJSONUploader(rs, ub, config.Intervals.RepeatIntervals)
 	s.AddProcessor(processor, time.Duration(config.Intervals.ReportInterval)*time.Second)
 
-	err := s.Run()
-	if err != nil {
-		return err
-	}
+	go func() {
+		err := s.Run()
+		if err != nil {
+			logger.Log.Error(fmt.Sprintf("Failed to run scheduler %e", err))
+			ctxCancel()
+		}
+	}()
 
-	<-commonCtx.Done()
+	<-ctx.Done()
 	logger.Log.Info("shutting down agent gracefully")
 
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
@@ -46,7 +50,10 @@ func Run(commonCtx context.Context, config *config.Config) error {
 
 	shutdown := make(chan struct{}, 1)
 	go func() {
-		// TODO: stop scheduler with shutdownCtx
+		err := s.Shutdown(shutdownCtx)
+		if err != nil {
+			logger.Log.Error(fmt.Sprintf("Failed to shutdown scheduler %e", err))
+		}
 		shutdown <- struct{}{}
 	}()
 
