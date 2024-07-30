@@ -1,4 +1,4 @@
-package metricscollector
+package runtimemetricscollector
 
 import (
 	"fmt"
@@ -10,11 +10,11 @@ import (
 	"runtime"
 )
 
-type metricsCollector struct {
+type collector struct {
 	ml *config.MetricsList
 }
 
-func (c *metricsCollector) Execute(result dto.MetricsDto) error {
+func (c *collector) Execute(result dto.MetricsDto) error {
 	ms := runtime.MemStats{}
 	runtime.ReadMemStats(&ms)
 	memStatsDto := dto.NewMemStatsDto(&ms)
@@ -40,7 +40,7 @@ func (c *metricsCollector) Execute(result dto.MetricsDto) error {
 	return nil
 }
 
-func (c *metricsCollector) Collect(results chan<- dto.MetricsDto) error {
+func (c *collector) Collect(results chan<- dto.MetricsDto) error {
 	m := dto.NewMetricsDto()
 	err := c.Execute(*m)
 	if err != nil {
@@ -50,6 +50,6 @@ func (c *metricsCollector) Collect(results chan<- dto.MetricsDto) error {
 	return nil
 }
 
-func New(ml *config.MetricsList) *metricsCollector {
-	return &metricsCollector{ml}
+func New(ml *config.MetricsList) *collector {
+	return &collector{ml}
 }

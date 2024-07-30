@@ -1,4 +1,4 @@
-package metricscollector
+package runtimemetricscollector
 
 import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
@@ -12,17 +12,17 @@ func TestNewCollector(t *testing.T) {
 	tests := []struct {
 		name string
 		ml   *config.MetricsList
-		want *metricsCollector
+		want *collector
 	}{
 		{
-			name: "Test New metricsCollector #1 (Alloc)",
+			name: "Test New collector #1 (Alloc)",
 			ml:   &config.MetricsList{metrics.Alloc},
-			want: &metricsCollector{ml: &config.MetricsList{metrics.Alloc}},
+			want: &collector{ml: &config.MetricsList{metrics.Alloc}},
 		},
 		{
-			name: "Test New metricsCollector #1 (Alloc)",
+			name: "Test New collector #1 (Alloc)",
 			ml:   &config.MetricsList{metrics.BuckHashSys, metrics.HeapObjects},
-			want: &metricsCollector{ml: &config.MetricsList{metrics.BuckHashSys, metrics.HeapObjects}},
+			want: &collector{ml: &config.MetricsList{metrics.BuckHashSys, metrics.HeapObjects}},
 		},
 	}
 	for _, tt := range tests {
@@ -93,7 +93,7 @@ func Test_metricsCollector_Execute(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := &metricsCollector{ml: tt.ml}
+			c := &collector{ml: tt.ml}
 			err := c.Execute(tt.result)
 			assert.NoError(t, err)
 			for _, v := range tt.valuesInResult.gauge {
