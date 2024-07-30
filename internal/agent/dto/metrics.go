@@ -1,9 +1,7 @@
 package dto
 
 type MetricsDto struct {
-	Gauge   map[string]float64
-	Counter map[string]int64
-	list    map[string]JSONMetrics
+	list map[string]JSONMetrics
 }
 
 func (dto *MetricsDto) Get(name string) (JSONMetrics, bool) {
@@ -21,8 +19,6 @@ func (dto *MetricsDto) All() map[string]JSONMetrics {
 
 func NewMetricsDto() *MetricsDto {
 	return &MetricsDto{
-		Gauge:   map[string]float64{},
-		Counter: map[string]int64{},
-		list:    map[string]JSONMetrics{},
+		list: map[string]JSONMetrics{},
 	}
 }
