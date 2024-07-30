@@ -12,13 +12,6 @@ import (
 	"time"
 )
 
-type JSONMetrics struct {
-	ID    string   `json:"id"`              // Имя метрики
-	MType string   `json:"type"`            // Параметр, принимающий значение gauge или counter
-	Delta *int64   `json:"delta,omitempty"` // Значение метрики в случае передачи counter
-	Value *float64 `json:"value,omitempty"` // Значение метрики в случае передачи gauge
-}
-
 type jsonMetricsUploader struct {
 	rs              *requestsender.RequestSender
 	ub              urlBuilder
@@ -26,16 +19,16 @@ type jsonMetricsUploader struct {
 }
 
 func (c *jsonMetricsUploader) Execute(result dto.MetricsDto) error {
-	var list []JSONMetrics
+	var list []dto.JSONMetrics
 	for metric, value := range result.Gauge {
-		list = append(list, JSONMetrics{
+		list = append(list, dto.JSONMetrics{
 			ID:    metric,
 			MType: metrics.Gauge,
 			Value: &value,
 		})
 	}
 	for metric, value := range result.Counter {
-		list = append(list, JSONMetrics{
+		list = append(list, dto.JSONMetrics{
 			ID:    metric,
 			MType: metrics.Counter,
 			Delta: &value,
@@ -51,7 +44,7 @@ func (c *jsonMetricsUploader) Execute(result dto.MetricsDto) error {
 	return nil
 }
 
-func (c *jsonMetricsUploader) send(m JSONMetrics) error {
+func (c *jsonMetricsUploader) send(m dto.JSONMetrics) error {
 	url := c.ub.Build(types.URLParams{})
 	encoded, err := json.Marshal(m)
 	if err != nil {
@@ -60,7 +53,7 @@ func (c *jsonMetricsUploader) send(m JSONMetrics) error {
 	return c.rs.Post(url, contenttypes.ApplicationJSON, encoded)
 }
 
-func (c *jsonMetricsUploader) sendMany(l []JSONMetrics) error {
+func (c *jsonMetricsUploader) sendMany(l []dto.JSONMetrics) error {
 	url := c.ub.Build(types.URLParams{"endpoint": "updates"})
 	encoded, err := json.Marshal(l)
 	if err != nil {
