@@ -47,6 +47,7 @@ func (c *collector) Collect(results chan<- dto.MetricsDto) error {
 		return err
 	}
 	results <- *m
+	close(results)
 	return nil
 }
 

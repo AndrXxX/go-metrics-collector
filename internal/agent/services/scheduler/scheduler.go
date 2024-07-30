@@ -15,8 +15,7 @@ type intervalScheduler struct {
 	collectors    []collectorItem
 	running       bool
 	sleepInterval int64
-	cwg           sync.WaitGroup
-	pwg           sync.WaitGroup
+	wg            sync.WaitGroup
 }
 
 func (s *intervalScheduler) Add(e executor, interval time.Duration) {
@@ -38,41 +37,45 @@ func (s *intervalScheduler) Run() error {
 	logger.Log.Info("Scheduler running")
 	s.running = true
 	for {
-		results := make(chan dto.MetricsDto)
 		for _, c := range s.collectors {
-			s.cwg.Add(1)
+			if !canExecute(c.lastExecuted, c.interval) {
+				continue
+			}
+			s.wg.Add(1)
+			ch := make(chan dto.MetricsDto)
 			go func() {
-				if !canExecute(c.lastExecuted, c.interval) {
-					s.cwg.Done()
-					return
-				}
-				err := c.c.Collect(results)
+				err := c.c.Collect(ch)
 				c.lastExecuted = time.Now()
 				if err != nil {
 					logger.Log.Error(fmt.Sprintf("Error on collect: %s", err.Error()))
 				}
-				s.cwg.Done()
+				s.wg.Done()
 			}()
-		}
-		for _, p := range s.processors {
-			s.pwg.Add(1)
+			s.wg.Add(1)
 			go func() {
-				if !canExecute(p.lastExecuted, p.interval) {
-					s.pwg.Done()
-					return
-				}
-				err := p.p.Process(results)
-				p.lastExecuted = time.Now()
-				if err != nil {
-					logger.Log.Error(fmt.Sprintf("Error on collect: %s", err.Error()))
-				}
-				s.pwg.Done()
+				s.process(ch)
+				s.wg.Done()
 			}()
 		}
-		s.cwg.Wait()
-		close(results)
-		s.pwg.Wait()
 		time.Sleep(time.Duration(s.sleepInterval) * time.Second)
+	}
+}
+
+func (s *intervalScheduler) process(ch <-chan dto.MetricsDto) {
+	for _, p := range s.processors {
+		s.wg.Add(1)
+		go func() {
+			if !canExecute(p.lastExecuted, p.interval) {
+				s.wg.Done()
+				return
+			}
+			err := p.p.Process(ch)
+			p.lastExecuted = time.Now()
+			if err != nil {
+				logger.Log.Error(fmt.Sprintf("Error on collect: %s", err.Error()))
+			}
+			s.wg.Done()
+		}()
 	}
 }
 
