@@ -9,6 +9,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/requestsender"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/runtimemetricscollector"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/scheduler"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/vmmetricscollector"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/hashgenerator"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"log"
@@ -20,8 +21,11 @@ const shutdownTimeout = 5 * time.Second
 
 func Run(commonCtx context.Context, config *config.Config) error {
 	s := scheduler.NewIntervalScheduler(config.Intervals.SleepInterval)
-	collector := runtimemetricscollector.New(&config.Metrics)
-	s.AddCollector(collector, time.Duration(config.Intervals.PollInterval)*time.Second)
+	rmc := runtimemetricscollector.New(&config.Metrics)
+	s.AddCollector(rmc, time.Duration(config.Intervals.PollInterval)*time.Second)
+
+	vmc := vmmetricscollector.New()
+	s.AddCollector(vmc, time.Duration(config.Intervals.PollInterval)*time.Second)
 
 	ub := metricurlbuilder.New(config.Common.Host)
 	hg := hashgenerator.New()
