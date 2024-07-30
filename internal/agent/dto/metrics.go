@@ -23,6 +23,6 @@ func NewMetricsDto() *MetricsDto {
 	return &MetricsDto{
 		Gauge:   map[string]float64{},
 		Counter: map[string]int64{},
-		list:    map[string]*JSONMetrics{},
+		list:    map[string]JSONMetrics{},
 	}
 }

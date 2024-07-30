@@ -20,7 +20,7 @@ type jsonMetricsUploader struct {
 func (c *jsonMetricsUploader) Execute(result dto.MetricsDto) error {
 	var list []dto.JSONMetrics
 	for _, metric := range result.All() {
-		list = append(list, *metric)
+		list = append(list, metric)
 	}
 	if len(list) == 0 {
 		return nil
