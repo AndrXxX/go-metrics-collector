@@ -14,13 +14,14 @@ type plainTextMetricsUploader struct {
 }
 
 func (c *plainTextMetricsUploader) Execute(result dto.MetricsDto) error {
-	for metric, value := range result.Gauge {
-		params := types.URLParams{"metricType": metrics.Gauge, "metric": metric, "value": value}
-		url := c.ub.Build(params)
-		_ = c.rs.Post(url, contenttypes.TextPlain, nil)
-	}
-	for metric, value := range result.Counter {
-		params := types.URLParams{"metricType": metrics.Counter, "metric": metric, "value": value}
+	for _, metric := range result.All() {
+		var value any
+		if metric.MType == metrics.Gauge {
+			value = *metric.Value
+		} else {
+			value = *metric.Delta
+		}
+		params := types.URLParams{"metricType": metric.MType, "metric": metric.ID, "value": value}
 		url := c.ub.Build(params)
 		_ = c.rs.Post(url, contenttypes.TextPlain, nil)
 	}
