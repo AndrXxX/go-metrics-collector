@@ -6,7 +6,6 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/requestsender"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/types"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/contenttypes"
-	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"go.uber.org/zap"
 	"time"
@@ -20,19 +19,8 @@ type jsonMetricsUploader struct {
 
 func (c *jsonMetricsUploader) Execute(result dto.MetricsDto) error {
 	var list []dto.JSONMetrics
-	for metric, value := range result.Gauge {
-		list = append(list, dto.JSONMetrics{
-			ID:    metric,
-			MType: metrics.Gauge,
-			Value: &value,
-		})
-	}
-	for metric, value := range result.Counter {
-		list = append(list, dto.JSONMetrics{
-			ID:    metric,
-			MType: metrics.Counter,
-			Delta: &value,
-		})
+	for _, metric := range result.All() {
+		list = append(list, *metric)
 	}
 	if len(list) == 0 {
 		return nil
