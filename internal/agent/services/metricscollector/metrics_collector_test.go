@@ -97,20 +97,20 @@ func Test_metricsCollector_Execute(t *testing.T) {
 			err := c.Execute(tt.result)
 			assert.NoError(t, err)
 			for _, v := range tt.valuesInResult.gauge {
-				_, ok := tt.result.Gauge[v]
+				_, ok := tt.result.Get(v)
 				assert.True(t, ok)
 			}
 			for _, v := range tt.valuesInResult.counter {
-				_, ok := tt.result.Counter[v]
+				_, ok := tt.result.Get(v)
 				assert.True(t, ok)
 			}
 			if tt.excludeValuesInResult.gauge != nil {
 				for _, v := range tt.excludeValuesInResult.gauge {
-					_, ok := tt.result.Gauge[v]
+					_, ok := tt.result.Get(v)
 					assert.False(t, ok)
 				}
 				for _, v := range tt.excludeValuesInResult.counter {
-					_, ok := tt.result.Counter[v]
+					_, ok := tt.result.Get(v)
 					assert.False(t, ok)
 				}
 			}

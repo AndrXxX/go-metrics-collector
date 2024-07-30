@@ -25,10 +25,18 @@ func (c *metricsCollector) Execute(result dto.MetricsDto) error {
 			logger.Log.Error(fmt.Sprintf("Failed to fetch value getter for metric %s", name))
 			continue
 		}
-		result.Gauge[name] = metricFn()
+		v := metricFn()
+		result.Set(dto.JSONMetrics{ID: name, MType: metrics.Gauge, Value: &v})
 	}
-	result.Counter[metrics.PollCount]++
-	result.Gauge[metrics.RandomValue] = rand.Float64()
+	var pollVal int64
+	if curPoll, ok := result.Get(metrics.PollCount); ok {
+		pollVal = *curPoll.Delta + 1
+	} else {
+		pollVal = 1
+	}
+	result.Set(dto.JSONMetrics{ID: metrics.PollCount, MType: metrics.Counter, Delta: &pollVal})
+	randVal := rand.Float64()
+	result.Set(dto.JSONMetrics{ID: metrics.RandomValue, MType: metrics.Gauge, Value: &randVal})
 	return nil
 }
 
