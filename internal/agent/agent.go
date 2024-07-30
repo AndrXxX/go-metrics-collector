@@ -31,8 +31,10 @@ func Run(commonCtx context.Context, config *config.Config) error {
 	ub := metricurlbuilder.New(config.Common.Host)
 	hg := hashgenerator.New()
 	rs := requestsender.New(http.DefaultClient, hg, config.Common.Key)
-	processor := metricsuploader.NewJSONUploader(rs, ub, config.Intervals.RepeatIntervals)
-	s.AddProcessor(processor, time.Duration(config.Intervals.ReportInterval)*time.Second)
+	for count := config.Common.RateLimit; count > 0; count-- {
+		processor := metricsuploader.NewJSONUploader(rs, ub, config.Intervals.RepeatIntervals)
+		s.AddProcessor(processor, time.Duration(config.Intervals.ReportInterval)*time.Second)
+	}
 
 	go func() {
 		err := s.Run()
