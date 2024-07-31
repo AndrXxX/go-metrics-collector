@@ -40,12 +40,14 @@ func (s *intervalScheduler) Run() error {
 	s.running = true
 	s.stopping = false
 	for {
+		channels := make([]chan dto.MetricsDto, 0)
 		for _, c := range s.collectors {
 			if !canExecute(c.lastExecuted, c.interval) {
 				continue
 			}
 			s.wg.Add(1)
 			ch := make(chan dto.MetricsDto)
+			channels = append(channels, ch)
 			go func() {
 				err := c.c.Collect(ch)
 				c.lastExecuted = time.Now()
@@ -54,6 +56,12 @@ func (s *intervalScheduler) Run() error {
 				}
 				s.wg.Done()
 			}()
+		}
+		ch := s.fanIn(channels...)
+		for _, p := range s.processors {
+			if !canExecute(p.lastExecuted, p.interval) {
+				continue
+			}
 			s.wg.Add(1)
 			go func() {
 				s.process(ch)
@@ -103,6 +111,28 @@ func (s *intervalScheduler) process(ch <-chan dto.MetricsDto) {
 			s.wg.Done()
 		}()
 	}
+}
+
+func (s *intervalScheduler) fanIn(chs ...chan dto.MetricsDto) chan dto.MetricsDto {
+	finalCh := make(chan dto.MetricsDto)
+
+	var wg sync.WaitGroup
+	for _, ch := range chs {
+		chClosure := ch
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for data := range chClosure {
+				finalCh <- data
+			}
+		}()
+	}
+
+	go func() {
+		wg.Wait()
+		close(finalCh)
+	}()
+	return finalCh
 }
 
 func canExecute(lastExecuted time.Time, interval time.Duration) bool {
