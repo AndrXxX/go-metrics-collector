@@ -5,27 +5,27 @@ import (
 	"net/http"
 )
 
-type addSHA256HashHeaderMiddleware struct {
+type sha256HeaderMiddleware struct {
 	hg  SHA256hashGenerator
 	key string
 }
 
-func (m *addSHA256HashHeaderMiddleware) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+func (m *sha256HeaderMiddleware) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	w = m.processWriter(w)
 	if next != nil {
 		next(w, r)
 	}
 }
 
-func (m *addSHA256HashHeaderMiddleware) processWriter(w http.ResponseWriter) http.ResponseWriter {
+func (m *sha256HeaderMiddleware) processWriter(w http.ResponseWriter) http.ResponseWriter {
 	if m.key == "" {
 		return w
 	}
 	return &sha256RequestWriter{m.hg, w, &bytes.Buffer{}, m.key}
 }
 
-func AddSHA256HashHeader(hg SHA256hashGenerator, key string) *addSHA256HashHeaderMiddleware {
-	return &addSHA256HashHeaderMiddleware{hg, key}
+func AddSHA256HashHeader(hg SHA256hashGenerator, key string) *sha256HeaderMiddleware {
+	return &sha256HeaderMiddleware{hg, key}
 }
 
 type sha256RequestWriter struct {
