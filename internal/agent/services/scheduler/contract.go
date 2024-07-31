@@ -5,10 +5,6 @@ import (
 	"time"
 )
 
-type executor interface {
-	Execute(dto.MetricsDto) error
-}
-
 type collector interface {
 	Collect(chan<- dto.MetricsDto) error
 }
