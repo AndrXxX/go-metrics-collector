@@ -17,12 +17,6 @@ type processor interface {
 	Process(<-chan dto.MetricsDto) error
 }
 
-type item struct {
-	e            executor
-	interval     time.Duration
-	lastExecuted time.Time
-}
-
 type collectorItem struct {
 	c            collector
 	interval     time.Duration

@@ -11,17 +11,12 @@ import (
 )
 
 type intervalScheduler struct {
-	list          []item
 	processors    []processorItem
 	collectors    []collectorItem
 	running       bool
 	stopping      bool
 	sleepInterval int64
 	wg            sync.WaitGroup
-}
-
-func (s *intervalScheduler) Add(e executor, interval time.Duration) {
-	s.list = append(s.list, item{e: e, interval: interval})
 }
 
 func (s *intervalScheduler) AddProcessor(p processor, interval time.Duration) {
@@ -141,7 +136,8 @@ func canExecute(lastExecuted time.Time, interval time.Duration) bool {
 
 func NewIntervalScheduler(sleepInterval int64) *intervalScheduler {
 	return &intervalScheduler{
-		list:          []item{},
+		collectors:    []collectorItem{},
+		processors:    []processorItem{},
 		sleepInterval: sleepInterval,
 	}
 }
