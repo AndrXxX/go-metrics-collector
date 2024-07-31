@@ -6,6 +6,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/templates"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
+	"go.uber.org/zap"
 	"html/template"
 	"net/http"
 )
@@ -17,7 +18,7 @@ type fetchMetricsHandler struct {
 func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	t, err := template.New("webpage").Parse(templates.MetricsList)
 	if err != nil {
-		logger.Log.Error(fmt.Sprintf("Error on parse MetricsList template: %s", err.Error()))
+		logger.Log.Error("Error on parse MetricsList template", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -33,7 +34,7 @@ func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, nex
 	w.WriteHeader(http.StatusOK)
 	err = t.Execute(w, data)
 	if err != nil {
-		logger.Log.Error(fmt.Sprintf("Error on execute MetricsList template: %s", err.Error()))
+		logger.Log.Error("Error on execute MetricsList template", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

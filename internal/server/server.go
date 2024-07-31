@@ -126,7 +126,7 @@ func (a *app) Run(commonCtx context.Context) error {
 		}
 	}()
 
-	logger.Log.Info(fmt.Sprintf("listening on %s", a.config.c.Host))
+	logger.Log.Info("listening", zap.String("host", a.config.c.Host))
 
 	<-commonCtx.Done()
 	logger.Log.Info("shutting down server gracefully")
