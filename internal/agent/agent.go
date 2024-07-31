@@ -21,7 +21,8 @@ import (
 const shutdownTimeout = 5 * time.Second
 
 func Run(commonCtx context.Context, config *config.Config) error {
-	ctx, ctxCancel := context.WithCancel(commonCtx)
+	ctx, cancel := context.WithCancel(commonCtx)
+	defer cancel()
 	s := scheduler.NewIntervalScheduler(time.Duration(config.Intervals.SleepInterval) * time.Second)
 	rmc := runtimemetricscollector.New(&config.Metrics)
 	s.AddCollector(rmc, time.Duration(config.Intervals.PollInterval)*time.Second)
@@ -41,7 +42,6 @@ func Run(commonCtx context.Context, config *config.Config) error {
 		err := s.Run()
 		if err != nil {
 			logger.Log.Error("Failed to run scheduler", zap.Error(err))
-			ctxCancel()
 		}
 	}()
 
