@@ -33,9 +33,9 @@ func TestStorageInsertInt64(t *testing.T) {
 	ctx := context.TODO()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &storage[int64]{store: tt.store}
+			s := New[int64]()
 			s.Insert(ctx, tt.args.metric, tt.args.value)
-			assert.Equal(t, tt.want, tt.store)
+			assert.Equal(t, tt.want, s.All(ctx))
 		})
 	}
 }
@@ -67,7 +67,10 @@ func TestStorageGetInt64(t *testing.T) {
 	ctx := context.TODO()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &storage[int64]{store: tt.store}
+			s := New[int64]()
+			for k, v := range tt.store {
+				s.Insert(ctx, k, v)
+			}
 			value, ok := s.Get(ctx, tt.metric)
 			assert.Equal(t, tt.want.value, value)
 			assert.Equal(t, tt.want.ok, ok)
@@ -100,7 +103,10 @@ func TestStorageAllInt64(t *testing.T) {
 	ctx := context.TODO()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &storage[int64]{store: tt.store}
+			s := New[int64]()
+			for k, v := range tt.store {
+				s.Insert(ctx, k, v)
+			}
 			assert.Equal(t, tt.want, s.All(ctx))
 		})
 	}
@@ -139,9 +145,9 @@ func TestStorageSetFloat64(t *testing.T) {
 	ctx := context.TODO()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &storage[float64]{store: tt.store}
+			s := New[float64]()
 			s.Insert(ctx, tt.args.metric, tt.args.value)
-			assert.Equal(t, tt.want, tt.store)
+			assert.Equal(t, tt.want, s.All(ctx))
 		})
 	}
 }
@@ -173,7 +179,10 @@ func TestStorageGetFloat64(t *testing.T) {
 	ctx := context.TODO()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &storage[float64]{store: tt.gauge}
+			s := New[float64]()
+			for k, v := range tt.gauge {
+				s.Insert(ctx, k, v)
+			}
 			value, ok := s.Get(ctx, tt.metric)
 			assert.Equal(t, tt.want.value, value)
 			assert.Equal(t, tt.want.ok, ok)
@@ -206,7 +215,10 @@ func TestStorageAllFloat64(t *testing.T) {
 	ctx := context.TODO()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &storage[float64]{store: tt.store}
+			s := New[float64]()
+			for k, v := range tt.store {
+				s.Insert(ctx, k, v)
+			}
 			assert.Equal(t, tt.want, s.All(ctx))
 		})
 	}
@@ -219,7 +231,7 @@ func TestNew(t *testing.T) {
 	}{
 		{
 			name: "Test New storage",
-			want: &storage[any]{store: map[string]any{}},
+			want: &storage[any]{},
 		},
 	}
 	for _, tt := range tests {
