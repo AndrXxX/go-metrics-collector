@@ -12,6 +12,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/vmmetricscollector"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/hashgenerator"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
+	"go.uber.org/zap"
 	"log"
 	"net/http"
 	"time"
@@ -39,7 +40,7 @@ func Run(commonCtx context.Context, config *config.Config) error {
 	go func() {
 		err := s.Run()
 		if err != nil {
-			logger.Log.Error(fmt.Sprintf("Failed to run scheduler %e", err))
+			logger.Log.Error("Failed to run scheduler", zap.Error(err))
 			ctxCancel()
 		}
 	}()
@@ -54,7 +55,7 @@ func Run(commonCtx context.Context, config *config.Config) error {
 	go func() {
 		err := s.Shutdown(shutdownCtx)
 		if err != nil {
-			logger.Log.Error(fmt.Sprintf("Failed to shutdown scheduler %e", err))
+			logger.Log.Error("Failed to shutdown scheduler", zap.Error(err))
 		}
 		shutdown <- struct{}{}
 	}()

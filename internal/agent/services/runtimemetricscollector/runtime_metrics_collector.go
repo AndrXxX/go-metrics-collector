@@ -1,11 +1,11 @@
 package runtimemetricscollector
 
 import (
-	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
+	"go.uber.org/zap"
 	"math/rand"
 	"runtime"
 )
@@ -22,7 +22,7 @@ func (c *collector) Execute(result dto.MetricsDto) error {
 	for _, name := range *c.ml {
 		metricFn, ok := memStatsDto.FetchGetter(name)
 		if !ok {
-			logger.Log.Error(fmt.Sprintf("Failed to fetch value getter for metric %s", name))
+			logger.Log.Error("Failed to fetch value getter for metric", zap.String("name", name))
 			continue
 		}
 		v := metricFn()

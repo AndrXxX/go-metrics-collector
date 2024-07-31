@@ -3,9 +3,9 @@ package scheduler
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
+	"go.uber.org/zap"
 	"sync"
 	"time"
 )
@@ -47,7 +47,7 @@ func (s *intervalScheduler) Run() error {
 				err := c.c.Collect(ch)
 				c.lastExecuted = time.Now()
 				if err != nil {
-					logger.Log.Error(fmt.Sprintf("Error on collect: %s", err.Error()))
+					logger.Log.Error("Error on collect", zap.Error(err))
 				}
 				s.wg.Done()
 			}()
@@ -101,7 +101,7 @@ func (s *intervalScheduler) process(ch <-chan dto.MetricsDto) {
 			err := p.p.Process(ch)
 			p.lastExecuted = time.Now()
 			if err != nil {
-				logger.Log.Error(fmt.Sprintf("Error on collect: %s", err.Error()))
+				logger.Log.Error("Error on collect", zap.Error(err))
 			}
 			s.wg.Done()
 		}()
