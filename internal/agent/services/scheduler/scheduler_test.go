@@ -57,13 +57,13 @@ func TestNewIntervalScheduler(t *testing.T) {
 			want: &intervalScheduler{
 				collectors:    []collectorItem{},
 				processors:    []processorItem{},
-				sleepInterval: 1,
+				sleepInterval: 1 * time.Second,
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, NewIntervalScheduler(1), "NewIntervalScheduler()")
+			assert.Equalf(t, tt.want, NewIntervalScheduler(1*time.Second), "NewIntervalScheduler()")
 		})
 	}
 }

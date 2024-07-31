@@ -22,7 +22,7 @@ const shutdownTimeout = 5 * time.Second
 
 func Run(commonCtx context.Context, config *config.Config) error {
 	ctx, ctxCancel := context.WithCancel(commonCtx)
-	s := scheduler.NewIntervalScheduler(config.Intervals.SleepInterval)
+	s := scheduler.NewIntervalScheduler(time.Duration(config.Intervals.SleepInterval) * time.Second)
 	rmc := runtimemetricscollector.New(&config.Metrics)
 	s.AddCollector(rmc, time.Duration(config.Intervals.PollInterval)*time.Second)
 

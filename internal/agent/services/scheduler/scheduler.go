@@ -15,7 +15,7 @@ type intervalScheduler struct {
 	collectors    []collectorItem
 	running       bool
 	stopping      bool
-	sleepInterval int64
+	sleepInterval time.Duration
 	wg            sync.WaitGroup
 }
 
@@ -71,7 +71,7 @@ func (s *intervalScheduler) Run() error {
 			return nil
 		}
 		s.wg.Wait()
-		time.Sleep(time.Duration(s.sleepInterval) * time.Second)
+		time.Sleep(s.sleepInterval)
 	}
 }
 
@@ -134,7 +134,7 @@ func canExecute(lastExecuted time.Time, interval time.Duration) bool {
 	return time.Since(lastExecuted) >= interval
 }
 
-func NewIntervalScheduler(sleepInterval int64) *intervalScheduler {
+func NewIntervalScheduler(sleepInterval time.Duration) *intervalScheduler {
 	return &intervalScheduler{
 		collectors:    []collectorItem{},
 		processors:    []processorItem{},
