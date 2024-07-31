@@ -8,6 +8,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/storageprovider"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"github.com/asaskevich/govalidator"
+	"go.uber.org/zap"
 	"log"
 	"os/signal"
 	"syscall"
@@ -27,7 +28,7 @@ func main() {
 	defer stop()
 	db, err := dbprovider.New(settings).DB()
 	if err != nil {
-		logger.Log.Error(err.Error())
+		logger.Log.Error("failed to connect to database", zap.Error(err))
 	}
 	sp := storageprovider.New(settings, db)
 	app := server.New(settings, sp.Storage(ctx), db)

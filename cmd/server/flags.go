@@ -11,5 +11,6 @@ func parseFlags(c *config.Config) {
 	fl.StringVar(&c.FileStoragePath, "f", c.FileStoragePath, "File storage path (full)")
 	fl.BoolVar(&c.Restore, "r", c.Restore, "Restore values on start")
 	fl.StringVar(&c.DatabaseDSN, "d", c.DatabaseDSN, "Database DSN")
+	fl.StringVar(&c.Key, "k", c.Key, "Hash key")
 	fl.Parse()
 }

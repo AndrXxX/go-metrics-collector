@@ -9,11 +9,15 @@ type EnvConfig struct {
 	Addr           string `env:"ADDRESS"`
 	ReportInterval int64  `env:"REPORT_INTERVAL"`
 	PollInterval   int64  `env:"POLL_INTERVAL"`
+	Key            string `env:"KEY"`
+	RateLimit      int64  `env:"RATE_LIMIT"`
 }
 
 func parseEnv(c *config.Config) error {
 	cfg := EnvConfig{
 		Addr:           c.Common.Host,
+		Key:            c.Common.Key,
+		RateLimit:      c.Common.RateLimit,
 		ReportInterval: c.Intervals.ReportInterval,
 		PollInterval:   c.Intervals.PollInterval,
 	}
@@ -22,6 +26,8 @@ func parseEnv(c *config.Config) error {
 		return err
 	}
 	c.Common.Host = cfg.Addr
+	c.Common.Key = cfg.Key
+	c.Common.RateLimit = cfg.RateLimit
 	c.Intervals.ReportInterval = cfg.ReportInterval
 	c.Intervals.PollInterval = cfg.PollInterval
 	return nil

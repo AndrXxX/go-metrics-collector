@@ -7,42 +7,42 @@ import (
 	"time"
 )
 
-type testExecutor struct {
+type testCollector struct {
 }
 
-func (t *testExecutor) Execute(_ dto.MetricsDto) error {
+func (t *testCollector) Collect(_ chan<- dto.MetricsDto) error {
 	return nil
 }
 
 func TestIntervalScheduler_Add(t *testing.T) {
 	type args struct {
-		e        executor
+		c        collector
 		interval time.Duration
 	}
 	tests := []struct {
 		name string
-		list []item
+		list []collectorItem
 		args args
-		want []item
+		want []collectorItem
 	}{
 		{
 			name: "add one item when empty list",
-			list: []item{},
-			args: args{e: &testExecutor{}, interval: 1 * time.Second},
-			want: []item{{e: &testExecutor{}, interval: 1 * time.Second}},
+			list: []collectorItem{},
+			args: args{c: &testCollector{}, interval: 1 * time.Second},
+			want: []collectorItem{{c: &testCollector{}, interval: 1 * time.Second}},
 		},
 		{
 			name: "add one item when one item exist",
-			list: []item{{e: &testExecutor{}, interval: 2 * time.Second}},
-			args: args{e: &testExecutor{}, interval: 1 * time.Second},
-			want: []item{{e: &testExecutor{}, interval: 2 * time.Second}, {e: &testExecutor{}, interval: 1 * time.Second}},
+			list: []collectorItem{{c: &testCollector{}, interval: 2 * time.Second}},
+			args: args{c: &testCollector{}, interval: 1 * time.Second},
+			want: []collectorItem{{c: &testCollector{}, interval: 2 * time.Second}, {c: &testCollector{}, interval: 1 * time.Second}},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &intervalScheduler{list: tt.list}
-			s.Add(tt.args.e, tt.args.interval)
-			assert.Equal(t, tt.want, s.list)
+			s := &intervalScheduler{collectors: tt.list}
+			s.AddCollector(tt.args.c, tt.args.interval)
+			assert.Equal(t, tt.want, s.collectors)
 		})
 	}
 }
@@ -54,12 +54,16 @@ func TestNewIntervalScheduler(t *testing.T) {
 	}{
 		{
 			name: "Simple test",
-			want: &intervalScheduler{list: []item{}, sleepInterval: 1},
+			want: &intervalScheduler{
+				collectors:    []collectorItem{},
+				processors:    []processorItem{},
+				sleepInterval: 1 * time.Second,
+			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, NewIntervalScheduler(1), "NewIntervalScheduler()")
+			assert.Equalf(t, tt.want, NewIntervalScheduler(1*time.Second), "NewIntervalScheduler()")
 		})
 	}
 }
@@ -67,33 +71,33 @@ func TestNewIntervalScheduler(t *testing.T) {
 func Test_canExecute(t *testing.T) {
 	tests := []struct {
 		name string
-		i    item
+		i    collectorItem
 		want bool
 	}{
 		{
 			name: "interval 2, item executed now",
-			i:    item{e: &testExecutor{}, interval: 2 * time.Second, lastExecuted: time.Now()},
+			i:    collectorItem{c: &testCollector{}, interval: 2 * time.Second, lastExecuted: time.Now()},
 			want: false,
 		},
 		{
 			name: "interval 5, item executed 4 seconds ago",
-			i:    item{e: &testExecutor{}, interval: 5 * time.Second, lastExecuted: time.Now().Add(-4 * time.Second)},
+			i:    collectorItem{c: &testCollector{}, interval: 5 * time.Second, lastExecuted: time.Now().Add(-4 * time.Second)},
 			want: false,
 		},
 		{
 			name: "interval 2, item executed 2 seconds ago",
-			i:    item{e: &testExecutor{}, interval: 2 * time.Second, lastExecuted: time.Now().Add(-2 * time.Second)},
+			i:    collectorItem{c: &testCollector{}, interval: 2 * time.Second, lastExecuted: time.Now().Add(-2 * time.Second)},
 			want: true,
 		},
 		{
 			name: "interval 5, item executed 6 seconds ago",
-			i:    item{e: &testExecutor{}, interval: 5 * time.Second, lastExecuted: time.Now().Add(-6 * time.Second)},
+			i:    collectorItem{c: &testCollector{}, interval: 5 * time.Second, lastExecuted: time.Now().Add(-6 * time.Second)},
 			want: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, canExecute(tt.i), "canExecute(%v)", tt.i)
+			assert.Equalf(t, tt.want, canExecute(tt.i.lastExecuted, tt.i.interval), "canExecute(%v)", tt.i)
 		})
 	}
 }

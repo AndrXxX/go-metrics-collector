@@ -50,6 +50,12 @@ func Test_parseEnv(t *testing.T) {
 			env:    map[string]string{"DATABASE_DSN": "test"},
 			want:   &config.Config{DatabaseDSN: "test"},
 		},
+		{
+			name:   "KEY=abc",
+			config: &config.Config{Key: ""},
+			env:    map[string]string{"KEY": "abc"},
+			want:   &config.Config{Key: "abc"},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

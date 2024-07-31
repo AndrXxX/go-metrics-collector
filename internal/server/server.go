@@ -23,6 +23,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsformatter"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsidentifier"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsupdater"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/hashgenerator"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
@@ -59,6 +60,7 @@ func (a *app) Run(commonCtx context.Context) error {
 
 	cFactory := conveyor.Factory(apilogger.New())
 	mc := metricschecker.New()
+	hg := hashgenerator.Factory().SHA256()
 
 	r := chi.NewRouter()
 	r.Get("/ping", cFactory.From([]interfaces.Handler{
@@ -67,22 +69,28 @@ func (a *app) Run(commonCtx context.Context) error {
 
 	r.Route("/updates", func(r chi.Router) {
 		r.Post("/", cFactory.From([]interfaces.Handler{
+			middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key),
 			middlewares.CompressGzip(),
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
+			middlewares.AddSHA256HashHeader(hg, a.config.c.Key),
 			updatemanymetrics.New(metricsupdater.New(a.storage.s)),
 		}).Handler())
 	})
 
 	r.Route("/update", func(r chi.Router) {
 		r.Post(fmt.Sprintf("/{%v}/{%v}/{%v}", vars.MetricType, vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
+			middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key),
 			middlewares.SetContentType(contenttypes.TextPlain),
 			middlewares.HasMetricOr404(),
+			middlewares.AddSHA256HashHeader(hg, a.config.c.Key),
 			updatemetrics.New(metricsupdater.New(a.storage.s), metricsformatter.MetricsEmptyFormatter{}, metricsidentifier.NewURLIdentifier()),
 		}).Handler())
 
 		r.Post("/", cFactory.From([]interfaces.Handler{
+			middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key),
 			middlewares.CompressGzip(),
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
+			middlewares.AddSHA256HashHeader(hg, a.config.c.Key),
 			updatemetrics.New(metricsupdater.New(a.storage.s), metricsformatter.MetricsJSONFormatter{}, metricsidentifier.NewJSONIdentifier()),
 		}).Handler())
 	})
@@ -91,12 +99,14 @@ func (a *app) Run(commonCtx context.Context) error {
 		r.Get(fmt.Sprintf("/{%v}/{%v}", vars.MetricType, vars.Metric), cFactory.From([]interfaces.Handler{
 			middlewares.SetContentType(contenttypes.TextPlain),
 			middlewares.HasMetricOr404(),
+			middlewares.AddSHA256HashHeader(hg, a.config.c.Key),
 			fetchmetrics.New(a.storage.s, metricsformatter.MetricsValueFormatter{}, metricsidentifier.NewURLIdentifier(), mc),
 		}).Handler())
 
 		r.Post("/", cFactory.From([]interfaces.Handler{
 			middlewares.CompressGzip(),
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
+			middlewares.AddSHA256HashHeader(hg, a.config.c.Key),
 			fetchmetrics.New(a.storage.s, metricsformatter.MetricsJSONFormatter{}, metricsidentifier.NewJSONIdentifier(), mc),
 		}).Handler())
 	})
@@ -104,6 +114,7 @@ func (a *app) Run(commonCtx context.Context) error {
 	r.Get("/", cFactory.From([]interfaces.Handler{
 		middlewares.CompressGzip(),
 		middlewares.SetContentType(contenttypes.TextHTML),
+		middlewares.AddSHA256HashHeader(hg, a.config.c.Key),
 		fetchallmetrics.New(a.storage.s),
 	}).Handler())
 
@@ -115,7 +126,7 @@ func (a *app) Run(commonCtx context.Context) error {
 		}
 	}()
 
-	logger.Log.Info(fmt.Sprintf("listening on %s", a.config.c.Host))
+	logger.Log.Info("listening", zap.String("host", a.config.c.Host))
 
 	<-commonCtx.Done()
 	logger.Log.Info("shutting down server gracefully")

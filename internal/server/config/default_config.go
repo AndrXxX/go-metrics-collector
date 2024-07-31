@@ -10,5 +10,6 @@ func NewConfig() *Config {
 		RepeatIntervals: defaults.RepeatIntervals,
 		FileStoragePath: defaults.FileStoragePath,
 		Restore:         defaults.Restore,
+		Key:             defaults.Key,
 	}
 }

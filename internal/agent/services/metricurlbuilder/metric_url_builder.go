@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/types"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
+	"go.uber.org/zap"
 	"net/url"
 )
 
@@ -14,7 +15,7 @@ type metricURLBuilder struct {
 func New(host string) *metricURLBuilder {
 	u, err := url.Parse(host)
 	if err != nil {
-		logger.Log.Error(fmt.Sprintf("Error on parse host %s: %s", host, err.Error()))
+		logger.Log.Error("Error on parse host", zap.String("host", host), zap.Error(err))
 		return nil
 	}
 	if u.Scheme == "" {

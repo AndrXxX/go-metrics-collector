@@ -1,15 +1,21 @@
 package stack
 
+import "sync"
+
 type Stack[T any] struct {
-	//TODO: Perederey Еще бы, рассмотри возможность использования sync.Mutex для обеспечения потокобезопасности операций со стеком
 	elements []T
+	m        sync.Mutex
 }
 
 func (s *Stack[T]) Push(value T) {
+	s.m.Lock()
+	defer s.m.Unlock()
 	s.elements = append(s.elements, value)
 }
 
 func (s *Stack[T]) Pop() (T, bool) {
+	s.m.Lock()
+	defer s.m.Unlock()
 	if len(s.elements) == 0 {
 		var zero T
 		return zero, false
@@ -20,6 +26,8 @@ func (s *Stack[T]) Pop() (T, bool) {
 }
 
 func (s *Stack[T]) Shift() (T, bool) {
+	s.m.Lock()
+	defer s.m.Unlock()
 	if len(s.elements) == 0 {
 		var zero T
 		return zero, false
@@ -30,10 +38,14 @@ func (s *Stack[T]) Shift() (T, bool) {
 }
 
 func (s *Stack[T]) All() []T {
+	s.m.Lock()
+	defer s.m.Unlock()
 	return s.elements
 }
 
 func (s *Stack[T]) Copy() *Stack[T] {
+	s.m.Lock()
+	defer s.m.Unlock()
 	return NewFromSlice(s.elements)
 }
 

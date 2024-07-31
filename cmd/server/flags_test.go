@@ -53,6 +53,12 @@ func Test_parseFlags(t *testing.T) {
 			flags:  []string{"-d", "test"},
 			want:   &config.Config{DatabaseDSN: "test"},
 		},
+		{
+			name:   "-k=abc",
+			config: &config.Config{Key: ""},
+			flags:  []string{"-k", "abc"},
+			want:   &config.Config{Key: "abc"},
+		},
 	}
 	for _, tt := range tests {
 		run(t, tt)

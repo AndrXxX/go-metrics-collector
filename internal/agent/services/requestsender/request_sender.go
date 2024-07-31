@@ -4,19 +4,20 @@ import (
 	"bytes"
 	"compress/gzip"
 	"fmt"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
+	"go.uber.org/zap"
+	"io"
 	"net/http"
 )
 
-type Client interface {
-	Do(req *http.Request) (*http.Response, error)
-}
-
 type RequestSender struct {
-	c Client
+	c   client
+	hg  hashGenerator
+	key string
 }
 
-func New(c Client) *RequestSender {
-	return &RequestSender{c}
+func New(c client, hg hashGenerator, key string) *RequestSender {
+	return &RequestSender{c, hg, key}
 }
 
 func (s *RequestSender) Post(url string, contentType string, data []byte) error {
@@ -24,6 +25,15 @@ func (s *RequestSender) Post(url string, contentType string, data []byte) error 
 	if err != nil {
 		return err
 	}
+	var encoded []byte
+	if s.key != "" {
+		encoded, err = io.ReadAll(buf)
+		if err != nil {
+			logger.Log.Error("Error on read encoded data", zap.Error(err))
+		}
+		buf = bytes.NewBuffer(encoded)
+	}
+
 	r, err := http.NewRequest("POST", url, buf)
 	if err != nil {
 		return err
@@ -31,6 +41,10 @@ func (s *RequestSender) Post(url string, contentType string, data []byte) error 
 	r.Header.Set("Content-Type", contentType)
 	r.Header.Set("Content-Encoding", "gzip")
 	r.Header.Set("Accept-Encoding", "gzip")
+	if s.key != "" {
+		r.Header.Set("HashSHA256", s.hg.Generate(s.key, encoded))
+	}
+
 	resp, err := s.c.Do(r)
 	if err != nil {
 		return err

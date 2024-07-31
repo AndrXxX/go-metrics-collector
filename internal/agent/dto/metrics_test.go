@@ -12,7 +12,7 @@ func TestNewMetrics(t *testing.T) {
 	}{
 		{
 			name: "Test New MemStorage",
-			want: &MetricsDto{Gauge: map[string]float64{}, Counter: map[string]int64{}},
+			want: &MetricsDto{list: map[string]JSONMetrics{}},
 		},
 	}
 	for _, tt := range tests {

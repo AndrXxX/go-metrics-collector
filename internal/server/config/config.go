@@ -8,4 +8,5 @@ type Config struct {
 	FileStoragePath string `valid:"minstringlength(3)"`
 	Restore         bool
 	DatabaseDSN     string
+	Key             string
 }
