@@ -30,7 +30,7 @@ func Run(commonCtx context.Context, config *config.Config) error {
 	s.AddCollector(vmc, time.Duration(config.Intervals.PollInterval)*time.Second)
 
 	ub := metricurlbuilder.New(config.Common.Host)
-	hg := hashgenerator.New()
+	hg := hashgenerator.Factory().SHA256()
 	rs := requestsender.New(http.DefaultClient, hg, config.Common.Key)
 	for count := config.Common.RateLimit; count > 0; count-- {
 		processor := metricsuploader.NewJSONUploader(rs, ub, config.Intervals.RepeatIntervals)

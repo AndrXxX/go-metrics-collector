@@ -60,7 +60,7 @@ func (a *app) Run(commonCtx context.Context) error {
 
 	cFactory := conveyor.Factory(apilogger.New())
 	mc := metricschecker.New()
-	hg := hashgenerator.New()
+	hg := hashgenerator.Factory().SHA256()
 
 	r := chi.NewRouter()
 	r.Get("/ping", cFactory.From([]interfaces.Handler{
