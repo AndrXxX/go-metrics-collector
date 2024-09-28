@@ -3,13 +3,12 @@ package main
 import (
 	"context"
 	"github.com/AndrXxX/go-metrics-collector/internal/server"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/configprovider"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/dbprovider"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/envparser"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/flagsparser"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/storageprovider"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
-	"github.com/asaskevich/govalidator"
 	"go.uber.org/zap"
 	"log"
 	"os/signal"
@@ -17,16 +16,12 @@ import (
 )
 
 func main() {
-	settings := config.NewConfig()
+	settings, err := configprovider.New(flagsparser.New(), envparser.New()).Fetch()
+	if err != nil {
+		log.Fatal(err)
+	}
 	if err := logger.Initialize(settings.LogLevel); err != nil {
 		log.Fatal(err)
-	}
-	flagsparser.New().Parse(settings)
-	if err := envparser.New().Parse(settings); err != nil {
-		log.Fatal(err)
-	}
-	if _, err := govalidator.ValidateStruct(settings); err != nil {
-		logger.Log.Fatal(err.Error())
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
