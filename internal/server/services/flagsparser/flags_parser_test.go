@@ -1,4 +1,4 @@
-package main
+package flagsparser
 
 import (
 	"flag"
@@ -70,7 +70,7 @@ func run(t *testing.T, tt testCase) {
 		flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 		os.Args = os.Args[:1]
 		os.Args = append(os.Args[:1], tt.flags...)
-		parseFlags(tt.config)
+		New().Parse(tt.config)
 		assert.Equal(t, tt.want, tt.config)
 	})
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/dbprovider"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/envparser"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/flagsparser"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/storageprovider"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"github.com/asaskevich/govalidator"
@@ -20,7 +21,7 @@ func main() {
 	if err := logger.Initialize(settings.LogLevel); err != nil {
 		log.Fatal(err)
 	}
-	parseFlags(settings)
+	flagsparser.New().Parse(settings)
 	if err := envparser.New().Parse(settings); err != nil {
 		log.Fatal(err)
 	}
