@@ -1,13 +1,12 @@
-package main
+package envparser
 
 import (
+	"fmt"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
-	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"github.com/caarlos0/env/v6"
-	"go.uber.org/zap"
 )
 
-type EnvConfig struct {
+type envConfig struct {
 	Addr            string `env:"ADDRESS"`
 	StoreInterval   int    `env:"STORE_INTERVAL"`
 	FileStoragePath string `env:"FILE_STORAGE_PATH"`
@@ -16,8 +15,11 @@ type EnvConfig struct {
 	Key             string `env:"KEY"`
 }
 
-func parseEnv(c *config.Config) {
-	cfg := EnvConfig{
+type envParser struct {
+}
+
+func (p envParser) Parse(c *config.Config) error {
+	cfg := envConfig{
 		Addr:            c.Host,
 		StoreInterval:   c.StoreInterval,
 		FileStoragePath: c.FileStoragePath,
@@ -27,8 +29,7 @@ func parseEnv(c *config.Config) {
 	}
 	err := env.Parse(&cfg)
 	if err != nil {
-		logger.Log.Error("Error on parse EnvConfig", zap.Error(err))
-		return
+		return fmt.Errorf("error on parse config: %w", err)
 	}
 	c.Host = cfg.Addr
 	c.StoreInterval = cfg.StoreInterval
@@ -36,4 +37,9 @@ func parseEnv(c *config.Config) {
 	c.Restore = cfg.Restore
 	c.DatabaseDSN = cfg.DatabaseDSN
 	c.Key = cfg.Key
+	return nil
+}
+
+func New() *envParser {
+	return &envParser{}
 }
