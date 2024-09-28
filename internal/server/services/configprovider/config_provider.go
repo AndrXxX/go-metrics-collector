@@ -7,15 +7,15 @@ import (
 )
 
 type configProvider struct {
-	fp flagsParser
-	ep envParser
+	parsers []parser
 }
 
 func (p configProvider) Fetch() (*config.Config, error) {
 	settings := config.NewConfig()
-	p.fp.Parse(settings)
-	if err := p.ep.Parse(settings); err != nil {
-		return nil, fmt.Errorf("failed to parse env vars: %w", err)
+	for _, pr := range p.parsers {
+		if err := pr.Parse(settings); err != nil {
+			return nil, fmt.Errorf("failed to parse config: %w", err)
+		}
 	}
 	if _, err := govalidator.ValidateStruct(settings); err != nil {
 		return nil, fmt.Errorf("failed to validate env vars: %w", err)
@@ -23,6 +23,6 @@ func (p configProvider) Fetch() (*config.Config, error) {
 	return settings, nil
 }
 
-func New(fp flagsParser, ep envParser) *configProvider {
-	return &configProvider{fp, ep}
+func New(parsers ...parser) *configProvider {
+	return &configProvider{parsers}
 }
