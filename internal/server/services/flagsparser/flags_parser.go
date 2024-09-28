@@ -8,7 +8,7 @@ import (
 type flagsParser struct {
 }
 
-func (p flagsParser) Parse(c *config.Config) {
+func (p flagsParser) Parse(c *config.Config) error {
 	fl.StringVar(&c.Host, "a", c.Host, "Net address host:port")
 	fl.IntVar(&c.StoreInterval, "i", c.StoreInterval, "Store interval")
 	fl.StringVar(&c.FileStoragePath, "f", c.FileStoragePath, "File storage path (full)")
@@ -16,6 +16,7 @@ func (p flagsParser) Parse(c *config.Config) {
 	fl.StringVar(&c.DatabaseDSN, "d", c.DatabaseDSN, "Database DSN")
 	fl.StringVar(&c.Key, "k", c.Key, "Hash key")
 	fl.Parse()
+	return nil
 }
 
 func New() *flagsParser {
