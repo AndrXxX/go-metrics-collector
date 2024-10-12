@@ -10,10 +10,16 @@ type sha256HeaderMiddleware struct {
 	key string
 }
 
-func (m *sha256HeaderMiddleware) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+func (m *sha256HeaderMiddleware) Handler(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		m.Handle(w, r, next)
+	})
+}
+
+func (m *sha256HeaderMiddleware) Handle(w http.ResponseWriter, r *http.Request, next http.Handler) {
 	w = m.processWriter(w)
 	if next != nil {
-		next(w, r)
+		next.ServeHTTP(w, r)
 	}
 }
 

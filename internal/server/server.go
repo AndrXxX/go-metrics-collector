@@ -74,9 +74,9 @@ func (a *app) Run(commonCtx context.Context) error {
 	r.Route("/updates", func(r chi.Router) {
 		r.Use(middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key).Handler)
 		r.Use(middlewares.SetContentType(contenttypes.ApplicationJSON).Handler)
+		r.Use(middlewares.AddSHA256HashHeader(hg, a.config.c.Key).Handler)
 
 		r.Post("/", cFactory.From([]interfaces.Handler{
-			middlewares.AddSHA256HashHeader(hg, a.config.c.Key),
 			updatemanymetrics.New(metricsupdater.New(a.storage.s)),
 		}).Handler())
 	})
@@ -84,18 +84,18 @@ func (a *app) Run(commonCtx context.Context) error {
 	r.Route(fmt.Sprintf("/update/{%v}/{%v}/{%v}", vars.MetricType, vars.Metric, vars.Value), func(r chi.Router) {
 		r.Use(middlewares.SetContentType(contenttypes.TextPlain).Handler)
 		r.Use(middlewares.HasMetricOr404().Handler)
+		r.Use(middlewares.AddSHA256HashHeader(hg, a.config.c.Key).Handler)
 
 		r.Post("/", cFactory.From([]interfaces.Handler{
-			middlewares.AddSHA256HashHeader(hg, a.config.c.Key),
 			updatemetrics.New(metricsupdater.New(a.storage.s), metricsformatter.MetricsEmptyFormatter{}, metricsidentifier.NewURLIdentifier()),
 		}).Handler())
 	})
 
 	r.Route("/update", func(r chi.Router) {
 		r.Use(middlewares.SetContentType(contenttypes.ApplicationJSON).Handler)
+		r.Use(middlewares.AddSHA256HashHeader(hg, a.config.c.Key).Handler)
 
 		r.Post("/", cFactory.From([]interfaces.Handler{
-			middlewares.AddSHA256HashHeader(hg, a.config.c.Key),
 			updatemetrics.New(metricsupdater.New(a.storage.s), metricsformatter.MetricsJSONFormatter{}, metricsidentifier.NewJSONIdentifier()),
 		}).Handler())
 	})
@@ -103,27 +103,27 @@ func (a *app) Run(commonCtx context.Context) error {
 	r.Route(fmt.Sprintf("/value/{%v}/{%v}", vars.MetricType, vars.Metric), func(r chi.Router) {
 		r.Use(middlewares.SetContentType(contenttypes.TextPlain).Handler)
 		r.Use(middlewares.HasMetricOr404().Handler)
+		r.Use(middlewares.AddSHA256HashHeader(hg, a.config.c.Key).Handler)
 
 		r.Get("/", cFactory.From([]interfaces.Handler{
-			middlewares.AddSHA256HashHeader(hg, a.config.c.Key),
 			fetchmetrics.New(a.storage.s, metricsformatter.MetricsValueFormatter{}, metricsidentifier.NewURLIdentifier(), mc),
 		}).Handler())
 	})
 
 	r.Route("/value", func(r chi.Router) {
 		r.Use(middlewares.SetContentType(contenttypes.ApplicationJSON).Handler)
+		r.Use(middlewares.AddSHA256HashHeader(hg, a.config.c.Key).Handler)
 
 		r.Post("/", cFactory.From([]interfaces.Handler{
-			middlewares.AddSHA256HashHeader(hg, a.config.c.Key),
 			fetchmetrics.New(a.storage.s, metricsformatter.MetricsJSONFormatter{}, metricsidentifier.NewJSONIdentifier(), mc),
 		}).Handler())
 	})
 
 	r.Route("/", func(r chi.Router) {
 		r.Use(middlewares.SetContentType(contenttypes.TextHTML).Handler)
+		r.Use(middlewares.AddSHA256HashHeader(hg, a.config.c.Key).Handler)
 
 		r.Get("/", cFactory.From([]interfaces.Handler{
-			middlewares.AddSHA256HashHeader(hg, a.config.c.Key),
 			fetchallmetrics.New(a.storage.s),
 		}).Handler())
 	})
