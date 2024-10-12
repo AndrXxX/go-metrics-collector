@@ -69,10 +69,11 @@ func (a *app) Run(commonCtx context.Context) error {
 		dbping.New(dbchecker.New(a.storage.db)),
 	}).Handler())
 
+	r.Use(middlewares.CompressGzip().Handler)
+
 	r.Route("/updates", func(r chi.Router) {
 		r.Use(middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key).Handler)
 		r.Post("/", cFactory.From([]interfaces.Handler{
-			middlewares.CompressGzip(),
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
 			middlewares.AddSHA256HashHeader(hg, a.config.c.Key),
 			updatemanymetrics.New(metricsupdater.New(a.storage.s)),
@@ -89,7 +90,6 @@ func (a *app) Run(commonCtx context.Context) error {
 		}).Handler())
 
 		r.Post("/", cFactory.From([]interfaces.Handler{
-			middlewares.CompressGzip(),
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
 			middlewares.AddSHA256HashHeader(hg, a.config.c.Key),
 			updatemetrics.New(metricsupdater.New(a.storage.s), metricsformatter.MetricsJSONFormatter{}, metricsidentifier.NewJSONIdentifier()),
@@ -105,7 +105,6 @@ func (a *app) Run(commonCtx context.Context) error {
 		}).Handler())
 
 		r.Post("/", cFactory.From([]interfaces.Handler{
-			middlewares.CompressGzip(),
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
 			middlewares.AddSHA256HashHeader(hg, a.config.c.Key),
 			fetchmetrics.New(a.storage.s, metricsformatter.MetricsJSONFormatter{}, metricsidentifier.NewJSONIdentifier(), mc),
@@ -113,7 +112,6 @@ func (a *app) Run(commonCtx context.Context) error {
 	})
 
 	r.Get("/", cFactory.From([]interfaces.Handler{
-		middlewares.CompressGzip(),
 		middlewares.SetContentType(contenttypes.TextHTML),
 		middlewares.AddSHA256HashHeader(hg, a.config.c.Key),
 		fetchallmetrics.New(a.storage.s),

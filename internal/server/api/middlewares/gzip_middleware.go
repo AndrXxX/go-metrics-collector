@@ -11,7 +11,13 @@ import (
 type gzipMiddleware struct {
 }
 
-func (m *gzipMiddleware) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+func (m *gzipMiddleware) Handler(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		m.Handle(w, r, next)
+	})
+}
+
+func (m *gzipMiddleware) Handle(w http.ResponseWriter, r *http.Request, next http.Handler) {
 	ow := w
 
 	acceptEncoding := r.Header.Get("Accept-Encoding")
@@ -39,7 +45,7 @@ func (m *gzipMiddleware) Handle(w http.ResponseWriter, r *http.Request, next htt
 		}()
 	}
 	if next != nil {
-		next(ow, r)
+		next.ServeHTTP(ow, r)
 	}
 }
 
