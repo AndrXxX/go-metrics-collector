@@ -75,9 +75,7 @@ func (a *app) Run(commonCtx context.Context) error {
 		r.Use(middlewares.SetContentType(contenttypes.ApplicationJSON).Handler)
 		r.Use(middlewares.AddSHA256HashHeader(hg, a.config.c.Key).Handler)
 
-		r.Post("/", cFactory.From([]interfaces.Handler{
-			updatemanymetrics.New(metricsupdater.New(a.storage.s)),
-		}).Handler())
+		r.Post("/", updatemanymetrics.New(metricsupdater.New(a.storage.s)).Handler())
 	})
 
 	r.Route(fmt.Sprintf("/update/{%v}/{%v}/{%v}", vars.MetricType, vars.Metric, vars.Value), func(r chi.Router) {

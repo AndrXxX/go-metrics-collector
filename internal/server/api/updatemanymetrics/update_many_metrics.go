@@ -10,8 +10,14 @@ type updateManyMetricsHandler struct {
 	u updater
 }
 
+func (h *updateManyMetricsHandler) Handler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		h.Handle(w, r, nil)
+	}
+}
+
 // Handle updates metrics from request
-func (h *updateManyMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+func (h *updateManyMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, next http.Handler) {
 	var list []models.Metrics
 	dec := json.NewDecoder(r.Body)
 	err := dec.Decode(&list)
@@ -27,7 +33,7 @@ func (h *updateManyMetricsHandler) Handle(w http.ResponseWriter, r *http.Request
 	}
 	w.WriteHeader(http.StatusOK)
 	if next != nil {
-		next(w, r)
+		next.ServeHTTP(w, r)
 	}
 }
 
