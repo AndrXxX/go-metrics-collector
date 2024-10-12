@@ -53,6 +53,11 @@ func TestMetricURLBuilderBuildURL(t *testing.T) {
 			want:   "http://host/update",
 		},
 		{
+			host:   "host",
+			params: types.URLParams{"endpoint": "endpoint"},
+			want:   "http://host/endpoint",
+		},
+		{
 			host:   "http://host",
 			params: types.URLParams{},
 			want:   "http://host/update",
@@ -66,9 +71,7 @@ func TestMetricURLBuilderBuildURL(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.want, func(t *testing.T) {
 			b := New(tt.host)
-			if got := b.Build(tt.params); got != tt.want {
-				t.Errorf("Build() = %v, want %v", got, tt.want)
-			}
+			assert.Equal(t, tt.want, b.Build(tt.params))
 		})
 	}
 }
@@ -89,6 +92,10 @@ func TestNewMetricURLBuilder(t *testing.T) {
 		{
 			host: "https://host",
 			want: &metricURLBuilder{host: "https://host"},
+		},
+		{
+			host: ":",
+			want: nil,
 		},
 	}
 	for _, tt := range tests {
