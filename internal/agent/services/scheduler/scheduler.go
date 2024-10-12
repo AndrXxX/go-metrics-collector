@@ -70,7 +70,9 @@ func (s *intervalScheduler) Run() error {
 			logger.Log.Info("Scheduler stopped")
 			return nil
 		}
-		s.wg.Wait()
+		if len(s.collectors) > 0 || len(s.processors) > 0 {
+			s.wg.Wait()
+		}
 		time.Sleep(s.sleepInterval)
 	}
 }
