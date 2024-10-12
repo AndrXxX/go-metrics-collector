@@ -59,7 +59,7 @@ func TestUpdateMetricsHandlerGaugeHandle(t *testing.T) {
 			}
 
 			w := httptest.NewRecorder()
-			h.Handle(w, request, nil)
+			h.Handler()(w, request)
 			result := w.Result()
 
 			assert.Equal(t, test.want.statusCode, result.StatusCode)
@@ -114,7 +114,7 @@ func TestUpdateMetricsHandlerCounterHandle(t *testing.T) {
 
 			w := httptest.NewRecorder()
 
-			h.Handle(w, request, nil)
+			h.Handler()(w, request)
 			result := w.Result()
 
 			assert.Equal(t, test.want.statusCode, result.StatusCode)
