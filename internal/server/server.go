@@ -70,8 +70,8 @@ func (a *app) Run(commonCtx context.Context) error {
 	}).Handler())
 
 	r.Route("/updates", func(r chi.Router) {
+		r.Use(middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key).Handler)
 		r.Post("/", cFactory.From([]interfaces.Handler{
-			middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key),
 			middlewares.CompressGzip(),
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
 			middlewares.AddSHA256HashHeader(hg, a.config.c.Key),
@@ -80,8 +80,8 @@ func (a *app) Run(commonCtx context.Context) error {
 	})
 
 	r.Route("/update", func(r chi.Router) {
+		r.Use(middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key).Handler)
 		r.Post(fmt.Sprintf("/{%v}/{%v}/{%v}", vars.MetricType, vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
-			middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key),
 			middlewares.SetContentType(contenttypes.TextPlain),
 			middlewares.HasMetricOr404(),
 			middlewares.AddSHA256HashHeader(hg, a.config.c.Key),
@@ -89,7 +89,6 @@ func (a *app) Run(commonCtx context.Context) error {
 		}).Handler())
 
 		r.Post("/", cFactory.From([]interfaces.Handler{
-			middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key),
 			middlewares.CompressGzip(),
 			middlewares.SetContentType(contenttypes.ApplicationJSON),
 			middlewares.AddSHA256HashHeader(hg, a.config.c.Key),

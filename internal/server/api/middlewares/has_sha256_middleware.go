@@ -11,14 +11,16 @@ type hasCorrectSHA256HashMiddleware struct {
 	key string
 }
 
-func (m *hasCorrectSHA256HashMiddleware) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	if !m.check(r) {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	if next != nil {
-		next(w, r)
-	}
+func (m *hasCorrectSHA256HashMiddleware) Handler(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !m.check(r) {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		if next != nil {
+			next.ServeHTTP(w, r)
+		}
+	})
 }
 
 func (m *hasCorrectSHA256HashMiddleware) check(r *http.Request) bool {
