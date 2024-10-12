@@ -14,7 +14,13 @@ type fetchMetricsHandler struct {
 	mc metricsChecker
 }
 
-func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+func (h *fetchMetricsHandler) Handler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		h.Handle(w, r, nil)
+	}
+}
+
+func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, next http.Handler) {
 	metric, err := h.i.Process(r)
 	if metric == nil || err != nil {
 		w.WriteHeader(http.StatusNotFound)
@@ -40,7 +46,7 @@ func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, nex
 		return
 	}
 	if next != nil {
-		next(w, r)
+		next.ServeHTTP(w, r)
 	}
 }
 

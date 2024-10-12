@@ -10,14 +10,12 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/dbping"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchallmetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchmetrics"
-	apilogger "github.com/AndrXxX/go-metrics-collector/internal/server/api/logger"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/middlewares"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updatemanymetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updatemetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/conveyor"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/dbchecker"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricschecker"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsformatter"
@@ -59,7 +57,9 @@ func New(c *config.Config, s interfaces.MetricsStorage, db *sql.DB) *app {
 
 func (a *app) Run(commonCtx context.Context) error {
 
-	cFactory := conveyor.Factory(apilogger.New())
+	// TODO: api logger
+	//cFactory := conveyor.Factory(apilogger.New())
+	// apilogger "github.com/AndrXxX/go-metrics-collector/internal/server/api/logger"
 	mc := metricschecker.New()
 	hg := hashgenerator.Factory().SHA256()
 
@@ -107,9 +107,9 @@ func (a *app) Run(commonCtx context.Context) error {
 		r.Use(middlewares.HasMetricOr404().Handler)
 		r.Use(middlewares.AddSHA256HashHeader(hg, a.config.c.Key).Handler)
 
-		r.Get("/", cFactory.From([]interfaces.Handler{
-			fetchmetrics.New(a.storage.s, metricsformatter.MetricsValueFormatter{}, metricsidentifier.NewURLIdentifier(), mc),
-		}).Handler())
+		formatter := metricsformatter.MetricsValueFormatter{}
+		identifier := metricsidentifier.NewURLIdentifier()
+		r.Get("/", fetchmetrics.New(a.storage.s, formatter, identifier, mc).Handler())
 	})
 
 	r.Route("/value", func(r chi.Router) {
@@ -117,9 +117,9 @@ func (a *app) Run(commonCtx context.Context) error {
 		r.Use(middlewares.SetContentType(contenttypes.ApplicationJSON).Handler)
 		r.Use(middlewares.AddSHA256HashHeader(hg, a.config.c.Key).Handler)
 
-		r.Post("/", cFactory.From([]interfaces.Handler{
-			fetchmetrics.New(a.storage.s, metricsformatter.MetricsJSONFormatter{}, metricsidentifier.NewJSONIdentifier(), mc),
-		}).Handler())
+		formatter := metricsformatter.MetricsJSONFormatter{}
+		identifier := metricsidentifier.NewJSONIdentifier()
+		r.Post("/", fetchmetrics.New(a.storage.s, formatter, identifier, mc).Handler())
 	})
 
 	r.Route("/", func(r chi.Router) {
