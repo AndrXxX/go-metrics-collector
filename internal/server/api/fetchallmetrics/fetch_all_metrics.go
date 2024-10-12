@@ -11,45 +11,38 @@ import (
 	"net/http"
 )
 
-type fetchMetricsHandler struct {
+type fetchAllMetricsHandler struct {
 	s storage[*models.Metrics]
 }
 
-func (h *fetchMetricsHandler) Handler() http.HandlerFunc {
+func (h *fetchAllMetricsHandler) Handler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		h.Handle(w, r, nil)
+		t, err := template.New("webpage").Parse(templates.MetricsList)
+		if err != nil {
+			logger.Log.Error("Error on parse MetricsList template", zap.Error(err))
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		data := struct {
+			Title string
+			Items map[string]string
+		}{
+			Title: "Metrics List",
+			Items: h.fetchMetrics(r),
+		}
+
+		w.WriteHeader(http.StatusOK)
+		err = t.Execute(w, data)
+		if err != nil {
+			logger.Log.Error("Error on execute MetricsList template", zap.Error(err))
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 	}
 }
 
-func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, next http.Handler) {
-	t, err := template.New("webpage").Parse(templates.MetricsList)
-	if err != nil {
-		logger.Log.Error("Error on parse MetricsList template", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	data := struct {
-		Title string
-		Items map[string]string
-	}{
-		Title: "Metrics List",
-		Items: h.fetchMetrics(r),
-	}
-
-	w.WriteHeader(http.StatusOK)
-	err = t.Execute(w, data)
-	if err != nil {
-		logger.Log.Error("Error on execute MetricsList template", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	if next != nil {
-		next.ServeHTTP(w, r)
-	}
-}
-
-func (h *fetchMetricsHandler) fetchMetrics(r *http.Request) map[string]string {
+func (h *fetchAllMetricsHandler) fetchMetrics(r *http.Request) map[string]string {
 	result := map[string]string{}
 	for k, v := range h.s.All(r.Context()) {
 		if v.MType == metrics.Counter {
@@ -61,6 +54,6 @@ func (h *fetchMetricsHandler) fetchMetrics(r *http.Request) map[string]string {
 	return result
 }
 
-func New(s storage[*models.Metrics]) *fetchMetricsHandler {
-	return &fetchMetricsHandler{s}
+func New(s storage[*models.Metrics]) *fetchAllMetricsHandler {
+	return &fetchAllMetricsHandler{s}
 }
