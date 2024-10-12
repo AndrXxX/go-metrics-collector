@@ -27,13 +27,12 @@ func (sp *storageProvider) Storage(ctx context.Context) interfaces.MetricsStorag
 		s := dbstorage.New(sp.db, sp.c.RepeatIntervals)
 		return &s
 	}
+	ms := memory.New[*models.Metrics]()
 	if sp.c.FileStoragePath != "" {
-		ms := memory.New[*models.Metrics]()
 		s := filestorage.New(sp.c, &ms)
 		sst := savestoragetask.New(time.Duration(sp.c.StoreInterval)*time.Second, &s)
 		go sst.Execute(ctx)
 		return &s
 	}
-	s := memory.New[*models.Metrics]()
-	return &s
+	return &ms
 }
