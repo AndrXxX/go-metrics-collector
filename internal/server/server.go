@@ -127,9 +127,7 @@ func (a *app) Run(commonCtx context.Context) error {
 		r.Use(middlewares.SetContentType(contenttypes.TextHTML).Handler)
 		r.Use(middlewares.AddSHA256HashHeader(hg, a.config.c.Key).Handler)
 
-		r.Get("/", cFactory.From([]interfaces.Handler{
-			fetchallmetrics.New(a.storage.s),
-		}).Handler())
+		r.Get("/", fetchallmetrics.New(a.storage.s).Handler())
 	})
 
 	srv := &http.Server{Addr: a.config.c.Host, Handler: r}

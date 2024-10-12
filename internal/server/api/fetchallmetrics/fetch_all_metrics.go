@@ -15,7 +15,13 @@ type fetchMetricsHandler struct {
 	s storage[*models.Metrics]
 }
 
-func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+func (h *fetchMetricsHandler) Handler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		h.Handle(w, r, nil)
+	}
+}
+
+func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, next http.Handler) {
 	t, err := template.New("webpage").Parse(templates.MetricsList)
 	if err != nil {
 		logger.Log.Error("Error on parse MetricsList template", zap.Error(err))
@@ -39,7 +45,7 @@ func (h *fetchMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, nex
 		return
 	}
 	if next != nil {
-		next(w, r)
+		next.ServeHTTP(w, r)
 	}
 }
 
