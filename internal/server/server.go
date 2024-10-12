@@ -64,10 +64,10 @@ func (a *app) Run(commonCtx context.Context) error {
 	hg := hashgenerator.Factory().SHA256()
 
 	r := chi.NewRouter()
+
 	r.Mount("/debug", middleware.Profiler())
-	r.Get("/ping", cFactory.From([]interfaces.Handler{
-		dbping.New(dbchecker.New(a.storage.db)),
-	}).Handler())
+
+	r.Get("/ping", dbping.New(dbchecker.New(a.storage.db)).Handler())
 
 	r.Route("/updates", func(r chi.Router) {
 		r.Use(middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key).Handler)

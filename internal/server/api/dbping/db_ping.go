@@ -10,7 +10,13 @@ type dbPingHandler struct {
 	c dbChecker
 }
 
-func (h *dbPingHandler) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+func (h *dbPingHandler) Handler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		h.Handle(w, r, nil)
+	}
+}
+
+func (h *dbPingHandler) Handle(w http.ResponseWriter, r *http.Request, next http.Handler) {
 	err := h.c.Check(r.Context())
 	if err != nil {
 		logger.Log.Error("Error on check db", zap.Error(err))
@@ -19,7 +25,7 @@ func (h *dbPingHandler) Handle(w http.ResponseWriter, r *http.Request, next http
 	}
 	w.WriteHeader(http.StatusOK)
 	if next != nil {
-		next(w, r)
+		next.ServeHTTP(w, r)
 	}
 }
 
