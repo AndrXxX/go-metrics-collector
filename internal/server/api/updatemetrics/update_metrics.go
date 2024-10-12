@@ -12,8 +12,14 @@ type updateMetricsHandler struct {
 	i identifier
 }
 
+func (h *updateMetricsHandler) Handler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		h.Handle(w, r, nil)
+	}
+}
+
 // Handle updates metrics from request
-func (h *updateMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+func (h *updateMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, next http.Handler) {
 	metric, err := h.i.Process(r)
 	if metric == nil || err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -35,7 +41,7 @@ func (h *updateMetricsHandler) Handle(w http.ResponseWriter, r *http.Request, ne
 		return
 	}
 	if next != nil {
-		next(w, r)
+		next.ServeHTTP(w, r)
 	}
 }
 

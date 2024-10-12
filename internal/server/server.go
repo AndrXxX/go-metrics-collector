@@ -84,9 +84,10 @@ func (a *app) Run(commonCtx context.Context) error {
 		r.Use(middlewares.HasMetricOr404().Handler)
 		r.Use(middlewares.AddSHA256HashHeader(hg, a.config.c.Key).Handler)
 
-		r.Post("/", cFactory.From([]interfaces.Handler{
-			updatemetrics.New(metricsupdater.New(a.storage.s), metricsformatter.MetricsEmptyFormatter{}, metricsidentifier.NewURLIdentifier()),
-		}).Handler())
+		updater := metricsupdater.New(a.storage.s)
+		formatter := metricsformatter.MetricsEmptyFormatter{}
+		identifier := metricsidentifier.NewURLIdentifier()
+		r.Post("/", updatemetrics.New(updater, formatter, identifier).Handler())
 	})
 
 	r.Route("/update", func(r chi.Router) {
@@ -95,9 +96,10 @@ func (a *app) Run(commonCtx context.Context) error {
 		r.Use(middlewares.SetContentType(contenttypes.ApplicationJSON).Handler)
 		r.Use(middlewares.AddSHA256HashHeader(hg, a.config.c.Key).Handler)
 
-		r.Post("/", cFactory.From([]interfaces.Handler{
-			updatemetrics.New(metricsupdater.New(a.storage.s), metricsformatter.MetricsJSONFormatter{}, metricsidentifier.NewJSONIdentifier()),
-		}).Handler())
+		updater := metricsupdater.New(a.storage.s)
+		formatter := metricsformatter.MetricsJSONFormatter{}
+		identifier := metricsidentifier.NewJSONIdentifier()
+		r.Post("/", updatemetrics.New(updater, formatter, identifier).Handler())
 	})
 
 	r.Route(fmt.Sprintf("/value/{%v}/{%v}", vars.MetricType, vars.Metric), func(r chi.Router) {
