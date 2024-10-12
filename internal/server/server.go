@@ -26,6 +26,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/services/hashgenerator"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"go.uber.org/zap"
 	"log"
 	"net/http"
@@ -63,6 +64,7 @@ func (a *app) Run(commonCtx context.Context) error {
 	hg := hashgenerator.Factory().SHA256()
 
 	r := chi.NewRouter()
+	r.Mount("/debug", middleware.Profiler())
 	r.Get("/ping", cFactory.From([]interfaces.Handler{
 		dbping.New(dbchecker.New(a.storage.db)),
 	}).Handler())
