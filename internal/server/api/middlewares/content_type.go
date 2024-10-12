@@ -10,15 +10,11 @@ type contentType struct {
 
 func (m *contentType) Handler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		m.Handle(w, r, next)
+		w.Header().Set("Content-Type", m.ct)
+		if next != nil {
+			next.ServeHTTP(w, r)
+		}
 	})
-}
-
-func (m *contentType) Handle(w http.ResponseWriter, r *http.Request, next http.Handler) {
-	w.Header().Set("Content-Type", m.ct)
-	if next != nil {
-		next.ServeHTTP(w, r)
-	}
 }
 
 func SetContentType(ct string) *contentType {
