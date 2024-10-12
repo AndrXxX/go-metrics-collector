@@ -10,6 +10,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/dbping"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchallmetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchmetrics"
+	apilogger "github.com/AndrXxX/go-metrics-collector/internal/server/api/logger"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/middlewares"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updatemanymetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updatemetrics"
@@ -56,16 +57,14 @@ func New(c *config.Config, s interfaces.MetricsStorage, db *sql.DB) *app {
 }
 
 func (a *app) Run(commonCtx context.Context) error {
-
-	// TODO: api logger
-	//cFactory := conveyor.Factory(apilogger.New())
-	// apilogger "github.com/AndrXxX/go-metrics-collector/internal/server/api/logger"
 	mc := metricschecker.New()
 	hg := hashgenerator.Factory().SHA256()
 
 	r := chi.NewRouter()
 
 	r.Mount("/debug", middleware.Profiler())
+
+	r.Use(apilogger.New().Handler)
 
 	r.Get("/ping", dbping.New(dbchecker.New(a.storage.db)).Handler())
 

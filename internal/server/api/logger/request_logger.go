@@ -10,7 +10,7 @@ import (
 type requestLogger struct {
 }
 
-func (l *requestLogger) Handle(h http.HandlerFunc) http.HandlerFunc {
+func (l *requestLogger) Handler(next http.Handler) http.Handler {
 	logFn := func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
@@ -22,7 +22,7 @@ func (l *requestLogger) Handle(h http.HandlerFunc) http.HandlerFunc {
 			ResponseWriter: w,
 			responseData:   responseData,
 		}
-		h(&lw, r)
+		next.ServeHTTP(&lw, r)
 
 		duration := time.Since(start)
 
@@ -35,7 +35,7 @@ func (l *requestLogger) Handle(h http.HandlerFunc) http.HandlerFunc {
 			zap.Int("size", responseData.size),
 		)
 	}
-	return logFn
+	return http.HandlerFunc(logFn)
 }
 
 func New() *requestLogger {
