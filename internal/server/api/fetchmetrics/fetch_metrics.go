@@ -2,9 +2,10 @@ package fetchmetrics
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
-	"net/http"
 )
 
 type fetchMetricsHandler struct {

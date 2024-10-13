@@ -2,8 +2,9 @@ package updatemetrics
 
 import (
 	"fmt"
-	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 	"net/http"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
 
 type updateMetricsHandler struct {

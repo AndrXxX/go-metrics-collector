@@ -1,11 +1,13 @@
 package middlewares
 
 import (
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/gzipcompressor"
-	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
-	"go.uber.org/zap"
 	"net/http"
 	"strings"
+
+	"go.uber.org/zap"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/gzipcompressor"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
 
 type gzipMiddleware struct {

@@ -2,13 +2,15 @@ package fetchallmetrics
 
 import (
 	"fmt"
+	"html/template"
+	"net/http"
+
+	"go.uber.org/zap"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/templates"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
-	"go.uber.org/zap"
-	"html/template"
-	"net/http"
 )
 
 type fetchAllMetricsHandler struct {
