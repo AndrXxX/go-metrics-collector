@@ -2,6 +2,12 @@ package main
 
 import (
 	"context"
+	"log"
+	"os/signal"
+	"syscall"
+
+	"go.uber.org/zap"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/server"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/configprovider"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/dbprovider"
@@ -9,10 +15,6 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/flagsparser"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/storageprovider"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
-	"go.uber.org/zap"
-	"log"
-	"os/signal"
-	"syscall"
 )
 
 func main() {
