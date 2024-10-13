@@ -3,12 +3,14 @@ package filestorage
 import (
 	"context"
 	"fmt"
+
+	"go.uber.org/zap"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/storagesaver"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
-	"go.uber.org/zap"
 )
 
 type fileStorage struct {

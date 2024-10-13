@@ -2,8 +2,9 @@ package memory
 
 import (
 	"context"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestStorageInsertInt64(t *testing.T) {

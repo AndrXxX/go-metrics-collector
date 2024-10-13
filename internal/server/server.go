@@ -5,6 +5,14 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
+	"net/http"
+	"time"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"go.uber.org/zap"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/contenttypes"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/dbping"
@@ -24,12 +32,6 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsupdater"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/hashgenerator"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"go.uber.org/zap"
-	"log"
-	"net/http"
-	"time"
 )
 
 const shutdownTimeout = 5 * time.Second
@@ -64,11 +66,13 @@ func (a *app) Run(commonCtx context.Context) error {
 
 	r.Mount("/debug", middleware.Profiler())
 
-	r.Use(apilogger.New().Handler)
-
-	r.Get("/ping", dbping.New(dbchecker.New(a.storage.db)).Handler())
+	r.Route("/ping", func(r chi.Router) {
+		r.Use(apilogger.New().Handler)
+		r.Get("/", dbping.New(dbchecker.New(a.storage.db)).Handler())
+	})
 
 	r.Route("/updates", func(r chi.Router) {
+		r.Use(apilogger.New().Handler)
 		r.Use(middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key).Handler)
 		r.Use(middlewares.CompressGzip().Handler)
 		r.Use(middlewares.SetContentType(contenttypes.ApplicationJSON).Handler)
@@ -78,6 +82,7 @@ func (a *app) Run(commonCtx context.Context) error {
 	})
 
 	r.Route(fmt.Sprintf("/update/{%v}/{%v}/{%v}", vars.MetricType, vars.Metric, vars.Value), func(r chi.Router) {
+		r.Use(apilogger.New().Handler)
 		r.Use(middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key).Handler)
 		r.Use(middlewares.SetContentType(contenttypes.TextPlain).Handler)
 		r.Use(middlewares.HasMetricOr404().Handler)
@@ -90,6 +95,7 @@ func (a *app) Run(commonCtx context.Context) error {
 	})
 
 	r.Route("/update", func(r chi.Router) {
+		r.Use(apilogger.New().Handler)
 		r.Use(middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key).Handler)
 		r.Use(middlewares.CompressGzip().Handler)
 		r.Use(middlewares.SetContentType(contenttypes.ApplicationJSON).Handler)
@@ -102,6 +108,7 @@ func (a *app) Run(commonCtx context.Context) error {
 	})
 
 	r.Route(fmt.Sprintf("/value/{%v}/{%v}", vars.MetricType, vars.Metric), func(r chi.Router) {
+		r.Use(apilogger.New().Handler)
 		r.Use(middlewares.SetContentType(contenttypes.TextPlain).Handler)
 		r.Use(middlewares.HasMetricOr404().Handler)
 		r.Use(middlewares.AddSHA256HashHeader(hg, a.config.c.Key).Handler)
@@ -112,6 +119,7 @@ func (a *app) Run(commonCtx context.Context) error {
 	})
 
 	r.Route("/value", func(r chi.Router) {
+		r.Use(apilogger.New().Handler)
 		r.Use(middlewares.CompressGzip().Handler)
 		r.Use(middlewares.SetContentType(contenttypes.ApplicationJSON).Handler)
 		r.Use(middlewares.AddSHA256HashHeader(hg, a.config.c.Key).Handler)
@@ -122,6 +130,7 @@ func (a *app) Run(commonCtx context.Context) error {
 	})
 
 	r.Route("/", func(r chi.Router) {
+		r.Use(apilogger.New().Handler)
 		r.Use(middlewares.CompressGzip().Handler)
 		r.Use(middlewares.SetContentType(contenttypes.TextHTML).Handler)
 		r.Use(middlewares.AddSHA256HashHeader(hg, a.config.c.Key).Handler)

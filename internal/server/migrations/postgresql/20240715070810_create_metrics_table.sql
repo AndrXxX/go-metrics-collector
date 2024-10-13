@@ -1,10 +1,16 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE TABLE IF NOT EXISTS metrics (
-    name text,
-    type text,
-    delta bigint,
-    value double precision
+CREATE TABLE IF NOT EXISTS metrics
+(
+    name
+    text,
+    type
+    text,
+    delta
+    bigint,
+    value
+    double
+    precision
 );
 -- +goose StatementEnd
 

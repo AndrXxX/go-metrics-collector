@@ -3,10 +3,12 @@ package dbstorage
 import (
 	"context"
 	"database/sql"
+	"time"
+
+	"go.uber.org/zap"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
-	"go.uber.org/zap"
-	"time"
 )
 
 type dbStorage struct {
