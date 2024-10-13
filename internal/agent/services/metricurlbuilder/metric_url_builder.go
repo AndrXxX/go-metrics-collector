@@ -2,10 +2,12 @@ package metricurlbuilder
 
 import (
 	"fmt"
+	"net/url"
+
+	"go.uber.org/zap"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/types"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
-	"go.uber.org/zap"
-	"net/url"
 )
 
 type metricURLBuilder struct {

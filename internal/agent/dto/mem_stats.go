@@ -1,8 +1,9 @@
 package dto
 
 import (
-	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"runtime"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 )
 
 type getter func() float64

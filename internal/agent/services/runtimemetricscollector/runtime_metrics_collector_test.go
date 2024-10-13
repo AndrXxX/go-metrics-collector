@@ -1,11 +1,13 @@
 package runtimemetricscollector
 
 import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
-	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestNewCollector(t *testing.T) {

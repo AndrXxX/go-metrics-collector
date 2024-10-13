@@ -2,13 +2,15 @@ package metricsuploader
 
 import (
 	"encoding/json"
+	"time"
+
+	"go.uber.org/zap"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/requestsender"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/types"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/contenttypes"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
-	"go.uber.org/zap"
-	"time"
 )
 
 type jsonMetricsUploader struct {

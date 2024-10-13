@@ -1,13 +1,15 @@
 package runtimemetricscollector
 
 import (
+	"math/rand"
+	"runtime"
+
+	"go.uber.org/zap"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
-	"go.uber.org/zap"
-	"math/rand"
-	"runtime"
 )
 
 type collector struct {

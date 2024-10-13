@@ -1,9 +1,11 @@
 package dto
 
 import (
-	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 )
 
 func TestNewMetrics(t *testing.T) {

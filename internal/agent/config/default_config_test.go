@@ -1,10 +1,12 @@
 package config
 
 import (
-	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 )
 
 func TestNewConfig(t *testing.T) {

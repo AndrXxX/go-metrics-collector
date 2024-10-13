@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"compress/gzip"
 	"fmt"
-	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
-	"go.uber.org/zap"
 	"io"
 	"net/http"
+
+	"go.uber.org/zap"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
 
 type RequestSender struct {

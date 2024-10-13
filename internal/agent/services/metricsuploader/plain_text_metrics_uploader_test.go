@@ -1,14 +1,16 @@
 package metricsuploader
 
 import (
+	"net/http"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricurlbuilder"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/requestsender"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/mocks"
-	"github.com/stretchr/testify/assert"
-	"net/http"
-	"testing"
 )
 
 func TestNewUploader(t *testing.T) {

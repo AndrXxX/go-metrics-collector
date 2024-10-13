@@ -1,8 +1,9 @@
 package scheduler
 
 import (
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
 	"time"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
 )
 
 type collector interface {

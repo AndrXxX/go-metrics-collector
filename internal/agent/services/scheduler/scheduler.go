@@ -3,11 +3,13 @@ package scheduler
 import (
 	"context"
 	"errors"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
-	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
-	"go.uber.org/zap"
 	"sync"
 	"time"
+
+	"go.uber.org/zap"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
 
 type intervalScheduler struct {

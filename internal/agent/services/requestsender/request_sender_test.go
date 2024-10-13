@@ -3,13 +3,15 @@ package requestsender
 import (
 	"errors"
 	"fmt"
-	"github.com/AndrXxX/go-metrics-collector/internal/mocks"
-	"github.com/AndrXxX/go-metrics-collector/internal/services/hashgenerator"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"io"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/mocks"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/hashgenerator"
 )
 
 type closableReadableBodyMock struct {

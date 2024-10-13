@@ -2,10 +2,12 @@ package scheduler
 
 import (
 	"context"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
 )
 
 type executor struct {

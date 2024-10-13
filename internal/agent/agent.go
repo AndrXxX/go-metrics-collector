@@ -3,6 +3,12 @@ package agent
 import (
 	"context"
 	"fmt"
+	"log"
+	"net/http"
+	"time"
+
+	"go.uber.org/zap"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricsuploader"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricurlbuilder"
@@ -12,10 +18,6 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/vmmetricscollector"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/hashgenerator"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
-	"go.uber.org/zap"
-	"log"
-	"net/http"
-	"time"
 )
 
 const shutdownTimeout = 5 * time.Second

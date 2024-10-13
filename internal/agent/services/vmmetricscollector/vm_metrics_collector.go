@@ -2,10 +2,12 @@ package vmmetricscollector
 
 import (
 	"fmt"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
-	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
+
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/mem"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
+	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 )
 
 type collector struct {

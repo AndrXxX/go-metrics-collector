@@ -1,9 +1,11 @@
 package metricurlbuilder
 
 import (
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/types"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/types"
 )
 
 func TestMetricURLBuilderBuildURL(t *testing.T) {
