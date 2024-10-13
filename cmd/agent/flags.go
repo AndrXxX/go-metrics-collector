@@ -2,6 +2,7 @@ package main
 
 import (
 	fl "flag"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 )
 

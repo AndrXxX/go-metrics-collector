@@ -2,13 +2,15 @@ package main
 
 import (
 	"context"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
-	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
-	"github.com/asaskevich/govalidator"
 	"log"
 	"os/signal"
 	"syscall"
+
+	"github.com/asaskevich/govalidator"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/agent"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
 
 func main() {

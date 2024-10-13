@@ -1,10 +1,12 @@
 package main
 
 import (
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 )
 
 func Test_parseEnv(t *testing.T) {

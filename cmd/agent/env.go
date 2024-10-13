@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 	"github.com/caarlos0/env/v6"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 )
 
 type EnvConfig struct {
