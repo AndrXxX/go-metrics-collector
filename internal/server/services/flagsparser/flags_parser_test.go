@@ -2,10 +2,12 @@ package flagsparser
 
 import (
 	"flag"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 )
 
 type testCase struct {

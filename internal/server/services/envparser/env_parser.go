@@ -2,8 +2,10 @@ package envparser
 
 import (
 	"fmt"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
+
 	"github.com/caarlos0/env/v6"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 )
 
 type envConfig struct {

@@ -2,9 +2,10 @@ package metricsformatter
 
 import (
 	"errors"
+	"strconv"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
-	"strconv"
 )
 
 type MetricsValueFormatter struct {

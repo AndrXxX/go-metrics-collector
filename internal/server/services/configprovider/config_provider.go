@@ -2,8 +2,10 @@ package configprovider
 
 import (
 	"fmt"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
+
 	"github.com/asaskevich/govalidator"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 )
 
 type configProvider struct {

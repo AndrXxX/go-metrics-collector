@@ -2,11 +2,13 @@ package metricsidentifier
 
 import (
 	"fmt"
+	"net/http"
+
+	"github.com/go-chi/chi/v5"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsvaluesetter"
-	"github.com/go-chi/chi/v5"
-	"net/http"
 )
 
 type urlMetricsIdentifier struct {

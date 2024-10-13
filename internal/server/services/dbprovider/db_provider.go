@@ -3,9 +3,11 @@ package dbprovider
 import (
 	"database/sql"
 	"fmt"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
+
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 )
 
 type dbProvider struct {

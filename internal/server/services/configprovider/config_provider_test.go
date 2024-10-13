@@ -2,9 +2,11 @@ package configprovider
 
 import (
 	"errors"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 )
 
 type tempParser struct {

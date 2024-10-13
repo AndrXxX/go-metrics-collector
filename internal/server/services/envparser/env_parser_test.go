@@ -1,10 +1,12 @@
 package envparser
 
 import (
-	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 )
 
 func Test_parseEnv(t *testing.T) {

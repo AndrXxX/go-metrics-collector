@@ -3,6 +3,7 @@ package metricsformatter
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 )
 

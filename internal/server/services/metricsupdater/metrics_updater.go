@@ -2,6 +2,7 @@ package metricsupdater
 
 import (
 	"context"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 )

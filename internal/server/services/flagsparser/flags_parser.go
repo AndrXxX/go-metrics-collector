@@ -2,6 +2,7 @@ package flagsparser
 
 import (
 	fl "flag"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 )
 

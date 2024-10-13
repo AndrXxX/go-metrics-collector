@@ -3,6 +3,8 @@ package storageprovider
 import (
 	"context"
 	"database/sql"
+	"time"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
@@ -10,7 +12,6 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/filestorage"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/tasks/savestoragetask"
-	"time"
 )
 
 type storageProvider struct {

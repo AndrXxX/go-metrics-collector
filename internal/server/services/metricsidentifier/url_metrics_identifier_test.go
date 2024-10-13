@@ -2,14 +2,16 @@ package metricsidentifier
 
 import (
 	"context"
-	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
-	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
+	"net/http/httptest"
+	"testing"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"net/http/httptest"
-	"testing"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
+	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 )
 
 func TestNewURLIdentifier(t *testing.T) {

@@ -2,8 +2,9 @@ package metricsvaluesetter
 
 import (
 	"fmt"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"strconv"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 )
 
 type gaugeValueSetter struct {

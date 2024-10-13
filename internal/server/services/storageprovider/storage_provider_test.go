@@ -3,14 +3,16 @@ package storageprovider
 import (
 	"context"
 	"database/sql"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/dbstorage"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/filestorage"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
-	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestNew(t *testing.T) {
