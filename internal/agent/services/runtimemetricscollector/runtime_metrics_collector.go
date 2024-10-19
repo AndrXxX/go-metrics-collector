@@ -16,7 +16,7 @@ type collector struct {
 	ml *config.MetricsList
 }
 
-func (c *collector) Execute(result dto.MetricsDto) error {
+func (c *collector) execute(result dto.MetricsDto) error {
 	ms := runtime.MemStats{}
 	runtime.ReadMemStats(&ms)
 	memStatsDto := dto.NewMemStatsDto(&ms)
@@ -42,9 +42,10 @@ func (c *collector) Execute(result dto.MetricsDto) error {
 	return nil
 }
 
+// Collect собирает метрики и отправляет их в канал results
 func (c *collector) Collect(results chan<- dto.MetricsDto) error {
 	m := dto.NewMetricsDto()
-	err := c.Execute(*m)
+	err := c.execute(*m)
 	if err != nil {
 		return err
 	}
@@ -53,6 +54,7 @@ func (c *collector) Collect(results chan<- dto.MetricsDto) error {
 	return nil
 }
 
+// New возвращает сервис для сбора метрик
 func New(ml *config.MetricsList) *collector {
 	return &collector{ml}
 }

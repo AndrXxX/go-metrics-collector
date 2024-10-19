@@ -96,7 +96,7 @@ func Test_metricsCollector_Execute(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &collector{ml: tt.ml}
-			err := c.Execute(tt.result)
+			err := c.execute(tt.result)
 			assert.NoError(t, err)
 			for _, v := range tt.valuesInResult.gauge {
 				_, ok := tt.result.Get(v)
