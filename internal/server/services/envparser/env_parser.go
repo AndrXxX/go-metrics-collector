@@ -20,6 +20,7 @@ type envConfig struct {
 type envParser struct {
 }
 
+// Parse парсит переменные окружения и наполняет конфигурацию
 func (p envParser) Parse(c *config.Config) error {
 	cfg := envConfig{
 		Addr:            c.Host,
@@ -42,6 +43,7 @@ func (p envParser) Parse(c *config.Config) error {
 	return nil
 }
 
+// New возвращает сервис envParser для парсинга переменных окружения
 func New() *envParser {
 	return &envParser{}
 }
