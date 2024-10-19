@@ -1,6 +1,7 @@
 package metricsidentifier
 
 import (
+	"fmt"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -74,4 +75,26 @@ func TestJSONMetricsIdentifierProcess(t *testing.T) {
 			}
 		})
 	}
+}
+
+func Example_jsonMetricsIdentifier_Process() {
+	body := "{\"id\":\"test\",\"type\":\"counter\",\"delta\":10,\"value\":null}"
+	request := httptest.NewRequest("", "/test", strings.NewReader(body))
+	i := &jsonMetricsIdentifier{}
+
+	m, err := i.Process(request)
+	if err != nil {
+		return
+	}
+
+	fmt.Println(m.ID)
+	fmt.Println(m.MType)
+	fmt.Println(*m.Delta)
+	fmt.Println(m.Value)
+
+	// Output:
+	// test
+	// counter
+	// 10
+	// <nil>
 }
