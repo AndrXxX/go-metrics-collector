@@ -14,6 +14,7 @@ type metricURLBuilder struct {
 	host string
 }
 
+// New создает экземпляр сервиса metricURLBuilder для построения ссылок
 func New(host string) *metricURLBuilder {
 	u, err := url.Parse(host)
 	if err != nil {
@@ -29,6 +30,7 @@ func New(host string) *metricURLBuilder {
 	return &metricURLBuilder{host: u.String()}
 }
 
+// Build собирает и возвращает ссылку по переданным параметрам
 func (b *metricURLBuilder) Build(params types.URLParams) string {
 	u := fmt.Sprintf("%v/update", b.host)
 	if params["endpoint"] != nil {
