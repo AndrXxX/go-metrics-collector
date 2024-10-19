@@ -13,6 +13,7 @@ type plainTextMetricsUploader struct {
 	ub urlBuilder
 }
 
+// Execute выполняет загрузку метрик
 func (c *plainTextMetricsUploader) Execute(result dto.MetricsDto) error {
 	for _, metric := range result.All() {
 		var value any
@@ -28,6 +29,7 @@ func (c *plainTextMetricsUploader) Execute(result dto.MetricsDto) error {
 	return nil
 }
 
+// NewPlainTextUploader возвращает сервис plainTextMetricsUploader для загрузки метрик с помощью урла
 func NewPlainTextUploader(rs *requestsender.RequestSender, ub urlBuilder) *plainTextMetricsUploader {
 	return &plainTextMetricsUploader{rs, ub}
 }
