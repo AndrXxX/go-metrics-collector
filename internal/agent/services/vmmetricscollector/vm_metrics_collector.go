@@ -32,6 +32,7 @@ func (c *collector) Execute(result dto.MetricsDto) error {
 	return nil
 }
 
+// Collect собирает vm метрики и отправляет их в канал results
 func (c *collector) Collect(results chan<- dto.MetricsDto) error {
 	m := dto.NewMetricsDto()
 	err := c.Execute(*m)
@@ -43,6 +44,7 @@ func (c *collector) Collect(results chan<- dto.MetricsDto) error {
 	return nil
 }
 
+// New возвращает сервис для сбора vm метрик
 func New() *collector {
 	return &collector{}
 }
