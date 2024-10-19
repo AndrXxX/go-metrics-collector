@@ -19,6 +19,7 @@ type jsonMetricsUploader struct {
 	repeatIntervals []int
 }
 
+// Execute выполняет загрузку метрик
 func (c *jsonMetricsUploader) Execute(result dto.MetricsDto) error {
 	var list []dto.JSONMetrics
 	for _, metric := range result.All() {
@@ -73,6 +74,7 @@ func (c *jsonMetricsUploader) sendMany(l []dto.JSONMetrics) error {
 	return err
 }
 
+// NewJSONUploader возвращает сервис jsonMetricsUploader для загрузки метрик в формате JSON
 func NewJSONUploader(rs *requestsender.RequestSender, ub urlBuilder, repeatIntervals []int) *jsonMetricsUploader {
 	return &jsonMetricsUploader{rs, ub, repeatIntervals}
 }
