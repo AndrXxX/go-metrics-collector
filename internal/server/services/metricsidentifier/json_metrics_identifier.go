@@ -10,6 +10,7 @@ import (
 type jsonMetricsIdentifier struct {
 }
 
+// Process декодирует тело запроса в формате JSON в метрику
 func (i *jsonMetricsIdentifier) Process(r *http.Request) (*models.Metrics, error) {
 	var m *models.Metrics
 	dec := json.NewDecoder(r.Body)
@@ -17,6 +18,8 @@ func (i *jsonMetricsIdentifier) Process(r *http.Request) (*models.Metrics, error
 	return m, err
 }
 
+// NewJSONIdentifier возвращает сервис jsonMetricsIdentifier
+// Сервис декодирует метрику из JSON
 func NewJSONIdentifier() *jsonMetricsIdentifier {
 	return &jsonMetricsIdentifier{}
 }

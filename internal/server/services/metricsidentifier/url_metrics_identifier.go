@@ -14,6 +14,7 @@ import (
 type urlMetricsIdentifier struct {
 }
 
+// Process декодирует метрику из параметров URL
 func (i *urlMetricsIdentifier) Process(r *http.Request) (*models.Metrics, error) {
 	m := models.Metrics{
 		ID:    chi.URLParam(r, vars.Metric),
@@ -31,6 +32,8 @@ func (i *urlMetricsIdentifier) Process(r *http.Request) (*models.Metrics, error)
 	return &m, err
 }
 
+// NewURLIdentifier возвращает сервис urlMetricsIdentifier
+// Сервис декодирует метрику из параметров URL
 func NewURLIdentifier() *urlMetricsIdentifier {
 	return &urlMetricsIdentifier{}
 }
