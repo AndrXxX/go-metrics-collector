@@ -9,6 +9,7 @@ import (
 type flagsParser struct {
 }
 
+// Parse парсит аргументы командной строки и наполняет конфигурацию
 func (p flagsParser) Parse(c *config.Config) error {
 	fl.StringVar(&c.Host, "a", c.Host, "Net address host:port")
 	fl.IntVar(&c.StoreInterval, "i", c.StoreInterval, "Store interval")
@@ -20,6 +21,7 @@ func (p flagsParser) Parse(c *config.Config) error {
 	return nil
 }
 
+// New возвращает сервис flagsParser для парсинга аргументов командной строки
 func New() *flagsParser {
 	return &flagsParser{}
 }
