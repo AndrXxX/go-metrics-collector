@@ -8,9 +8,11 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 )
 
+// MetricsValueFormatter сервис для форматирования метрики в виде строки, содержащей значение метрики
 type MetricsValueFormatter struct {
 }
 
+// Format возвращает значение метрики в виде строки
 func (s MetricsValueFormatter) Format(m *models.Metrics) (string, error) {
 	switch m.MType {
 	case metrics.Counter:
