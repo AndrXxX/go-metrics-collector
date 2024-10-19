@@ -8,6 +8,7 @@ import (
 type sha256Generator struct {
 }
 
+// Generate выполняет генерацию хеша на основе ключа key и переданных данных data
 func (h *sha256Generator) Generate(key string, data []byte) string {
 	t := sha256.New()
 	t.Write(data)
