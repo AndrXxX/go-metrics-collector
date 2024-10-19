@@ -42,7 +42,7 @@ func (c *collector) execute(result dto.MetricsDto) error {
 	return nil
 }
 
-// Collect собирает метрики и отправляет их в канал results
+// Collect собирает runtime метрики и отправляет их в канал results
 func (c *collector) Collect(results chan<- dto.MetricsDto) error {
 	m := dto.NewMetricsDto()
 	err := c.execute(*m)
@@ -54,7 +54,7 @@ func (c *collector) Collect(results chan<- dto.MetricsDto) error {
 	return nil
 }
 
-// New возвращает сервис для сбора метрик
+// New возвращает сервис для сбора runtime метрик
 func New(ml *config.MetricsList) *collector {
 	return &collector{ml}
 }
