@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 
@@ -71,6 +72,7 @@ func Test_storageProvider_Storage(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			sp := New(tt.fields.c, tt.fields.db)
 			assert.Equal(t, tt.want, sp.Storage(context.Background()))
+			time.Sleep(100 * time.Millisecond)
 		})
 	}
 }
