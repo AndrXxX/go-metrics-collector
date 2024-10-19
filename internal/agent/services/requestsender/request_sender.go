@@ -18,10 +18,12 @@ type RequestSender struct {
 	key string
 }
 
+// New возвращает сервис RequestSender для отправки запросов
 func New(c client, hg hashGenerator, key string) *RequestSender {
 	return &RequestSender{c, hg, key}
 }
 
+// Post отправляет запрос методом Post
 func (s *RequestSender) Post(url string, contentType string, data []byte) error {
 	buf, err := s.compress(data)
 	if err != nil {
