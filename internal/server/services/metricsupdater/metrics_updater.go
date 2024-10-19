@@ -11,10 +11,12 @@ type metricsUpdater struct {
 	s storage[*models.Metrics]
 }
 
+// New возвращает сервис metricsUpdater для обновления метрики в хранилище
 func New(s storage[*models.Metrics]) *metricsUpdater {
 	return &metricsUpdater{s}
 }
 
+// Update обновляет одну метрику в хранилище
 func (u *metricsUpdater) Update(ctx context.Context, newModel *models.Metrics) (*models.Metrics, error) {
 	currentModel, exist := u.s.Get(ctx, newModel.ID)
 	if exist {
@@ -28,6 +30,7 @@ func (u *metricsUpdater) Update(ctx context.Context, newModel *models.Metrics) (
 	return currentModel, nil
 }
 
+// UpdateMany обновляет несколько метрик в хранилище
 func (u *metricsUpdater) UpdateMany(ctx context.Context, list []models.Metrics) error {
 	for _, model := range list {
 		_, err := u.Update(ctx, &model)
