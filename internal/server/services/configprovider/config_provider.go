@@ -12,6 +12,7 @@ type configProvider struct {
 	parsers []parser
 }
 
+// Fetch извлекает, проверяет и возвращает конфигурацию
 func (p configProvider) Fetch() (*config.Config, error) {
 	settings := config.NewConfig()
 	for _, pr := range p.parsers {
@@ -25,6 +26,7 @@ func (p configProvider) Fetch() (*config.Config, error) {
 	return settings, nil
 }
 
+// New возвращает сервис configProvider для извлечения конфигурации
 func New(parsers ...parser) *configProvider {
 	return &configProvider{parsers}
 }
