@@ -16,7 +16,7 @@ type collector struct {
 	ml *config.MetricsList
 }
 
-func (c *collector) execute(result dto.MetricsDto) error {
+func (c *collector) execute(result dto.MetricsDto) {
 	ms := runtime.MemStats{}
 	runtime.ReadMemStats(&ms)
 	memStatsDto := dto.NewMemStatsDto(&ms)
@@ -39,16 +39,12 @@ func (c *collector) execute(result dto.MetricsDto) error {
 	result.Set(dto.JSONMetrics{ID: metrics.PollCount, MType: metrics.Counter, Delta: &pollVal})
 	randVal := rand.Float64()
 	result.Set(dto.JSONMetrics{ID: metrics.RandomValue, MType: metrics.Gauge, Value: &randVal})
-	return nil
 }
 
 // Collect собирает runtime метрики и отправляет их в канал results
 func (c *collector) Collect(results chan<- dto.MetricsDto) error {
 	m := dto.NewMetricsDto()
-	err := c.execute(*m)
-	if err != nil {
-		return err
-	}
+	c.execute(*m)
 	results <- *m
 	close(results)
 	return nil
