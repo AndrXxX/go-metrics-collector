@@ -14,10 +14,12 @@ type dbProvider struct {
 	c *config.Config
 }
 
+// New возвращает сервис dbProvider для предоставления соединения с базой данных
 func New(c *config.Config) *dbProvider {
 	return &dbProvider{c}
 }
 
+// DB возвращает соединение с базой данных
 func (p *dbProvider) DB() (*sql.DB, error) {
 	if p.c.DatabaseDSN == "" {
 		return nil, fmt.Errorf("empty DatabaseDSN")
