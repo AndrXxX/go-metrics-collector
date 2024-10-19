@@ -2,6 +2,7 @@ package scheduler
 
 import (
 	"context"
+	"sync"
 	"testing"
 	"time"
 
@@ -158,15 +159,21 @@ func Test_intervalScheduler_Run(t *testing.T) {
 		{},
 	}
 	for _, tt := range tests {
+		var wg sync.WaitGroup
 		t.Run(tt.name, func(t *testing.T) {
 			is := NewIntervalScheduler(1)
+			wg.Add(1)
 			go func() {
 				assert.Equal(t, tt.wantErr, is.Run() != nil)
+				wg.Done()
 			}()
+			wg.Add(1)
 			go func() {
+				time.Sleep(100 * time.Millisecond)
 				_ = is.Shutdown(context.Background())
+				wg.Done()
 			}()
-
+			wg.Wait()
 		})
 	}
 }
