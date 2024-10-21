@@ -10,6 +10,7 @@ type compressWriter struct {
 	zw *gzip.Writer
 }
 
+// NewCompressWriter возвращает сервис для записи сжатых данных gzip
 func NewCompressWriter(w http.ResponseWriter) *compressWriter {
 	return &compressWriter{
 		w:  w,
@@ -17,14 +18,17 @@ func NewCompressWriter(w http.ResponseWriter) *compressWriter {
 	}
 }
 
+// Header имплементация http.ResponseWriter
 func (c *compressWriter) Header() http.Header {
 	return c.w.Header()
 }
 
+// Write имплементация http.ResponseWriter
 func (c *compressWriter) Write(p []byte) (int, error) {
 	return c.zw.Write(p)
 }
 
+// WriteHeader имплементация http.ResponseWriter
 func (c *compressWriter) WriteHeader(statusCode int) {
 	if statusCode < 300 {
 		c.w.Header().Set("Content-Encoding", "gzip")
@@ -32,6 +36,7 @@ func (c *compressWriter) WriteHeader(statusCode int) {
 	c.w.WriteHeader(statusCode)
 }
 
+// Close имплементация io.Closer
 func (c *compressWriter) Close() error {
 	return c.zw.Close()
 }
