@@ -46,6 +46,7 @@ type app struct {
 	}
 }
 
+// New возвращает экземпляр приложения
 func New(c *config.Config, s interfaces.MetricsStorage, db *sql.DB) *app {
 	return &app{
 		config: struct {
@@ -58,6 +59,7 @@ func New(c *config.Config, s interfaces.MetricsStorage, db *sql.DB) *app {
 	}
 }
 
+// Run запускает сервер
 func (a *app) Run(commonCtx context.Context) error {
 	mc := metricschecker.New()
 	hg := hashgenerator.Factory().SHA256()
