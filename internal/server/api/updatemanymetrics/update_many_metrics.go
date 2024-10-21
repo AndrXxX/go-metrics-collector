@@ -11,7 +11,7 @@ type updateManyMetricsHandler struct {
 	u updater
 }
 
-// Handler returns HandlerFunc to update metrics from request
+// Handler возвращает http.HandlerFunc для обновления нескольких метрик из запроса
 func (h *updateManyMetricsHandler) Handler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var list []models.Metrics
@@ -31,7 +31,7 @@ func (h *updateManyMetricsHandler) Handler() http.HandlerFunc {
 	}
 }
 
-// New Return updateManyMetricsHandler
+// New возвращает обработчик updateManyMetricsHandler для обновления нескольких метрик
 func New(u updater) *updateManyMetricsHandler {
 	return &updateManyMetricsHandler{u}
 }
