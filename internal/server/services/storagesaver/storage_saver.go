@@ -22,6 +22,7 @@ type storageSaver struct {
 	ri   []int
 }
 
+// Save сохраняет данные из хранилища в файл
 func (ss *storageSaver) Save(ctx context.Context) error {
 	file, err := ss.openFile(ss.path, os.O_WRONLY|os.O_CREATE)
 	if err != nil {
@@ -49,6 +50,7 @@ func (ss *storageSaver) Save(ctx context.Context) error {
 	return nil
 }
 
+// Restore восстанавливает данные из файла в хранилище
 func (ss *storageSaver) Restore(ctx context.Context) error {
 	file, err := ss.openFile(ss.path, os.O_RDONLY|os.O_CREATE)
 	if err != nil {
@@ -88,6 +90,7 @@ func (ss *storageSaver) openFile(name string, flag int) (*os.File, error) {
 	return nil, err
 }
 
+// New возвращает сервис для сохранения/восстановления хранилища в/из файла
 func New(path string, s storage[*models.Metrics], repeatIntervals []int) *storageSaver {
 	return &storageSaver{path, s, repeatIntervals}
 }
