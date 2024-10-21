@@ -14,6 +14,7 @@ type saveStorageTask struct {
 	s storageSaver
 }
 
+// Execute запускает выполнение задачи
 func (t *saveStorageTask) Execute(ctx context.Context) {
 	for {
 		select {
@@ -29,6 +30,7 @@ func (t *saveStorageTask) Execute(ctx context.Context) {
 	}
 }
 
+// New возвращает обработчик для сохранения хранилища
 func New(i time.Duration, s storageSaver) *saveStorageTask {
 	return &saveStorageTask{i, s}
 }
