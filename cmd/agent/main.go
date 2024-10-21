@@ -11,6 +11,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/envparser"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/flagsparser"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
 
@@ -19,7 +20,9 @@ func main() {
 	if err := logger.Initialize(c.Common.LogLevel); err != nil {
 		log.Fatal(err)
 	}
-	parseFlags(c)
+	if err := flagsparser.New().Parse(c); err != nil {
+		log.Fatal(err)
+	}
 	if _, err := govalidator.ValidateStruct(c.Intervals); err != nil {
 		log.Fatal(err)
 	}
