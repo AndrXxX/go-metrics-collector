@@ -12,6 +12,7 @@ import (
 type requestLogger struct {
 }
 
+// Handler возвращает http.HandlerFunc
 func (l *requestLogger) Handler(next http.Handler) http.Handler {
 	logFn := func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
@@ -40,6 +41,7 @@ func (l *requestLogger) Handler(next http.Handler) http.Handler {
 	return http.HandlerFunc(logFn)
 }
 
+// New возвращает обработчик для логирования запросов
 func New() *requestLogger {
 	return &requestLogger{}
 }
