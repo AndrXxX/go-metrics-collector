@@ -22,6 +22,7 @@ import (
 
 const shutdownTimeout = 5 * time.Second
 
+// Run запускает агента
 func Run(commonCtx context.Context, config *config.Config) error {
 	ctx, cancel := context.WithCancel(commonCtx)
 	defer cancel()
