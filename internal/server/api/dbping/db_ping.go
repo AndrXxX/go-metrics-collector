@@ -12,13 +12,14 @@ type dbPingHandler struct {
 	c dbChecker
 }
 
+// Handler возвращает http.HandlerFunc
 func (h *dbPingHandler) Handler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		h.Handle(w, r, nil)
+		h.handle(w, r, nil)
 	}
 }
 
-func (h *dbPingHandler) Handle(w http.ResponseWriter, r *http.Request, next http.Handler) {
+func (h *dbPingHandler) handle(w http.ResponseWriter, r *http.Request, next http.Handler) {
 	err := h.c.Check(r.Context())
 	if err != nil {
 		logger.Log.Error("Error on check db", zap.Error(err))
@@ -31,6 +32,7 @@ func (h *dbPingHandler) Handle(w http.ResponseWriter, r *http.Request, next http
 	}
 }
 
+// New возвращает экземпляр обработчика для проверки соединения с базой данных
 func New(c dbChecker) *dbPingHandler {
 	return &dbPingHandler{c}
 }
