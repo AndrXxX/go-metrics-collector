@@ -12,6 +12,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
 
+// RequestSender сервис для отправки запросов
 type RequestSender struct {
 	c   client
 	hg  hashGenerator
