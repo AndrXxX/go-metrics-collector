@@ -11,6 +11,7 @@ import (
 type hasMetricOr404 struct {
 }
 
+// Handler возвращает http.HandlerFunc
 func (m *hasMetricOr404) Handler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		metric := chi.URLParam(r, vars.Metric)
@@ -24,6 +25,7 @@ func (m *hasMetricOr404) Handler(next http.Handler) http.Handler {
 	})
 }
 
+// HasMetricOr404 возвращает middleware, которая проверяет наличие названия метрики в запросе или возвращает 404
 func HasMetricOr404() *hasMetricOr404 {
 	return &hasMetricOr404{}
 }

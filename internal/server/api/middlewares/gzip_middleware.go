@@ -13,13 +13,14 @@ import (
 type gzipMiddleware struct {
 }
 
+// Handler возвращает http.HandlerFunc
 func (m *gzipMiddleware) Handler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		m.Handle(w, r, next)
+		m.handle(w, r, next)
 	})
 }
 
-func (m *gzipMiddleware) Handle(w http.ResponseWriter, r *http.Request, next http.Handler) {
+func (m *gzipMiddleware) handle(w http.ResponseWriter, r *http.Request, next http.Handler) {
 	ow := w
 
 	acceptEncoding := r.Header.Get("Accept-Encoding")
@@ -51,6 +52,7 @@ func (m *gzipMiddleware) Handle(w http.ResponseWriter, r *http.Request, next htt
 	}
 }
 
+// CompressGzip возвращает middleware для сжатия ответа и распаковки запроса
 func CompressGzip() *gzipMiddleware {
 	return &gzipMiddleware{}
 }
