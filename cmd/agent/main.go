@@ -10,6 +10,7 @@ import (
 
 	"github.com/AndrXxX/go-metrics-collector/internal/agent"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/envparser"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
 
@@ -25,7 +26,7 @@ func main() {
 	if _, err := govalidator.ValidateStruct(c.Common); err != nil {
 		log.Fatal(err)
 	}
-	if err := parseEnv(c); err != nil {
+	if err := envparser.New().Parse(c); err != nil {
 		log.Fatal(err)
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)

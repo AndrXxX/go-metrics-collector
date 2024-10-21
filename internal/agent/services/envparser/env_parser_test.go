@@ -1,4 +1,4 @@
-package main
+package envparser
 
 import (
 	"os"
@@ -107,19 +107,16 @@ func Test_parseEnv(t *testing.T) {
 			wantErr: false,
 		},
 	}
+	parser := New()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			os.Clearenv()
 			for k, v := range tt.env {
 				_ = os.Setenv(k, v)
 			}
-			err := parseEnv(tt.config)
-			if tt.wantErr {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
-			}
+			err := parser.Parse(tt.config)
 			assert.Equal(t, tt.want, tt.config)
+			assert.Equal(t, tt.wantErr, err != nil)
 		})
 	}
 }
