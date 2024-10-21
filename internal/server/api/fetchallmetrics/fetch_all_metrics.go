@@ -17,6 +17,7 @@ type fetchAllMetricsHandler struct {
 	s storage[*models.Metrics]
 }
 
+// Handler возвращает http.HandlerFunc
 func (h *fetchAllMetricsHandler) Handler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		t, err := template.New("webpage").Parse(templates.MetricsList)
@@ -56,6 +57,7 @@ func (h *fetchAllMetricsHandler) fetchMetrics(r *http.Request) map[string]string
 	return result
 }
 
+// New возвращает обработчик для получения страницы со всеми метриками
 func New(s storage[*models.Metrics]) *fetchAllMetricsHandler {
 	return &fetchAllMetricsHandler{s}
 }
