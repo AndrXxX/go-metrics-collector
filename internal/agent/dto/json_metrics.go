@@ -1,5 +1,6 @@
 package dto
 
+// JSONMetrics dto для метрики
 type JSONMetrics struct {
 	ID    string   `json:"id"`              // Имя метрики
 	MType string   `json:"type"`            // Параметр, принимающий значение gauge или counter

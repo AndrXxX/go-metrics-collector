@@ -12,11 +12,14 @@ type memStatsDto struct {
 	gettersMap map[string]getter
 }
 
+// FetchGetter возвращает функцию getter для получения значения метрики
 func (ms *memStatsDto) FetchGetter(name string) (getter, bool) {
 	getter, ok := ms.gettersMap[name]
 	return getter, ok
 }
 
+// NewMemStatsDto возвращает новый экземпляр memStatsDto
+// DTO, содержащий геттеры значений метрик
 func NewMemStatsDto(ms *runtime.MemStats) memStatsDto {
 	return memStatsDto{gettersMap: buildMap(ms)}
 }
