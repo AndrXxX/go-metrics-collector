@@ -13,7 +13,7 @@ import (
 type collector struct {
 }
 
-func (c *collector) Execute(result dto.MetricsDto) error {
+func (c *collector) execute(result dto.MetricsDto) error {
 	v, err := mem.VirtualMemory()
 	if err != nil {
 		return err
@@ -35,7 +35,7 @@ func (c *collector) Execute(result dto.MetricsDto) error {
 // Collect собирает vm метрики и отправляет их в канал results
 func (c *collector) Collect(results chan<- dto.MetricsDto) error {
 	m := dto.NewMetricsDto()
-	err := c.Execute(*m)
+	err := c.execute(*m)
 	if err != nil {
 		return err
 	}
