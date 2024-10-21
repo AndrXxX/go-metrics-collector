@@ -15,6 +15,7 @@ type fetchMetricsHandler struct {
 	mc metricsChecker
 }
 
+// Handler возвращает http.HandlerFunc
 func (h *fetchMetricsHandler) Handler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		metric, err := h.i.Process(r)
@@ -44,6 +45,7 @@ func (h *fetchMetricsHandler) Handler() http.HandlerFunc {
 	}
 }
 
+// New возвращает обработчик для получения информации по конкретной метрике
 func New(s storage[*models.Metrics], f formatter, i identifier, mc metricsChecker) *fetchMetricsHandler {
 	return &fetchMetricsHandler{s, f, i, mc}
 }
