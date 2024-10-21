@@ -12,9 +12,9 @@ type MetricsList []string
 
 // Intervals настройки интервалов
 type Intervals struct {
-	PollInterval    int64 `valid:"range(1|999)"`
-	ReportInterval  int64 `valid:"range(1|999)"`
-	SleepInterval   int64 `valid:"range(1|20)"`
+	PollInterval    int64 `valid:"required,range(1|999)"`
+	ReportInterval  int64 `valid:"required,range(1|999)"`
+	SleepInterval   int64 `valid:"required,range(1|20)"`
 	RepeatIntervals []int
 }
 
