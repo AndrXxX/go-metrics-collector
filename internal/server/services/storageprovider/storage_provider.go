@@ -19,10 +19,12 @@ type storageProvider struct {
 	db *sql.DB
 }
 
+// New возвращает сервис для предоставления хранилища метрик
 func New(c *config.Config, db *sql.DB) *storageProvider {
 	return &storageProvider{c, db}
 }
 
+// Storage возвращает хранилище метрик
 func (sp *storageProvider) Storage(ctx context.Context) interfaces.MetricsStorage {
 	if sp.c.DatabaseDSN != "" {
 		s := dbstorage.New(sp.db, sp.c.RepeatIntervals)
