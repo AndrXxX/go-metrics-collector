@@ -10,6 +10,7 @@ import (
 type gaugeValueSetter struct {
 }
 
+// Set устанавливает значение метрики типа gauge
 func (i *gaugeValueSetter) Set(m *models.Metrics, value string) error {
 	if value == "" {
 		return fmt.Errorf("empty value for gauge metric")
