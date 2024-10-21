@@ -16,10 +16,12 @@ type dbStorage struct {
 	ri []int
 }
 
+// New возвращает хранилище метрик в базе данных
 func New(db *sql.DB, repeatIntervals []int) dbStorage {
 	return dbStorage{db, repeatIntervals}
 }
 
+// Insert вставляет запись
 func (s *dbStorage) Insert(ctx context.Context, name string, value *models.Metrics) {
 	stmt, err := s.db.PrepareContext(ctx, "INSERT INTO metrics (name, type, delta, value) VALUES($1, $2, $3, $4)")
 	if err != nil {
@@ -46,6 +48,7 @@ func (s *dbStorage) Insert(ctx context.Context, name string, value *models.Metri
 	}
 }
 
+// Get извлекает запись
 func (s *dbStorage) Get(ctx context.Context, name string) (value *models.Metrics, ok bool) {
 	row := s.db.QueryRowContext(ctx, "SELECT name, type, delta, value FROM metrics WHERE name = $1", name)
 	v := models.Metrics{}
@@ -56,6 +59,7 @@ func (s *dbStorage) Get(ctx context.Context, name string) (value *models.Metrics
 	return &v, true
 }
 
+// All извлекает все записи
 func (s *dbStorage) All(ctx context.Context) map[string]*models.Metrics {
 	list := make(map[string]*models.Metrics)
 
@@ -88,6 +92,7 @@ func (s *dbStorage) All(ctx context.Context) map[string]*models.Metrics {
 	return list
 }
 
+// Delete удаляет запись
 func (s *dbStorage) Delete(ctx context.Context, name string) (ok bool) {
 	stmt := `DELETE FROM metrics WHERE name = $1`
 	_, err := s.db.ExecContext(ctx, stmt, name)
