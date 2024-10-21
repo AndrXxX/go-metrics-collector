@@ -91,7 +91,7 @@ func Test_metricsUploader_Execute(t *testing.T) {
 				})
 			}
 
-			assert.NoError(t, c.Execute(*result))
+			assert.NoError(t, c.execute(*result))
 		})
 	}
 }

@@ -19,8 +19,7 @@ type jsonMetricsUploader struct {
 	repeatIntervals []int
 }
 
-// Execute выполняет загрузку метрик
-func (c *jsonMetricsUploader) Execute(result dto.MetricsDto) error {
+func (c *jsonMetricsUploader) execute(result dto.MetricsDto) error {
 	var list []dto.JSONMetrics
 	for _, metric := range result.All() {
 		list = append(list, metric)
@@ -35,9 +34,10 @@ func (c *jsonMetricsUploader) Execute(result dto.MetricsDto) error {
 	return nil
 }
 
+// Process выполняет загрузку метрик
 func (c *jsonMetricsUploader) Process(results <-chan dto.MetricsDto) error {
 	for result := range results {
-		err := c.Execute(result)
+		err := c.execute(result)
 		if err != nil {
 			return err
 		}

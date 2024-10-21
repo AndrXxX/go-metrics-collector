@@ -13,8 +13,7 @@ type plainTextMetricsUploader struct {
 	ub urlBuilder
 }
 
-// Execute выполняет загрузку метрик
-func (c *plainTextMetricsUploader) Execute(result dto.MetricsDto) error {
+func (c *plainTextMetricsUploader) execute(result dto.MetricsDto) error {
 	for _, metric := range result.All() {
 		var value any
 		if metric.MType == metrics.Gauge {
@@ -25,6 +24,17 @@ func (c *plainTextMetricsUploader) Execute(result dto.MetricsDto) error {
 		params := types.URLParams{"metricType": metric.MType, "metric": metric.ID, "value": value}
 		url := c.ub.Build(params)
 		_ = c.rs.Post(url, contenttypes.TextPlain, nil)
+	}
+	return nil
+}
+
+// Process выполняет загрузку метрик
+func (c *plainTextMetricsUploader) Process(results <-chan dto.MetricsDto) error {
+	for result := range results {
+		err := c.execute(result)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
