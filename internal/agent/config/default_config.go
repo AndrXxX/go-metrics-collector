@@ -5,6 +5,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars/defaults"
 )
 
+// NewConfig предоставляет конфигурацию со значениями по умолчанию
 func NewConfig() *Config {
 	return &Config{
 		Common: CommonConfig{
