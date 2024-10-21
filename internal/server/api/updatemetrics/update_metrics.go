@@ -13,7 +13,7 @@ type updateMetricsHandler struct {
 	i identifier
 }
 
-// Handler returns HandlerFunc to update metrics from request
+// Handler возвращает http.HandlerFunc для обновления одной метрики из запроса
 func (h *updateMetricsHandler) Handler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		metric, err := h.i.Process(r)
@@ -39,7 +39,7 @@ func (h *updateMetricsHandler) Handler() http.HandlerFunc {
 	}
 }
 
-// New Return updateMetricsHandler
+// New возвращает обработчик updateMetricsHandler для обновления одной метрики
 func New(u updater, f formatter, i identifier) *updateMetricsHandler {
 	return &updateMetricsHandler{u, f, i}
 }
