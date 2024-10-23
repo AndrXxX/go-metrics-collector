@@ -1,6 +1,7 @@
 package metricurlbuilder
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -106,4 +107,14 @@ func TestNewMetricURLBuilder(t *testing.T) {
 			assert.Equal(t, tt.want, b)
 		})
 	}
+}
+
+func Example_metricURLBuilder_Build() {
+	b := New("localhost:8080")
+	params := types.URLParams{"metricType": "metricType", "metric": "metric", "value": "value"}
+	fmt.Println(b.Build(params))
+
+	// Output:
+	// http://localhost:8080/update/metricType/metric/value
+
 }
