@@ -2,6 +2,7 @@ package flagsparser
 
 import (
 	"flag"
+	"fmt"
 	"os"
 	"testing"
 
@@ -104,4 +105,24 @@ func run(t *testing.T, tt testCase) {
 		assert.Equal(t, tt.want, tt.config)
 		assert.Nil(t, err)
 	})
+}
+
+func Example_flagsParser_Parse() {
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+	os.Args = os.Args[:1]
+	os.Args = append(os.Args[:1], []string{"-a", "new-host", "-p", "11", "-r", "55", "-k", "abc"}...)
+
+	c := config.NewConfig()
+	_ = New().Parse(c)
+
+	fmt.Println(c.Common.Host)
+	fmt.Println(c.Common.Key)
+	fmt.Println(c.Intervals.PollInterval)
+	fmt.Println(c.Intervals.ReportInterval)
+
+	// Output:
+	// new-host
+	// abc
+	// 11
+	// 55
 }
