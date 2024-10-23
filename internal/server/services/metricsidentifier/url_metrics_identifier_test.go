@@ -2,6 +2,7 @@ package metricsidentifier
 
 import (
 	"context"
+	"fmt"
 	"net/http/httptest"
 	"testing"
 
@@ -109,4 +110,27 @@ func TestUrlMetricsIdentifierProcess(t *testing.T) {
 			}
 		})
 	}
+}
+
+func Example_urlMetricsIdentifier_Process() {
+	i := &urlMetricsIdentifier{}
+	request := httptest.NewRequest("", "/update/counter/test/aaa", nil)
+	ctx := chi.NewRouteContext()
+	request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, ctx))
+	ctx.URLParams.Add(vars.MetricType, metrics.Gauge)
+	ctx.URLParams.Add(vars.Metric, "test")
+	ctx.URLParams.Add(vars.Value, "10.1")
+
+	m, _ := i.Process(request)
+
+	fmt.Println(m.ID)
+	fmt.Println(m.MType)
+	fmt.Println(m.Delta)
+	fmt.Println(*m.Value)
+
+	// Output:
+	// test
+	// gauge
+	// <nil>
+	// 10.1
 }
