@@ -8,13 +8,17 @@ type contentType struct {
 	ct string
 }
 
-func (m *contentType) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	w.Header().Set("Content-Type", m.ct)
-	if next != nil {
-		next(w, r)
-	}
+// Handler возвращает http.HandlerFunc
+func (m *contentType) Handler(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", m.ct)
+		if next != nil {
+			next.ServeHTTP(w, r)
+		}
+	})
 }
 
+// SetContentType возвращает middleware для установки Content-Type
 func SetContentType(ct string) *contentType {
 	return &contentType{ct}
 }

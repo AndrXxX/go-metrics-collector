@@ -2,13 +2,15 @@ package metricsuploader
 
 import (
 	"encoding/json"
+	"time"
+
+	"go.uber.org/zap"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/requestsender"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/types"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/contenttypes"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
-	"go.uber.org/zap"
-	"time"
 )
 
 type jsonMetricsUploader struct {
@@ -17,7 +19,7 @@ type jsonMetricsUploader struct {
 	repeatIntervals []int
 }
 
-func (c *jsonMetricsUploader) Execute(result dto.MetricsDto) error {
+func (c *jsonMetricsUploader) execute(result dto.MetricsDto) error {
 	var list []dto.JSONMetrics
 	for _, metric := range result.All() {
 		list = append(list, metric)
@@ -32,9 +34,10 @@ func (c *jsonMetricsUploader) Execute(result dto.MetricsDto) error {
 	return nil
 }
 
+// Process выполняет загрузку метрик
 func (c *jsonMetricsUploader) Process(results <-chan dto.MetricsDto) error {
 	for result := range results {
-		err := c.Execute(result)
+		err := c.execute(result)
 		if err != nil {
 			return err
 		}
@@ -71,6 +74,7 @@ func (c *jsonMetricsUploader) sendMany(l []dto.JSONMetrics) error {
 	return err
 }
 
+// NewJSONUploader возвращает сервис jsonMetricsUploader для загрузки метрик в формате JSON
 func NewJSONUploader(rs *requestsender.RequestSender, ub urlBuilder, repeatIntervals []int) *jsonMetricsUploader {
 	return &jsonMetricsUploader{rs, ub, repeatIntervals}
 }

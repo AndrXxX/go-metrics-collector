@@ -1,16 +1,25 @@
 package dbping
 
 import (
-	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
-	"go.uber.org/zap"
 	"net/http"
+
+	"go.uber.org/zap"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
 
 type dbPingHandler struct {
 	c dbChecker
 }
 
-func (h *dbPingHandler) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+// Handler возвращает http.HandlerFunc
+func (h *dbPingHandler) Handler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		h.handle(w, r, nil)
+	}
+}
+
+func (h *dbPingHandler) handle(w http.ResponseWriter, r *http.Request, next http.Handler) {
 	err := h.c.Check(r.Context())
 	if err != nil {
 		logger.Log.Error("Error on check db", zap.Error(err))
@@ -19,10 +28,11 @@ func (h *dbPingHandler) Handle(w http.ResponseWriter, r *http.Request, next http
 	}
 	w.WriteHeader(http.StatusOK)
 	if next != nil {
-		next(w, r)
+		next.ServeHTTP(w, r)
 	}
 }
 
+// New возвращает экземпляр обработчика для проверки соединения с базой данных
 func New(c dbChecker) *dbPingHandler {
 	return &dbPingHandler{c}
 }

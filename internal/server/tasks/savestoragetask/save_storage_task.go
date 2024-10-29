@@ -2,9 +2,11 @@ package savestoragetask
 
 import (
 	"context"
-	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
-	"go.uber.org/zap"
 	"time"
+
+	"go.uber.org/zap"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
 
 type saveStorageTask struct {
@@ -12,6 +14,7 @@ type saveStorageTask struct {
 	s storageSaver
 }
 
+// Execute запускает выполнение задачи
 func (t *saveStorageTask) Execute(ctx context.Context) {
 	for {
 		select {
@@ -27,6 +30,7 @@ func (t *saveStorageTask) Execute(ctx context.Context) {
 	}
 }
 
+// New возвращает обработчик для сохранения хранилища
 func New(i time.Duration, s storageSaver) *saveStorageTask {
 	return &saveStorageTask{i, s}
 }

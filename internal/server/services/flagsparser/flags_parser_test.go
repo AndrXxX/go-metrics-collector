@@ -1,11 +1,13 @@
-package main
+package flagsparser
 
 import (
 	"flag"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 )
 
 type testCase struct {
@@ -70,7 +72,8 @@ func run(t *testing.T, tt testCase) {
 		flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 		os.Args = os.Args[:1]
 		os.Args = append(os.Args[:1], tt.flags...)
-		parseFlags(tt.config)
+		err := New().Parse(tt.config)
 		assert.Equal(t, tt.want, tt.config)
+		assert.Nil(t, err)
 	})
 }

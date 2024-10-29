@@ -2,16 +2,19 @@ package metricsidentifier
 
 import (
 	"fmt"
+	"net/http"
+
+	"github.com/go-chi/chi/v5"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsvaluesetter"
-	"github.com/go-chi/chi/v5"
-	"net/http"
 )
 
 type urlMetricsIdentifier struct {
 }
 
+// Process декодирует метрику из параметров URL
 func (i *urlMetricsIdentifier) Process(r *http.Request) (*models.Metrics, error) {
 	m := models.Metrics{
 		ID:    chi.URLParam(r, vars.Metric),
@@ -29,6 +32,8 @@ func (i *urlMetricsIdentifier) Process(r *http.Request) (*models.Metrics, error)
 	return &m, err
 }
 
+// NewURLIdentifier возвращает сервис urlMetricsIdentifier
+// Сервис декодирует метрику из параметров URL
 func NewURLIdentifier() *urlMetricsIdentifier {
 	return &urlMetricsIdentifier{}
 }

@@ -1,9 +1,12 @@
 package metricurlbuilder
 
 import (
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/types"
-	"github.com/stretchr/testify/assert"
+	"fmt"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/types"
 )
 
 func TestMetricURLBuilderBuildURL(t *testing.T) {
@@ -53,6 +56,11 @@ func TestMetricURLBuilderBuildURL(t *testing.T) {
 			want:   "http://host/update",
 		},
 		{
+			host:   "host",
+			params: types.URLParams{"endpoint": "endpoint"},
+			want:   "http://host/endpoint",
+		},
+		{
 			host:   "http://host",
 			params: types.URLParams{},
 			want:   "http://host/update",
@@ -66,9 +74,7 @@ func TestMetricURLBuilderBuildURL(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.want, func(t *testing.T) {
 			b := New(tt.host)
-			if got := b.Build(tt.params); got != tt.want {
-				t.Errorf("Build() = %v, want %v", got, tt.want)
-			}
+			assert.Equal(t, tt.want, b.Build(tt.params))
 		})
 	}
 }
@@ -90,6 +96,10 @@ func TestNewMetricURLBuilder(t *testing.T) {
 			host: "https://host",
 			want: &metricURLBuilder{host: "https://host"},
 		},
+		{
+			host: ":",
+			want: nil,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.host, func(t *testing.T) {
@@ -97,4 +107,14 @@ func TestNewMetricURLBuilder(t *testing.T) {
 			assert.Equal(t, tt.want, b)
 		})
 	}
+}
+
+func Example_metricURLBuilder_Build() {
+	b := New("localhost:8080")
+	params := types.URLParams{"metricType": "metricType", "metric": "metric", "value": "value"}
+	fmt.Println(b.Build(params))
+
+	// Output:
+	// http://localhost:8080/update/metricType/metric/value
+
 }

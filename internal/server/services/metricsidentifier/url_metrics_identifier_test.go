@@ -2,14 +2,17 @@ package metricsidentifier
 
 import (
 	"context"
-	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
-	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
+	"fmt"
+	"net/http/httptest"
+	"testing"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"net/http/httptest"
-	"testing"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
+	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 )
 
 func TestNewURLIdentifier(t *testing.T) {
@@ -107,4 +110,27 @@ func TestUrlMetricsIdentifierProcess(t *testing.T) {
 			}
 		})
 	}
+}
+
+func Example_urlMetricsIdentifier_Process() {
+	i := &urlMetricsIdentifier{}
+	request := httptest.NewRequest("", "/update/counter/test/aaa", nil)
+	ctx := chi.NewRouteContext()
+	request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, ctx))
+	ctx.URLParams.Add(vars.MetricType, metrics.Gauge)
+	ctx.URLParams.Add(vars.Metric, "test")
+	ctx.URLParams.Add(vars.Value, "10.1")
+
+	m, _ := i.Process(request)
+
+	fmt.Println(m.ID)
+	fmt.Println(m.MType)
+	fmt.Println(m.Delta)
+	fmt.Println(*m.Value)
+
+	// Output:
+	// test
+	// gauge
+	// <nil>
+	// 10.1
 }

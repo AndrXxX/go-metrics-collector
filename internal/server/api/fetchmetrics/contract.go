@@ -2,8 +2,9 @@ package fetchmetrics
 
 import (
 	"context"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"net/http"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 )
 
 type storage[T any] interface {

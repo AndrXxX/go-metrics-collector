@@ -2,6 +2,15 @@ package fetchmetrics
 
 import (
 	"context"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
@@ -9,13 +18,6 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricschecker"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsformatter"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsidentifier"
-	"github.com/go-chi/chi/v5"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"io"
-	"net/http"
-	"net/http/httptest"
-	"testing"
 )
 
 func TestFetchMetricsHandlerGaugeHandle(t *testing.T) {
@@ -87,7 +89,7 @@ func TestFetchMetricsHandlerGaugeHandle(t *testing.T) {
 			}
 			w := httptest.NewRecorder()
 			h := New(&storage, metricsformatter.MetricsValueFormatter{}, identifier, metricschecker.New())
-			h.Handle(w, request, nil)
+			h.Handler()(w, request)
 			result := w.Result()
 
 			assert.Equal(t, test.want.statusCode, result.StatusCode)
@@ -171,7 +173,7 @@ func TestFetchMetricsHandlerCounterHandle(t *testing.T) {
 			}
 			w := httptest.NewRecorder()
 			h := New(&storage, metricsformatter.MetricsValueFormatter{}, identifier, metricschecker.New())
-			h.Handle(w, request, nil)
+			h.Handler()(w, request)
 			result := w.Result()
 
 			assert.Equal(t, test.want.statusCode, result.StatusCode)

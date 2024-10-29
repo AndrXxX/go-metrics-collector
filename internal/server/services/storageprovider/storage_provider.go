@@ -3,6 +3,8 @@ package storageprovider
 import (
 	"context"
 	"database/sql"
+	"time"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
@@ -10,7 +12,6 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/filestorage"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/tasks/savestoragetask"
-	"time"
 )
 
 type storageProvider struct {
@@ -18,22 +19,23 @@ type storageProvider struct {
 	db *sql.DB
 }
 
+// New возвращает сервис для предоставления хранилища метрик
 func New(c *config.Config, db *sql.DB) *storageProvider {
 	return &storageProvider{c, db}
 }
 
+// Storage возвращает хранилище метрик
 func (sp *storageProvider) Storage(ctx context.Context) interfaces.MetricsStorage {
 	if sp.c.DatabaseDSN != "" {
 		s := dbstorage.New(sp.db, sp.c.RepeatIntervals)
 		return &s
 	}
+	ms := memory.New[*models.Metrics]()
 	if sp.c.FileStoragePath != "" {
-		ms := memory.New[*models.Metrics]()
 		s := filestorage.New(sp.c, &ms)
 		sst := savestoragetask.New(time.Duration(sp.c.StoreInterval)*time.Second, &s)
 		go sst.Execute(ctx)
 		return &s
 	}
-	s := memory.New[*models.Metrics]()
-	return &s
+	return &ms
 }

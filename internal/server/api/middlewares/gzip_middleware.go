@@ -1,17 +1,26 @@
 package middlewares
 
 import (
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/gzipcompressor"
-	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
-	"go.uber.org/zap"
 	"net/http"
 	"strings"
+
+	"go.uber.org/zap"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/gzipcompressor"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
 
 type gzipMiddleware struct {
 }
 
-func (m *gzipMiddleware) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+// Handler возвращает http.HandlerFunc
+func (m *gzipMiddleware) Handler(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		m.handle(w, r, next)
+	})
+}
+
+func (m *gzipMiddleware) handle(w http.ResponseWriter, r *http.Request, next http.Handler) {
 	ow := w
 
 	acceptEncoding := r.Header.Get("Accept-Encoding")
@@ -39,10 +48,11 @@ func (m *gzipMiddleware) Handle(w http.ResponseWriter, r *http.Request, next htt
 		}()
 	}
 	if next != nil {
-		next(ow, r)
+		next.ServeHTTP(ow, r)
 	}
 }
 
+// CompressGzip возвращает middleware для сжатия ответа и распаковки запроса
 func CompressGzip() *gzipMiddleware {
 	return &gzipMiddleware{}
 }

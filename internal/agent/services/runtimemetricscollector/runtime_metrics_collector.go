@@ -1,20 +1,22 @@
 package runtimemetricscollector
 
 import (
+	"math/rand"
+	"runtime"
+
+	"go.uber.org/zap"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
-	"go.uber.org/zap"
-	"math/rand"
-	"runtime"
 )
 
 type collector struct {
 	ml *config.MetricsList
 }
 
-func (c *collector) Execute(result dto.MetricsDto) error {
+func (c *collector) execute(result dto.MetricsDto) {
 	ms := runtime.MemStats{}
 	runtime.ReadMemStats(&ms)
 	memStatsDto := dto.NewMemStatsDto(&ms)
@@ -37,20 +39,18 @@ func (c *collector) Execute(result dto.MetricsDto) error {
 	result.Set(dto.JSONMetrics{ID: metrics.PollCount, MType: metrics.Counter, Delta: &pollVal})
 	randVal := rand.Float64()
 	result.Set(dto.JSONMetrics{ID: metrics.RandomValue, MType: metrics.Gauge, Value: &randVal})
-	return nil
 }
 
+// Collect собирает runtime метрики и отправляет их в канал results
 func (c *collector) Collect(results chan<- dto.MetricsDto) error {
 	m := dto.NewMetricsDto()
-	err := c.Execute(*m)
-	if err != nil {
-		return err
-	}
+	c.execute(*m)
 	results <- *m
 	close(results)
 	return nil
 }
 
+// New возвращает сервис для сбора runtime метрик
 func New(ml *config.MetricsList) *collector {
 	return &collector{ml}
 }

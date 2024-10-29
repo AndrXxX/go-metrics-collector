@@ -1,16 +1,19 @@
 package logger
 
 import (
-	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
-	"go.uber.org/zap"
 	"net/http"
 	"time"
+
+	"go.uber.org/zap"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
 
 type requestLogger struct {
 }
 
-func (l *requestLogger) Handle(h http.HandlerFunc) http.HandlerFunc {
+// Handler возвращает http.HandlerFunc
+func (l *requestLogger) Handler(next http.Handler) http.Handler {
 	logFn := func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
@@ -22,7 +25,7 @@ func (l *requestLogger) Handle(h http.HandlerFunc) http.HandlerFunc {
 			ResponseWriter: w,
 			responseData:   responseData,
 		}
-		h(&lw, r)
+		next.ServeHTTP(&lw, r)
 
 		duration := time.Since(start)
 
@@ -35,9 +38,10 @@ func (l *requestLogger) Handle(h http.HandlerFunc) http.HandlerFunc {
 			zap.Int("size", responseData.size),
 		)
 	}
-	return logFn
+	return http.HandlerFunc(logFn)
 }
 
+// New возвращает обработчик для логирования запросов
 func New() *requestLogger {
 	return &requestLogger{}
 }

@@ -1,123 +1,128 @@
-package main
+package flagsparser
 
 import (
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
-	"github.com/stretchr/testify/assert"
+	"flag"
+	"fmt"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 )
 
-func Test_parseEnv(t *testing.T) {
-	tests := []struct {
-		name    string
-		config  *config.Config
-		env     map[string]string
-		want    *config.Config
-		wantErr bool
-	}{
+type testCase struct {
+	name   string
+	config *config.Config
+	flags  []string
+	want   *config.Config
+}
+
+func Test_parseFlags(t *testing.T) {
+	tests := []testCase{
 		{
-			name: "Empty env",
+			name: "Empty flags",
 			config: &config.Config{
 				Common:    config.CommonConfig{Host: "host"},
 				Intervals: config.Intervals{PollInterval: 1, ReportInterval: 1},
 			},
-			env: map[string]string{},
+			flags: []string{},
 			want: &config.Config{
 				Common:    config.CommonConfig{Host: "host"},
 				Intervals: config.Intervals{PollInterval: 1, ReportInterval: 1},
 			},
-			wantErr: false,
 		},
 		{
-			name: "ADDRESS=new-host",
+			name: "-a=new-host",
 			config: &config.Config{
 				Common:    config.CommonConfig{Host: "host"},
 				Intervals: config.Intervals{PollInterval: 1, ReportInterval: 1},
 			},
-			env: map[string]string{"ADDRESS": "new-host"},
+			flags: []string{"-a", "new-host"},
 			want: &config.Config{
 				Common:    config.CommonConfig{Host: "new-host"},
 				Intervals: config.Intervals{PollInterval: 1, ReportInterval: 1},
 			},
-			wantErr: false,
 		},
 		{
-			name: "REPORT_INTERVAL=fff",
+			name: "-r=2",
 			config: &config.Config{
 				Common:    config.CommonConfig{Host: "host"},
 				Intervals: config.Intervals{PollInterval: 1, ReportInterval: 1},
 			},
-			env: map[string]string{"REPORT_INTERVAL": "fff"},
-			want: &config.Config{
-				Common:    config.CommonConfig{Host: "host"},
-				Intervals: config.Intervals{PollInterval: 1, ReportInterval: 1},
-			},
-			wantErr: true,
-		},
-		{
-			name: "REPORT_INTERVAL=2",
-			config: &config.Config{
-				Common:    config.CommonConfig{Host: "host"},
-				Intervals: config.Intervals{PollInterval: 1, ReportInterval: 1},
-			},
-			env: map[string]string{"REPORT_INTERVAL": "2"},
+			flags: []string{"-r", "2"},
 			want: &config.Config{
 				Common:    config.CommonConfig{Host: "host"},
 				Intervals: config.Intervals{PollInterval: 1, ReportInterval: 2},
 			},
-			wantErr: false,
 		},
 		{
-			name: "POLL_INTERVAL=2",
+			name: "-p=2",
 			config: &config.Config{
 				Common:    config.CommonConfig{Host: "host"},
 				Intervals: config.Intervals{PollInterval: 1, ReportInterval: 1},
 			},
-			env: map[string]string{"POLL_INTERVAL": "2"},
+			flags: []string{"-p", "2"},
 			want: &config.Config{
 				Common:    config.CommonConfig{Host: "host"},
 				Intervals: config.Intervals{PollInterval: 2, ReportInterval: 1},
 			},
-			wantErr: false,
 		},
 		{
-			name: "RATE_LIMIT=5",
+			name: "-l=2",
 			config: &config.Config{
 				Common: config.CommonConfig{RateLimit: 1},
 			},
-			env: map[string]string{"RATE_LIMIT": "5"},
+			flags: []string{"-l", "2"},
 			want: &config.Config{
-				Common: config.CommonConfig{RateLimit: 5},
+				Common: config.CommonConfig{RateLimit: 2},
 			},
-			wantErr: false,
 		},
 		{
-			name: "ADDRESS=new-host REPORT_INTERVAL=2 POLL_INTERVAL=2 KEY=abc",
+			name: "-a=new-host -r=2 -p=2 -k=abc",
 			config: &config.Config{
 				Common:    config.CommonConfig{Host: "host"},
 				Intervals: config.Intervals{PollInterval: 1, ReportInterval: 1},
 			},
-			env: map[string]string{"ADDRESS": "new-host", "REPORT_INTERVAL": "2", "POLL_INTERVAL": "2", "KEY": "abc"},
+			flags: []string{"-a", "new-host", "-p", "2", "-r", "2", "-k", "abc"},
 			want: &config.Config{
 				Common:    config.CommonConfig{Host: "new-host", Key: "abc"},
 				Intervals: config.Intervals{PollInterval: 2, ReportInterval: 2},
 			},
-			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			os.Clearenv()
-			for k, v := range tt.env {
-				_ = os.Setenv(k, v)
-			}
-			err := parseEnv(tt.config)
-			if tt.wantErr {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
-			}
-			assert.Equal(t, tt.want, tt.config)
-		})
+		run(t, tt)
 	}
+}
+
+func run(t *testing.T, tt testCase) {
+	t.Run(tt.name, func(t *testing.T) {
+		flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+		os.Args = os.Args[:1]
+		os.Args = append(os.Args[:1], tt.flags...)
+		err := New().Parse(tt.config)
+		assert.Equal(t, tt.want, tt.config)
+		assert.Nil(t, err)
+	})
+}
+
+func Example_flagsParser_Parse() {
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+	os.Args = os.Args[:1]
+	os.Args = append(os.Args[:1], []string{"-a", "new-host", "-p", "11", "-r", "55", "-k", "abc"}...)
+
+	c := config.NewConfig()
+	_ = New().Parse(c)
+
+	fmt.Println(c.Common.Host)
+	fmt.Println(c.Common.Key)
+	fmt.Println(c.Intervals.PollInterval)
+	fmt.Println(c.Intervals.ReportInterval)
+
+	// Output:
+	// new-host
+	// abc
+	// 11
+	// 55
 }

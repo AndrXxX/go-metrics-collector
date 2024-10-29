@@ -4,8 +4,10 @@ import (
 	"go.uber.org/zap"
 )
 
+// Log переменная для доступа к логгеру
 var Log = zap.NewNop()
 
+// Initialize метод инициализации логгера
 func Initialize(level string) error {
 	lvl, err := zap.ParseAtomicLevel(level)
 	if err != nil {

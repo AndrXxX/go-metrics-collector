@@ -5,6 +5,14 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
+	"net/http"
+	"time"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"go.uber.org/zap"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/contenttypes"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/dbping"
@@ -17,7 +25,6 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/conveyor"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/dbchecker"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricschecker"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsformatter"
@@ -25,11 +32,6 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsupdater"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/hashgenerator"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
-	"github.com/go-chi/chi/v5"
-	"go.uber.org/zap"
-	"log"
-	"net/http"
-	"time"
 )
 
 const shutdownTimeout = 5 * time.Second
@@ -44,6 +46,7 @@ type app struct {
 	}
 }
 
+// New возвращает экземпляр приложения
 func New(c *config.Config, s interfaces.MetricsStorage, db *sql.DB) *app {
 	return &app{
 		config: struct {
@@ -56,67 +59,86 @@ func New(c *config.Config, s interfaces.MetricsStorage, db *sql.DB) *app {
 	}
 }
 
+// Run запускает сервер
 func (a *app) Run(commonCtx context.Context) error {
-
-	cFactory := conveyor.Factory(apilogger.New())
 	mc := metricschecker.New()
 	hg := hashgenerator.Factory().SHA256()
 
 	r := chi.NewRouter()
-	r.Get("/ping", cFactory.From([]interfaces.Handler{
-		dbping.New(dbchecker.New(a.storage.db)),
-	}).Handler())
+
+	r.Mount("/debug", middleware.Profiler())
+
+	r.Route("/ping", func(r chi.Router) {
+		r.Use(apilogger.New().Handler)
+		r.Get("/", dbping.New(dbchecker.New(a.storage.db)).Handler())
+	})
 
 	r.Route("/updates", func(r chi.Router) {
-		r.Post("/", cFactory.From([]interfaces.Handler{
-			middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key),
-			middlewares.CompressGzip(),
-			middlewares.SetContentType(contenttypes.ApplicationJSON),
-			middlewares.AddSHA256HashHeader(hg, a.config.c.Key),
-			updatemanymetrics.New(metricsupdater.New(a.storage.s)),
-		}).Handler())
+		r.Use(apilogger.New().Handler)
+		r.Use(middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key).Handler)
+		r.Use(middlewares.CompressGzip().Handler)
+		r.Use(middlewares.SetContentType(contenttypes.ApplicationJSON).Handler)
+		r.Use(middlewares.AddSHA256HashHeader(hg, a.config.c.Key).Handler)
+
+		r.Post("/", updatemanymetrics.New(metricsupdater.New(a.storage.s)).Handler())
+	})
+
+	r.Route(fmt.Sprintf("/update/{%v}/{%v}/{%v}", vars.MetricType, vars.Metric, vars.Value), func(r chi.Router) {
+		r.Use(apilogger.New().Handler)
+		r.Use(middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key).Handler)
+		r.Use(middlewares.SetContentType(contenttypes.TextPlain).Handler)
+		r.Use(middlewares.HasMetricOr404().Handler)
+		r.Use(middlewares.AddSHA256HashHeader(hg, a.config.c.Key).Handler)
+
+		updater := metricsupdater.New(a.storage.s)
+		formatter := metricsformatter.MetricsEmptyFormatter{}
+		identifier := metricsidentifier.NewURLIdentifier()
+		r.Post("/", updatemetrics.New(updater, formatter, identifier).Handler())
 	})
 
 	r.Route("/update", func(r chi.Router) {
-		r.Post(fmt.Sprintf("/{%v}/{%v}/{%v}", vars.MetricType, vars.Metric, vars.Value), cFactory.From([]interfaces.Handler{
-			middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key),
-			middlewares.SetContentType(contenttypes.TextPlain),
-			middlewares.HasMetricOr404(),
-			middlewares.AddSHA256HashHeader(hg, a.config.c.Key),
-			updatemetrics.New(metricsupdater.New(a.storage.s), metricsformatter.MetricsEmptyFormatter{}, metricsidentifier.NewURLIdentifier()),
-		}).Handler())
+		r.Use(apilogger.New().Handler)
+		r.Use(middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key).Handler)
+		r.Use(middlewares.CompressGzip().Handler)
+		r.Use(middlewares.SetContentType(contenttypes.ApplicationJSON).Handler)
+		r.Use(middlewares.AddSHA256HashHeader(hg, a.config.c.Key).Handler)
 
-		r.Post("/", cFactory.From([]interfaces.Handler{
-			middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key),
-			middlewares.CompressGzip(),
-			middlewares.SetContentType(contenttypes.ApplicationJSON),
-			middlewares.AddSHA256HashHeader(hg, a.config.c.Key),
-			updatemetrics.New(metricsupdater.New(a.storage.s), metricsformatter.MetricsJSONFormatter{}, metricsidentifier.NewJSONIdentifier()),
-		}).Handler())
+		updater := metricsupdater.New(a.storage.s)
+		formatter := metricsformatter.MetricsJSONFormatter{}
+		identifier := metricsidentifier.NewJSONIdentifier()
+		r.Post("/", updatemetrics.New(updater, formatter, identifier).Handler())
+	})
+
+	r.Route(fmt.Sprintf("/value/{%v}/{%v}", vars.MetricType, vars.Metric), func(r chi.Router) {
+		r.Use(apilogger.New().Handler)
+		r.Use(middlewares.SetContentType(contenttypes.TextPlain).Handler)
+		r.Use(middlewares.HasMetricOr404().Handler)
+		r.Use(middlewares.AddSHA256HashHeader(hg, a.config.c.Key).Handler)
+
+		formatter := metricsformatter.MetricsValueFormatter{}
+		identifier := metricsidentifier.NewURLIdentifier()
+		r.Get("/", fetchmetrics.New(a.storage.s, formatter, identifier, mc).Handler())
 	})
 
 	r.Route("/value", func(r chi.Router) {
-		r.Get(fmt.Sprintf("/{%v}/{%v}", vars.MetricType, vars.Metric), cFactory.From([]interfaces.Handler{
-			middlewares.SetContentType(contenttypes.TextPlain),
-			middlewares.HasMetricOr404(),
-			middlewares.AddSHA256HashHeader(hg, a.config.c.Key),
-			fetchmetrics.New(a.storage.s, metricsformatter.MetricsValueFormatter{}, metricsidentifier.NewURLIdentifier(), mc),
-		}).Handler())
+		r.Use(apilogger.New().Handler)
+		r.Use(middlewares.CompressGzip().Handler)
+		r.Use(middlewares.SetContentType(contenttypes.ApplicationJSON).Handler)
+		r.Use(middlewares.AddSHA256HashHeader(hg, a.config.c.Key).Handler)
 
-		r.Post("/", cFactory.From([]interfaces.Handler{
-			middlewares.CompressGzip(),
-			middlewares.SetContentType(contenttypes.ApplicationJSON),
-			middlewares.AddSHA256HashHeader(hg, a.config.c.Key),
-			fetchmetrics.New(a.storage.s, metricsformatter.MetricsJSONFormatter{}, metricsidentifier.NewJSONIdentifier(), mc),
-		}).Handler())
+		formatter := metricsformatter.MetricsJSONFormatter{}
+		identifier := metricsidentifier.NewJSONIdentifier()
+		r.Post("/", fetchmetrics.New(a.storage.s, formatter, identifier, mc).Handler())
 	})
 
-	r.Get("/", cFactory.From([]interfaces.Handler{
-		middlewares.CompressGzip(),
-		middlewares.SetContentType(contenttypes.TextHTML),
-		middlewares.AddSHA256HashHeader(hg, a.config.c.Key),
-		fetchallmetrics.New(a.storage.s),
-	}).Handler())
+	r.Route("/", func(r chi.Router) {
+		r.Use(apilogger.New().Handler)
+		r.Use(middlewares.CompressGzip().Handler)
+		r.Use(middlewares.SetContentType(contenttypes.TextHTML).Handler)
+		r.Use(middlewares.AddSHA256HashHeader(hg, a.config.c.Key).Handler)
+
+		r.Get("/", fetchallmetrics.New(a.storage.s).Handler())
+	})
 
 	srv := &http.Server{Addr: a.config.c.Host, Handler: r}
 

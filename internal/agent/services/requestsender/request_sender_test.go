@@ -2,12 +2,16 @@ package requestsender
 
 import (
 	"errors"
-	"github.com/AndrXxX/go-metrics-collector/internal/mocks"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
+	"fmt"
 	"io"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/mocks"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/hashgenerator"
 )
 
 type closableReadableBodyMock struct {
@@ -35,6 +39,7 @@ func TestRequestSender_Post(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
+		data    []byte
 		wantErr bool
 	}{
 		{
@@ -62,6 +67,19 @@ func TestRequestSender_Post(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "Positive test #3 with data",
+			fields: fields{
+				c: &mocks.MockClient{
+					DoFunc: func(req *http.Request) (*http.Response, error) {
+						return nil, nil
+					},
+				},
+			},
+			data:    []byte("test"),
+			args:    args{url: "", contentType: ""},
+			wantErr: false,
+		},
+		{
 			name: "Error test #1",
 			fields: fields{
 				c: &mocks.MockClient{
@@ -76,10 +94,9 @@ func TestRequestSender_Post(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &RequestSender{c: tt.fields.c}
-			if err := s.Post(tt.args.url, tt.args.contentType, nil); (err != nil) != tt.wantErr {
-				t.Errorf("Post() error = %v, wantErr %v", err, tt.wantErr)
-			}
+			s := New(tt.fields.c, hashgenerator.Factory().SHA256(), "test")
+			err := s.Post(tt.args.url, tt.args.contentType, tt.data)
+			assert.Equal(t, tt.wantErr, err != nil, fmt.Errorf("post() error = %v, wantErr %v", err, tt.wantErr))
 		})
 	}
 }

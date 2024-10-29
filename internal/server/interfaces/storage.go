@@ -2,9 +2,11 @@ package interfaces
 
 import (
 	"context"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 )
 
+// MetricsStorage интерфейс хранилища метрик
 type MetricsStorage interface {
 	Insert(ctx context.Context, metric string, value *models.Metrics)
 	Get(ctx context.Context, metric string) (value *models.Metrics, ok bool)

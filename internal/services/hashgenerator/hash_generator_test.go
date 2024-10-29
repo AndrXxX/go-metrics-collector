@@ -1,8 +1,9 @@
 package hashgenerator
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestHashGeneratorGenerate(t *testing.T) {

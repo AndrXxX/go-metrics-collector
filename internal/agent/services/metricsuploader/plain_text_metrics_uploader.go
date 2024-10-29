@@ -13,7 +13,7 @@ type plainTextMetricsUploader struct {
 	ub urlBuilder
 }
 
-func (c *plainTextMetricsUploader) Execute(result dto.MetricsDto) error {
+func (c *plainTextMetricsUploader) execute(result dto.MetricsDto) error {
 	for _, metric := range result.All() {
 		var value any
 		if metric.MType == metrics.Gauge {
@@ -28,6 +28,18 @@ func (c *plainTextMetricsUploader) Execute(result dto.MetricsDto) error {
 	return nil
 }
 
+// Process выполняет загрузку метрик
+func (c *plainTextMetricsUploader) Process(results <-chan dto.MetricsDto) error {
+	for result := range results {
+		err := c.execute(result)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// NewPlainTextUploader возвращает сервис plainTextMetricsUploader для загрузки метрик с помощью урла
 func NewPlainTextUploader(rs *requestsender.RequestSender, ub urlBuilder) *plainTextMetricsUploader {
 	return &plainTextMetricsUploader{rs, ub}
 }

@@ -4,22 +4,27 @@ import (
 	"bytes"
 	"compress/gzip"
 	"fmt"
-	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
-	"go.uber.org/zap"
 	"io"
 	"net/http"
+
+	"go.uber.org/zap"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
 
+// RequestSender сервис для отправки запросов
 type RequestSender struct {
 	c   client
 	hg  hashGenerator
 	key string
 }
 
+// New возвращает сервис RequestSender для отправки запросов
 func New(c client, hg hashGenerator, key string) *RequestSender {
 	return &RequestSender{c, hg, key}
 }
 
+// Post отправляет запрос методом Post
 func (s *RequestSender) Post(url string, contentType string, data []byte) error {
 	buf, err := s.compress(data)
 	if err != nil {

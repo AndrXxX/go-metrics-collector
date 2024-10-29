@@ -1,11 +1,12 @@
-package main
+package envparser
 
 import (
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 	"github.com/caarlos0/env/v6"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 )
 
-type EnvConfig struct {
+type envConfig struct {
 	Addr           string `env:"ADDRESS"`
 	ReportInterval int64  `env:"REPORT_INTERVAL"`
 	PollInterval   int64  `env:"POLL_INTERVAL"`
@@ -13,8 +14,12 @@ type EnvConfig struct {
 	RateLimit      int64  `env:"RATE_LIMIT"`
 }
 
-func parseEnv(c *config.Config) error {
-	cfg := EnvConfig{
+type envParser struct {
+}
+
+// Parse парсит переменные окружения и наполняет конфигурацию
+func (p envParser) Parse(c *config.Config) error {
+	cfg := envConfig{
 		Addr:           c.Common.Host,
 		Key:            c.Common.Key,
 		RateLimit:      c.Common.RateLimit,
@@ -31,4 +36,9 @@ func parseEnv(c *config.Config) error {
 	c.Intervals.ReportInterval = cfg.ReportInterval
 	c.Intervals.PollInterval = cfg.PollInterval
 	return nil
+}
+
+// New возвращает сервис envParser для парсинга переменных окружения
+func New() *envParser {
+	return &envParser{}
 }

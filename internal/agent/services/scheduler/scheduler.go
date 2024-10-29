@@ -3,11 +3,13 @@ package scheduler
 import (
 	"context"
 	"errors"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
-	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
-	"go.uber.org/zap"
 	"sync"
 	"time"
+
+	"go.uber.org/zap"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
 
 type intervalScheduler struct {
@@ -19,14 +21,17 @@ type intervalScheduler struct {
 	wg            sync.WaitGroup
 }
 
+// AddProcessor добавляет обработчик для выполнения действий с собранными метриками
 func (s *intervalScheduler) AddProcessor(p processor, interval time.Duration) {
 	s.processors = append(s.processors, processorItem{p: p, interval: interval})
 }
 
+// AddCollector добавляет обработчик для сбора метрик
 func (s *intervalScheduler) AddCollector(c collector, interval time.Duration) {
 	s.collectors = append(s.collectors, collectorItem{c: c, interval: interval})
 }
 
+// Run запускает планировщик
 func (s *intervalScheduler) Run() error {
 	if s.running {
 		return errors.New("already running")
@@ -70,11 +75,14 @@ func (s *intervalScheduler) Run() error {
 			logger.Log.Info("Scheduler stopped")
 			return nil
 		}
-		s.wg.Wait()
+		if len(s.collectors) > 0 || len(s.processors) > 0 {
+			s.wg.Wait()
+		}
 		time.Sleep(s.sleepInterval)
 	}
 }
 
+// Shutdown останавливает планировщик
 func (s *intervalScheduler) Shutdown(ctx context.Context) error {
 	select {
 	default:
@@ -134,6 +142,7 @@ func canExecute(lastExecuted time.Time, interval time.Duration) bool {
 	return time.Since(lastExecuted) >= interval
 }
 
+// NewIntervalScheduler возвращает планировщик, управляющий сборщиками и обработчиками
 func NewIntervalScheduler(sleepInterval time.Duration) *intervalScheduler {
 	return &intervalScheduler{
 		collectors:    []collectorItem{},

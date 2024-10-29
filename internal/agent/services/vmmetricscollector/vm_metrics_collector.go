@@ -2,16 +2,18 @@ package vmmetricscollector
 
 import (
 	"fmt"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
-	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
+
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/mem"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
+	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 )
 
 type collector struct {
 }
 
-func (c *collector) Execute(result dto.MetricsDto) error {
+func (c *collector) execute(result dto.MetricsDto) error {
 	v, err := mem.VirtualMemory()
 	if err != nil {
 		return err
@@ -30,9 +32,10 @@ func (c *collector) Execute(result dto.MetricsDto) error {
 	return nil
 }
 
+// Collect собирает vm метрики и отправляет их в канал results
 func (c *collector) Collect(results chan<- dto.MetricsDto) error {
 	m := dto.NewMetricsDto()
-	err := c.Execute(*m)
+	err := c.execute(*m)
 	if err != nil {
 		return err
 	}
@@ -41,6 +44,7 @@ func (c *collector) Collect(results chan<- dto.MetricsDto) error {
 	return nil
 }
 
+// New возвращает сервис для сбора vm метрик
 func New() *collector {
 	return &collector{}
 }

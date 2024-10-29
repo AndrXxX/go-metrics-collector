@@ -1,10 +1,12 @@
 package metricsformatter
 
 import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
-	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestMetricsValueFormatterFormat(t *testing.T) {

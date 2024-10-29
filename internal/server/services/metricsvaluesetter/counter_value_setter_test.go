@@ -1,9 +1,11 @@
 package metricsvaluesetter
 
 import (
-	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 )
 
 func TestCounterValueSetterSet(t *testing.T) {

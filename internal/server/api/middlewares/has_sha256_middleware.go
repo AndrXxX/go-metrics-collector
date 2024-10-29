@@ -7,18 +7,21 @@ import (
 )
 
 type hasCorrectSHA256HashMiddleware struct {
-	hg  SHA256hashGenerator
+	hg  hashGenerator
 	key string
 }
 
-func (m *hasCorrectSHA256HashMiddleware) Handle(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	if !m.check(r) {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	if next != nil {
-		next(w, r)
-	}
+// Handler возвращает http.HandlerFunc
+func (m *hasCorrectSHA256HashMiddleware) Handler(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !m.check(r) {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		if next != nil {
+			next.ServeHTTP(w, r)
+		}
+	})
 }
 
 func (m *hasCorrectSHA256HashMiddleware) check(r *http.Request) bool {
@@ -40,6 +43,7 @@ func (m *hasCorrectSHA256HashMiddleware) check(r *http.Request) bool {
 	return actualHash == requestHash
 }
 
-func HasCorrectSHA256HashOr500(hg SHA256hashGenerator, key string) *hasCorrectSHA256HashMiddleware {
+// HasCorrectSHA256HashOr500 возвращает middleware, которая проверяет наличие и правильность хеша в запросе по ключу HashSHA256
+func HasCorrectSHA256HashOr500(hg hashGenerator, key string) *hasCorrectSHA256HashMiddleware {
 	return &hasCorrectSHA256HashMiddleware{hg, key}
 }

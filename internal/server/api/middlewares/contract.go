@@ -1,5 +1,5 @@
 package middlewares
 
-type SHA256hashGenerator interface {
+type hashGenerator interface {
 	Generate(key string, data []byte) string
 }
