@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"go.uber.org/zap"
@@ -15,8 +16,8 @@ import (
 type intervalScheduler struct {
 	processors    []processorItem
 	collectors    []collectorItem
-	running       bool
-	stopping      bool
+	running       atomic.Bool
+	stopping      atomic.Bool
 	sleepInterval time.Duration
 	wg            sync.WaitGroup
 }
@@ -33,12 +34,12 @@ func (s *intervalScheduler) AddCollector(c collector, interval time.Duration) {
 
 // Run запускает планировщик
 func (s *intervalScheduler) Run() error {
-	if s.running {
+	if s.running.Load() {
 		return errors.New("already running")
 	}
 	logger.Log.Info("Scheduler running")
-	s.running = true
-	s.stopping = false
+	s.running.Store(true)
+	s.stopping.Store(false)
 	for {
 		channels := make([]chan dto.MetricsDto, 0)
 		for _, c := range s.collectors {
@@ -68,10 +69,10 @@ func (s *intervalScheduler) Run() error {
 				s.wg.Done()
 			}()
 		}
-		if s.stopping {
+		if s.stopping.Load() {
 			s.wg.Done()
-			s.stopping = false
-			s.running = false
+			s.stopping.Store(false)
+			s.running.Store(false)
 			logger.Log.Info("Scheduler stopped")
 			return nil
 		}
@@ -89,7 +90,7 @@ func (s *intervalScheduler) Shutdown(ctx context.Context) error {
 		logger.Log.Info("Scheduler shutting down")
 		s.wg.Add(1)
 		go func() {
-			s.stopping = true
+			s.stopping.Store(true)
 		}()
 		s.wg.Wait()
 	case <-ctx.Done():
