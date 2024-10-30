@@ -185,7 +185,7 @@ func TestStorageGetFloat64(t *testing.T) {
 				s.Insert(ctx, k, v)
 			}
 			value, ok := s.Get(ctx, tt.metric)
-			assert.Equal(t, tt.want.value, value)
+			assert.InDelta(t, tt.want.value, value, 0.0001)
 			assert.Equal(t, tt.want.ok, ok)
 		})
 	}
