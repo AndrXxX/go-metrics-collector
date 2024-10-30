@@ -22,7 +22,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err := logger.Initialize(settings.LogLevel); err != nil {
+	if iErr := logger.Initialize(settings.LogLevel); iErr != nil {
 		log.Fatal(err)
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
