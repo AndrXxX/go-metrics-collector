@@ -95,7 +95,7 @@ func TestFetchMetricsHandlerGaugeHandle(t *testing.T) {
 			assert.Equal(t, test.want.statusCode, result.StatusCode)
 			body, err := io.ReadAll(result.Body)
 			assert.Equal(t, []byte(test.want.body), body)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			if result.Body != nil {
 				err := result.Body.Close()
 				require.NoError(t, err)
@@ -179,7 +179,7 @@ func TestFetchMetricsHandlerCounterHandle(t *testing.T) {
 			assert.Equal(t, test.want.statusCode, result.StatusCode)
 			body, err := io.ReadAll(result.Body)
 			assert.Equal(t, []byte(test.want.body), body)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			if result.Body != nil {
 				err := result.Body.Close()
 				require.NoError(t, err)
