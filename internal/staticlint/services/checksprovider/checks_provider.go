@@ -13,7 +13,7 @@ import (
 	"golang.org/x/tools/go/analysis/passes/structtag"
 	"honnef.co/go/tools/staticcheck"
 
-	"github.com/AndrXxX/go-metrics-collector/internal/multichecker/config"
+	"github.com/AndrXxX/go-metrics-collector/internal/staticlint/config"
 )
 
 // ChecksProvider возвращает сервис для сбора списка проверок

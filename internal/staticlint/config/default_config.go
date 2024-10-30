@@ -1,6 +1,6 @@
 package config
 
-import "github.com/AndrXxX/go-metrics-collector/internal/multichecker/vars"
+import "github.com/AndrXxX/go-metrics-collector/internal/staticlint/vars"
 
 // NewConfig предоставляет конфигурацию со значениями по умолчанию для multichecker
 func NewConfig() *Config {

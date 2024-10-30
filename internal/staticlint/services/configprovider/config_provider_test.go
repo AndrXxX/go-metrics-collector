@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/AndrXxX/go-metrics-collector/internal/multichecker/config"
+	"github.com/AndrXxX/go-metrics-collector/internal/staticlint/config"
 )
 
 type tempParser struct {

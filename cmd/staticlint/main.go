@@ -5,8 +5,8 @@ import (
 
 	"golang.org/x/tools/go/analysis/multichecker"
 
-	"github.com/AndrXxX/go-metrics-collector/internal/multichecker/services/checksprovider"
-	"github.com/AndrXxX/go-metrics-collector/internal/multichecker/services/configprovider"
+	"github.com/AndrXxX/go-metrics-collector/internal/staticlint/services/checksprovider"
+	"github.com/AndrXxX/go-metrics-collector/internal/staticlint/services/configprovider"
 )
 
 func main() {

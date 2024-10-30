@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/AndrXxX/go-metrics-collector/internal/multichecker/vars"
+	"github.com/AndrXxX/go-metrics-collector/internal/staticlint/vars"
 )
 
 func TestNewConfig(t *testing.T) {

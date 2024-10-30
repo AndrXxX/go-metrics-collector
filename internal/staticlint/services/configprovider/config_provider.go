@@ -3,7 +3,7 @@ package configprovider
 import (
 	"fmt"
 
-	"github.com/AndrXxX/go-metrics-collector/internal/multichecker/config"
+	"github.com/AndrXxX/go-metrics-collector/internal/staticlint/config"
 )
 
 type configProvider struct {
