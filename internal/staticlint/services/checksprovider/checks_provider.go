@@ -14,6 +14,7 @@ import (
 	"honnef.co/go/tools/staticcheck"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/staticlint/config"
+	"github.com/AndrXxX/go-metrics-collector/internal/staticlint/services/osexitanalyzer"
 )
 
 // ChecksProvider возвращает сервис для сбора списка проверок
@@ -47,6 +48,7 @@ func getAdditionalChecks() []*analysis.Analyzer {
 	return []*analysis.Analyzer{
 		testifyAnalyzer.New(),
 		errcheck.Analyzer,
+		osexitanalyzer.OSExitAnalyzer,
 	}
 }
 

@@ -22,7 +22,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				return x.Name.Name == "main"
 			case *ast.CallExpr: // выражение
 				if isOSExitFunc(x) {
-					pass.Reportf(x.Pos(), "exit functiondirect call of function os.Exit()")
+					pass.Reportf(x.Pos(), "direct call of function os.Exit()")
 				}
 			}
 			return true
