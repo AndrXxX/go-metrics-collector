@@ -6,18 +6,14 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
+	"github.com/AndrXxX/go-metrics-collector/internal/multichecker/config"
 )
 
 type tempParser struct {
-	err          error
-	host         string
-	pollInterval int64
+	err error
 }
 
 func (p tempParser) Parse(c *config.Config) error {
-	c.Common.Host = p.host
-	c.Intervals.PollInterval = p.pollInterval
 	return p.err
 }
 
@@ -63,18 +59,8 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name:    "Test with no err parser",
-			parsers: []parser{tempParser{pollInterval: 1}},
+			parsers: []parser{tempParser{}},
 			wantErr: false,
-		},
-		{
-			name:    "Test with validate Common err",
-			parsers: []parser{tempParser{host: "-"}},
-			wantErr: true,
-		},
-		{
-			name:    "Test with validate Intervals err",
-			parsers: []parser{tempParser{pollInterval: 0}},
-			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
