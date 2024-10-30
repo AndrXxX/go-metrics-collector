@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"regexp"
 
+	testifyAnalyzer "github.com/Antonboom/testifylint/analyzer"
+	"github.com/kisielk/errcheck/errcheck"
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/printf"
 	"golang.org/x/tools/go/analysis/passes/shadow"
@@ -22,6 +24,7 @@ type ChecksProvider struct {
 func (p ChecksProvider) Fetch(c *config.Config) ([]*analysis.Analyzer, error) {
 	var checks []*analysis.Analyzer
 	checks = append(checks, getAnalysisChecks()...)
+	checks = append(checks, getAdditionalChecks()...)
 
 	staticChecks, err := getStaticChecks(c)
 	if err != nil {
@@ -37,6 +40,13 @@ func getAnalysisChecks() []*analysis.Analyzer {
 		shadow.Analyzer,
 		shift.Analyzer,
 		structtag.Analyzer,
+	}
+}
+
+func getAdditionalChecks() []*analysis.Analyzer {
+	return []*analysis.Analyzer{
+		testifyAnalyzer.New(),
+		errcheck.Analyzer,
 	}
 }
 
