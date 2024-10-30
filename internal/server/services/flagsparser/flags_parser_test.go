@@ -74,6 +74,6 @@ func run(t *testing.T, tt testCase) {
 		os.Args = append(os.Args[:1], tt.flags...)
 		err := New().Parse(tt.config)
 		assert.Equal(t, tt.want, tt.config)
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 	})
 }
