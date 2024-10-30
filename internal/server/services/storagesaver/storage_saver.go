@@ -82,10 +82,8 @@ func (ss *storageSaver) openFile(name string, flag int) (*os.File, error) {
 	}
 	for _, repeatInterval := range ss.ri {
 		time.Sleep(time.Duration(repeatInterval) * time.Second)
-		file, err := os.OpenFile(name, flag, permission)
-		if err == nil {
-			return file, nil
-		}
+		file, oErr := os.OpenFile(name, flag, permission)
+		return file, oErr
 	}
 	return nil, err
 }
