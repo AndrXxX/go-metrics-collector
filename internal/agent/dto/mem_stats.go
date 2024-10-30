@@ -14,8 +14,8 @@ type memStatsDto struct {
 
 // FetchGetter возвращает функцию getter для получения значения метрики
 func (ms *memStatsDto) FetchGetter(name string) (getter, bool) {
-	getter, ok := ms.gettersMap[name]
-	return getter, ok
+	v, ok := ms.gettersMap[name]
+	return v, ok
 }
 
 // NewMemStatsDto возвращает новый экземпляр memStatsDto
