@@ -43,20 +43,20 @@ func TestNewCollector(t *testing.T) {
 
 func Test_metricsCollector_Execute(t *testing.T) {
 	tests := []struct {
-		name   string
-		ml     *config.MetricsList
-		result dto.MetricsDto
-		valuesInResult
-		excludeValuesInResult valuesInResult
+		name    string
+		ml      *config.MetricsList
+		result  dto.MetricsDto
+		include valuesInResult
+		exclude valuesInResult
 	}{
 		{
 			name:   "Test Unknown field",
 			ml:     &config.MetricsList{"UnknownMetric"},
 			result: *dto.NewMetricsDto(),
-			valuesInResult: valuesInResult{
+			include: valuesInResult{
 				counter: []string{metrics.PollCount},
 			},
-			excludeValuesInResult: valuesInResult{
+			exclude: valuesInResult{
 				counter: []string{"UnknownMetric"},
 				gauge:   []string{"UnknownMetric"},
 			},
@@ -65,7 +65,7 @@ func Test_metricsCollector_Execute(t *testing.T) {
 			name:   "Test Counter",
 			ml:     &config.MetricsList{},
 			result: *dto.NewMetricsDto(),
-			valuesInResult: valuesInResult{
+			include: valuesInResult{
 				counter: []string{metrics.PollCount},
 			},
 		},
@@ -78,7 +78,7 @@ func Test_metricsCollector_Execute(t *testing.T) {
 				v.Set(dto.JSONMetrics{ID: metrics.PollCount, Delta: &current})
 				return v
 			}(),
-			valuesInResult: valuesInResult{
+			include: valuesInResult{
 				counter: []string{metrics.PollCount},
 			},
 		},
@@ -86,7 +86,7 @@ func Test_metricsCollector_Execute(t *testing.T) {
 			name:   "Test Alloc",
 			ml:     &config.MetricsList{metrics.Alloc},
 			result: *dto.NewMetricsDto(),
-			valuesInResult: valuesInResult{
+			include: valuesInResult{
 				gauge: []string{metrics.Alloc, metrics.RandomValue},
 			},
 		},
@@ -94,7 +94,7 @@ func Test_metricsCollector_Execute(t *testing.T) {
 			name:   "Test BuckHashSys, HeapObjects",
 			ml:     &config.MetricsList{metrics.BuckHashSys, metrics.HeapObjects},
 			result: *dto.NewMetricsDto(),
-			valuesInResult: valuesInResult{
+			include: valuesInResult{
 				gauge: []string{metrics.BuckHashSys, metrics.HeapObjects},
 			},
 		},
@@ -102,7 +102,7 @@ func Test_metricsCollector_Execute(t *testing.T) {
 			name:   "Test empty",
 			ml:     &config.MetricsList{},
 			result: *dto.NewMetricsDto(),
-			valuesInResult: valuesInResult{
+			include: valuesInResult{
 				gauge: []string{metrics.RandomValue},
 			},
 		},
@@ -111,20 +111,20 @@ func Test_metricsCollector_Execute(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &collector{ml: tt.ml}
 			c.execute(tt.result)
-			for _, v := range tt.valuesInResult.gauge {
+			for _, v := range tt.include.gauge {
 				_, ok := tt.result.Get(v)
 				assert.True(t, ok)
 			}
-			for _, v := range tt.valuesInResult.counter {
+			for _, v := range tt.include.counter {
 				_, ok := tt.result.Get(v)
 				assert.True(t, ok)
 			}
-			if tt.excludeValuesInResult.gauge != nil {
-				for _, v := range tt.excludeValuesInResult.gauge {
+			if tt.exclude.gauge != nil {
+				for _, v := range tt.exclude.gauge {
 					_, ok := tt.result.Get(v)
 					assert.False(t, ok)
 				}
-				for _, v := range tt.excludeValuesInResult.counter {
+				for _, v := range tt.exclude.counter {
 					_, ok := tt.result.Get(v)
 					assert.False(t, ok)
 				}
@@ -135,21 +135,21 @@ func Test_metricsCollector_Execute(t *testing.T) {
 
 func Test_collector_Collect(t *testing.T) {
 	tests := []struct {
-		name string
-		ml   *config.MetricsList
-		valuesInResult
+		name    string
+		ml      *config.MetricsList
+		include valuesInResult
 	}{
 		{
 			name: "Test Counter",
 			ml:   &config.MetricsList{},
-			valuesInResult: valuesInResult{
+			include: valuesInResult{
 				counter: []string{metrics.PollCount},
 			},
 		},
 		{
 			name: "Test Alloc",
 			ml:   &config.MetricsList{metrics.Alloc},
-			valuesInResult: valuesInResult{
+			include: valuesInResult{
 				gauge: []string{metrics.Alloc, metrics.RandomValue},
 			},
 		},
@@ -168,11 +168,11 @@ func Test_collector_Collect(t *testing.T) {
 			wg.Add(1)
 			go func() {
 				for result := range ch {
-					for _, v := range tt.valuesInResult.gauge {
+					for _, v := range tt.include.gauge {
 						_, ok := result.Get(v)
 						assert.True(t, ok)
 					}
-					for _, v := range tt.valuesInResult.counter {
+					for _, v := range tt.include.counter {
 						_, ok := result.Get(v)
 						assert.True(t, ok)
 					}
