@@ -8,10 +8,11 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/staticlint/services/analyzersprovider"
 	"github.com/AndrXxX/go-metrics-collector/internal/staticlint/services/configprovider"
 	"github.com/AndrXxX/go-metrics-collector/internal/staticlint/services/envparser"
+	"github.com/AndrXxX/go-metrics-collector/internal/staticlint/services/flagsparser"
 )
 
 func main() {
-	c, err := configprovider.New(envparser.EnvParser{}).Fetch()
+	c, err := configprovider.New(envparser.EnvParser{}, flagsparser.FlagsParser{}).Fetch()
 	if err != nil {
 		log.Fatal(err)
 	}
