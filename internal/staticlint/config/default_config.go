@@ -10,5 +10,8 @@ func NewConfig() *Config {
 			vars.StaticSTAnalyzers,
 			vars.StaticQFAnalyzers,
 		},
+		ExcludeStaticAnalyzers: []string{
+			vars.StaticST1000Analyzer,
+		},
 	}
 }
