@@ -10,11 +10,12 @@ import (
 
 func TestByName(t *testing.T) {
 	tests := []struct {
-		name      string
-		analyzers []*analysis.Analyzer
-		names     []string
-		want      []string
-		wantErr   bool
+		name         string
+		analyzers    []*analysis.Analyzer
+		names        []string
+		excludeNames []string
+		want         []string
+		wantErr      bool
 	}{
 		{
 			name: "filter with test_name",
@@ -46,6 +47,24 @@ func TestByName(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "filter with ST.* and exclude ST1000, ST101.*",
+			analyzers: []*analysis.Analyzer{
+				{Name: "ST1000"},
+				{Name: "ST1005"},
+				{Name: "ST1015"},
+				{Name: "ST3004"},
+				{Name: "SA3423"},
+				{Name: "SB3423"},
+			},
+			names:        []string{"ST.*"},
+			excludeNames: []string{"ST1000", "ST101.*"},
+			want: []string{
+				"ST1005",
+				"ST3004",
+			},
+			wantErr: false,
+		},
+		{
 			name: "test with error",
 			analyzers: []*analysis.Analyzer{
 				{Name: "test_name"},
@@ -53,10 +72,18 @@ func TestByName(t *testing.T) {
 			names:   []string{"***"},
 			wantErr: true,
 		},
+		{
+			name: "test with error on exclude",
+			analyzers: []*analysis.Analyzer{
+				{Name: "test_name"},
+			},
+			excludeNames: []string{"***"},
+			wantErr:      true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			analyzers, err := ByName(tt.analyzers, tt.names)
+			analyzers, err := ByName(tt.analyzers, tt.names, tt.excludeNames)
 			require.Equal(t, tt.wantErr, err != nil)
 			if !tt.wantErr {
 				assert.Equal(t, len(tt.want), len(analyzers))

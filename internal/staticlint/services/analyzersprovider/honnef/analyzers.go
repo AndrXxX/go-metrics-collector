@@ -24,7 +24,7 @@ func Analyzers(c *config.Config) ([]*analysis.Analyzer, error) {
 		convert(simple.Analyzers),
 	}
 	for _, pack := range raw {
-		filtered, err := filters.ByName(pack, c.StaticAnalyzers)
+		filtered, err := filters.ByName(pack, c.StaticAnalyzers, c.ExcludeStaticAnalyzers)
 		if err != nil {
 			return nil, fmt.Errorf("failed to filter analyzers: %v", err)
 		}

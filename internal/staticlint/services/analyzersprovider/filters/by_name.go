@@ -8,18 +8,38 @@ import (
 )
 
 // ByName фильтрует список анализаторов по именам
-func ByName(list []*analysis.Analyzer, names []string) ([]*analysis.Analyzer, error) {
+func ByName(list []*analysis.Analyzer, names []string, excludeNames []string) ([]*analysis.Analyzer, error) {
 	var filtered []*analysis.Analyzer
-	for _, check := range list {
-		for _, name := range names {
-			matched, err := regexp.MatchString(name, check.Name)
-			if err != nil {
-				return nil, fmt.Errorf("failed to match static check '%s': %v", check.Name, err)
-			}
-			if matched {
-				filtered = append(filtered, check)
-			}
+	for _, analyzer := range list {
+		matched, err := granted(analyzer, names, excludeNames)
+		if err != nil {
+			return nil, err
+		}
+		if matched {
+			filtered = append(filtered, analyzer)
 		}
 	}
 	return filtered, nil
+}
+
+func granted(analyzer *analysis.Analyzer, names []string, excludeNames []string) (bool, error) {
+	for _, name := range excludeNames {
+		result, err := regexp.MatchString(name, analyzer.Name)
+		if err != nil {
+			return false, fmt.Errorf("failed to match static analyzer '%s': %v", analyzer.Name, err)
+		}
+		if result {
+			return false, nil
+		}
+	}
+	for _, name := range names {
+		result, err := regexp.MatchString(name, analyzer.Name)
+		if err != nil {
+			return false, fmt.Errorf("failed to match static analyzer '%s': %v", analyzer.Name, err)
+		}
+		if result {
+			return true, nil
+		}
+	}
+	return false, nil
 }
