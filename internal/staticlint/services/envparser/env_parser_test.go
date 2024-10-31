@@ -20,25 +20,30 @@ func Test_parseEnv(t *testing.T) {
 		{
 			name: "Empty env",
 			config: &config.Config{
-				StaticAnalyzers: []string{"host"},
+				StaticAnalyzers:        []string{"host"},
+				ExcludeStaticAnalyzers: []string{},
 			},
 			env: map[string]string{},
 			want: &config.Config{
-				StaticAnalyzers: []string{"host"},
+				StaticAnalyzers:        []string{"host"},
+				ExcludeStaticAnalyzers: []string{},
 			},
 			wantErr: false,
 		},
 		{
-			name: "STATIC_ANALYZERS=SA1000,SA1032,SA4004",
+			name: "STATIC_ANALYZERS=SA1.*,SA1032,SA4004 EXCLUDE_STATIC_ANALYZERS=SA1001",
 			config: &config.Config{
 				StaticAnalyzers: []string{"test"},
 			},
-			env: map[string]string{"STATIC_ANALYZERS": "SA1000,SA1032,SA4004"},
+			env: map[string]string{"STATIC_ANALYZERS": "SA1.*,SA1032,SA4004", "EXCLUDE_STATIC_ANALYZERS": "SA1001"},
 			want: &config.Config{
 				StaticAnalyzers: []string{
-					"SA1000",
+					"SA1.*",
 					"SA1032",
 					"SA4004",
+				},
+				ExcludeStaticAnalyzers: []string{
+					"SA1001",
 				},
 			},
 			wantErr: false,
