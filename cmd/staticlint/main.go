@@ -9,7 +9,7 @@
 // 2. Дополнительные анализаторы:
 //   - testifylint анализатор тестов https://github.com/Antonboom/testifylint
 //   - errcheck анализатор необработанных ошибок https://github.com/kisielk/errcheck
-//   - OSExitAnalyzer анализатор использования вызово os.Exit() в функции main пакета main
+//   - OSExitAnalyzer анализатор использования вызовов os.Exit() в функции main пакета main
 //
 // 3. Анализаторы staticcheck https://staticcheck.dev/
 //
