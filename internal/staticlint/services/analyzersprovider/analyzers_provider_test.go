@@ -18,7 +18,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/staticlint/vars"
 )
 
-func TestChecksProvider_Fetch(t *testing.T) {
+func TestAnalyzersProvider_Fetch(t *testing.T) {
 	tests := []struct {
 		name      string
 		config    *config.Config
@@ -47,10 +47,10 @@ func TestChecksProvider_Fetch(t *testing.T) {
 		{
 			name: "Test with honnef analyzers",
 			config: &config.Config{
-				StaticChecks: []string{
-					vars.StaticSAChecks,
-					vars.StaticSTChecks,
-					vars.StaticQFChecks,
+				StaticAnalyzers: []string{
+					vars.StaticSAAnalyzers,
+					vars.StaticSTAnalyzers,
+					vars.StaticQFAnalyzers,
 				},
 			},
 			wantNames: []string{
@@ -64,7 +64,7 @@ func TestChecksProvider_Fetch(t *testing.T) {
 		{
 			name: "Test with error",
 			config: &config.Config{
-				StaticChecks: []string{
+				StaticAnalyzers: []string{
 					"***",
 				},
 			},
@@ -83,7 +83,7 @@ func TestChecksProvider_Fetch(t *testing.T) {
 	}
 }
 
-func Test_getAdditionalChecks(t *testing.T) {
+func Test_getAdditionalAnalyzers(t *testing.T) {
 	tests := []struct {
 		name       string
 		checkNames []string
@@ -104,7 +104,7 @@ func Test_getAdditionalChecks(t *testing.T) {
 	}
 }
 
-func Test_getAnalysisChecks(t *testing.T) {
+func Test_getAnalysisAnalyzers(t *testing.T) {
 	tests := []struct {
 		name       string
 		checkNames []string
@@ -126,12 +126,12 @@ func Test_getAnalysisChecks(t *testing.T) {
 	}
 }
 
-func compareAnalyzers(t assert.TestingT, checks []*analysis.Analyzer, wantChecks []string) {
-	actualCheckNames := make([]string, len(checks))
-	for i, check := range checks {
-		actualCheckNames[i] = check.Name
+func compareAnalyzers(t assert.TestingT, list []*analysis.Analyzer, wantNames []string) {
+	actualCheckNames := make([]string, len(list))
+	for i, analyzer := range list {
+		actualCheckNames[i] = analyzer.Name
 	}
-	for _, checkName := range wantChecks {
-		assert.Contains(t, actualCheckNames, checkName)
+	for _, name := range wantNames {
+		assert.Contains(t, actualCheckNames, name)
 	}
 }

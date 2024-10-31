@@ -1,5 +1,5 @@
 package vars
 
-const StaticSAChecks = "SA.*"
-const StaticSTChecks = "ST.*"
-const StaticQFChecks = "QF.*"
+const StaticSAAnalyzers = "SA.*"
+const StaticSTAnalyzers = "ST.*"
+const StaticQFAnalyzers = "QF.*"

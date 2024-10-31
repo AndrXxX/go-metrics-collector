@@ -16,7 +16,7 @@ import (
 
 // Analyzers возвращает список анализаторов honnef на основе конфигурации
 func Analyzers(c *config.Config) ([]*analysis.Analyzer, error) {
-	var checks []*analysis.Analyzer
+	var list []*analysis.Analyzer
 	raw := [][]*analysis.Analyzer{
 		convert(staticcheck.Analyzers),
 		convert(quickfix.Analyzers),
@@ -24,13 +24,13 @@ func Analyzers(c *config.Config) ([]*analysis.Analyzer, error) {
 		convert(simple.Analyzers),
 	}
 	for _, pack := range raw {
-		filtered, err := filters.ByName(pack, c.StaticChecks)
+		filtered, err := filters.ByName(pack, c.StaticAnalyzers)
 		if err != nil {
-			return nil, fmt.Errorf("failed to filter checks: %v", err)
+			return nil, fmt.Errorf("failed to filter analyzers: %v", err)
 		}
-		checks = append(checks, filtered...)
+		list = append(list, filtered...)
 	}
-	return checks, nil
+	return list, nil
 }
 
 func convert(list []*lint.Analyzer) []*analysis.Analyzer {

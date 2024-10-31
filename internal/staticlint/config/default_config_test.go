@@ -10,7 +10,7 @@ import (
 
 func TestNewConfig(t *testing.T) {
 	config := NewConfig()
-	assert.Contains(t, config.StaticChecks, vars.StaticSAChecks)
-	assert.Contains(t, config.StaticChecks, vars.StaticSTChecks)
-	assert.Contains(t, config.StaticChecks, vars.StaticQFChecks)
+	assert.Contains(t, config.StaticAnalyzers, vars.StaticSAAnalyzers)
+	assert.Contains(t, config.StaticAnalyzers, vars.StaticSTAnalyzers)
+	assert.Contains(t, config.StaticAnalyzers, vars.StaticQFAnalyzers)
 }

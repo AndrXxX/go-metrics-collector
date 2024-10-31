@@ -31,17 +31,17 @@ func TestAnalyzers(t *testing.T) {
 				"QF1005",
 				"QF1011",
 			},
-			config: &config.Config{StaticChecks: []string{
-				vars.StaticSAChecks,
-				vars.StaticSTChecks,
-				vars.StaticQFChecks,
+			config: &config.Config{StaticAnalyzers: []string{
+				vars.StaticSAAnalyzers,
+				vars.StaticSTAnalyzers,
+				vars.StaticQFAnalyzers,
 			}},
 			wantErr: false,
 		},
 		{
 			name:       "Test with error",
 			checkNames: []string{},
-			config: &config.Config{StaticChecks: []string{
+			config: &config.Config{StaticAnalyzers: []string{
 				"***",
 			}},
 			wantErr: true,
@@ -49,22 +49,22 @@ func TestAnalyzers(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			checks, err := Analyzers(tt.config)
+			list, err := Analyzers(tt.config)
 			require.Equal(t, tt.wantErr, err != nil)
 			if !tt.wantErr {
-				compareChecks(t, checks, tt.checkNames)
+				compareAnalyzers(t, list, tt.checkNames)
 			}
 		})
 	}
 }
 
-func compareChecks(t assert.TestingT, checks []*analysis.Analyzer, wantChecks []string) {
-	actualCheckNames := make([]string, len(checks))
-	for i, check := range checks {
-		actualCheckNames[i] = check.Name
+func compareAnalyzers(t assert.TestingT, list []*analysis.Analyzer, wantNames []string) {
+	actualNames := make([]string, len(list))
+	for i, analyzer := range list {
+		actualNames[i] = analyzer.Name
 	}
-	for _, checkName := range wantChecks {
-		assert.Contains(t, actualCheckNames, checkName)
+	for _, name := range wantNames {
+		assert.Contains(t, actualNames, name)
 	}
 }
 

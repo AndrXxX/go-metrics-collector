@@ -26,11 +26,11 @@ func (p AnalyzersProvider) Fetch(c *config.Config) ([]*analysis.Analyzer, error)
 	list = append(list, getGolangAnalyzers()...)
 	list = append(list, getAdditionalAnalyzers()...)
 
-	staticChecks, err := honnef.Analyzers(c)
+	staticAnalyzers, err := honnef.Analyzers(c)
 	if err != nil {
 		return nil, fmt.Errorf("error on getting static analyzers: %w", err)
 	}
-	list = append(list, staticChecks...)
+	list = append(list, staticAnalyzers...)
 	return list, nil
 }
 
