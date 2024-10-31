@@ -5,7 +5,7 @@ import (
 
 	"golang.org/x/tools/go/analysis/multichecker"
 
-	"github.com/AndrXxX/go-metrics-collector/internal/staticlint/services/checksprovider"
+	"github.com/AndrXxX/go-metrics-collector/internal/staticlint/services/analyzersprovider"
 	"github.com/AndrXxX/go-metrics-collector/internal/staticlint/services/configprovider"
 )
 
@@ -14,11 +14,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	checks, err := checksprovider.ChecksProvider{}.Fetch(c)
+	analyzers, err := analyzersprovider.AnalyzersProvider{}.Fetch(c)
 	if err != nil {
 		log.Fatal(err)
 	}
 	multichecker.Main(
-		checks...,
+		analyzers...,
 	)
 }

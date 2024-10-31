@@ -11,7 +11,7 @@ import (
 	"honnef.co/go/tools/stylecheck"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/staticlint/config"
-	"github.com/AndrXxX/go-metrics-collector/internal/staticlint/services/checksprovider/filters"
+	"github.com/AndrXxX/go-metrics-collector/internal/staticlint/services/analyzersprovider/filters"
 )
 
 // Analyzers возвращает список анализаторов honnef на основе конфигурации

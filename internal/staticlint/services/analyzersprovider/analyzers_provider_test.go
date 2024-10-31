@@ -1,4 +1,4 @@
-package checksprovider
+package analyzersprovider
 
 import (
 	"testing"
@@ -74,7 +74,7 @@ func TestChecksProvider_Fetch(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			analyzers, err := ChecksProvider{}.Fetch(tt.config)
+			analyzers, err := AnalyzersProvider{}.Fetch(tt.config)
 			require.Equal(t, tt.wantErr, err != nil)
 			if !tt.wantErr {
 				compareAnalyzers(t, analyzers, tt.wantNames)
@@ -99,7 +99,7 @@ func Test_getAdditionalChecks(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			compareAnalyzers(t, getAdditionalChecks(), tt.checkNames)
+			compareAnalyzers(t, getAdditionalAnalyzers(), tt.checkNames)
 		})
 	}
 }
@@ -121,7 +121,7 @@ func Test_getAnalysisChecks(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			compareAnalyzers(t, getAnalysisChecks(), tt.checkNames)
+			compareAnalyzers(t, getGolangAnalyzers(), tt.checkNames)
 		})
 	}
 }
