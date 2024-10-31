@@ -35,13 +35,14 @@ func Test_parseFlags(t *testing.T) {
 			config: &config.Config{
 				StaticAnalyzers: []string{"test"},
 			},
-			flags: []string{"-sa", "SA1000,SA1032,SA4004"},
+			flags: []string{"-sa", "SA1000,SA1032,SA4004", "-esa", "SA1000"},
 			want: &config.Config{
 				StaticAnalyzers: []string{
 					"SA1000",
 					"SA1032",
 					"SA4004",
 				},
+				ExcludeStaticAnalyzers: []string{"SA1000"},
 			},
 		},
 	}
@@ -64,13 +65,15 @@ func run(t *testing.T, tt testCase) {
 func Example_flagsParser_Parse() {
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	os.Args = os.Args[:1]
-	os.Args = append(os.Args[:1], []string{"-sa", "SA1000,SA1032,SA4004"}...)
+	os.Args = append(os.Args[:1], []string{"-sa", "SA1000,SA1032,SA4004", "-esa", "SA1000"}...)
 
 	c := config.NewConfig()
 	_ = FlagsParser{}.Parse(c)
 
 	fmt.Println(c.StaticAnalyzers)
+	fmt.Println(c.ExcludeStaticAnalyzers)
 
 	// Output:
 	// [SA1000 SA1032 SA4004]
+	// [SA1000]
 }
