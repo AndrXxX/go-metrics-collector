@@ -27,7 +27,7 @@ func (s testSender) Post(url string, contentType string, data []byte) error {
 	return nil
 }
 
-func TestNewUploader(t *testing.T) {
+func TestNewPlainTextUploader(t *testing.T) {
 	tests := []struct {
 		name string
 		rs   requestSender
@@ -48,7 +48,7 @@ func TestNewUploader(t *testing.T) {
 	}
 }
 
-func Test_metricsUploader_execute(t *testing.T) {
+func Test_plainTextMetricsUploader_execute(t *testing.T) {
 	type metricsStr struct {
 		Gauge   map[string]float64
 		Counter map[string]int64
@@ -125,6 +125,7 @@ func Test_plainTextMetricsUploader_Process(t *testing.T) {
 			name:    "Test OK",
 			fields:  fields{testSender{}, metricurlbuilder.New("host")},
 			results: make(chan dto.MetricsDto, 1),
+			wantErr: false,
 		},
 		{
 			name: "Test with error",
@@ -134,6 +135,7 @@ func Test_plainTextMetricsUploader_Process(t *testing.T) {
 				},
 			}, metricurlbuilder.New("host")},
 			results: make(chan dto.MetricsDto, 1),
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
@@ -151,7 +153,12 @@ func Test_plainTextMetricsUploader_Process(t *testing.T) {
 			}()
 			wg.Add(1)
 			go func() {
-				tt.results <- *dto.NewMetricsDto()
+				v := *dto.NewMetricsDto()
+				v.Set(dto.JSONMetrics{ID: "test", MType: metrics.Gauge, Value: func() *float64 {
+					val := 0.1
+					return &val
+				}()})
+				tt.results <- v
 				time.Sleep(300 * time.Millisecond)
 				close(tt.results)
 				wg.Done()
