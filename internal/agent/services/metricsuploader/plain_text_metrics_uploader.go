@@ -2,14 +2,13 @@ package metricsuploader
 
 import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/requestsender"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/types"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/contenttypes"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 )
 
 type plainTextMetricsUploader struct {
-	rs *requestsender.RequestSender
+	rs requestSender
 	ub urlBuilder
 }
 
@@ -40,6 +39,6 @@ func (c *plainTextMetricsUploader) Process(results <-chan dto.MetricsDto) error 
 }
 
 // NewPlainTextUploader возвращает сервис plainTextMetricsUploader для загрузки метрик с помощью урла
-func NewPlainTextUploader(rs *requestsender.RequestSender, ub urlBuilder) *plainTextMetricsUploader {
+func NewPlainTextUploader(rs requestSender, ub urlBuilder) *plainTextMetricsUploader {
 	return &plainTextMetricsUploader{rs, ub}
 }
