@@ -1,22 +1,36 @@
 package metricsuploader
 
 import (
+	"errors"
 	"net/http"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricurlbuilder"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/requestsender"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
-	"github.com/AndrXxX/go-metrics-collector/internal/mocks"
 )
+
+type testSender struct {
+	checkFunc func(url string, contentType string, data []byte) error
+}
+
+func (s testSender) Post(url string, contentType string, data []byte) error {
+	if s.checkFunc != nil {
+		return s.checkFunc(url, contentType, data)
+	}
+	return nil
+}
 
 func TestNewUploader(t *testing.T) {
 	tests := []struct {
 		name string
-		rs   *requestsender.RequestSender
+		rs   requestSender
 		ub   urlBuilder
 		want *plainTextMetricsUploader
 	}{
@@ -34,7 +48,7 @@ func TestNewUploader(t *testing.T) {
 	}
 }
 
-func Test_metricsUploader_Execute(t *testing.T) {
+func Test_metricsUploader_execute(t *testing.T) {
 	type metricsStr struct {
 		Gauge   map[string]float64
 		Counter map[string]int64
@@ -68,12 +82,12 @@ func Test_metricsUploader_Execute(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rs := requestsender.New(&mocks.MockClient{
-				DoFunc: func(req *http.Request) (*http.Response, error) {
-					assert.Equal(t, tt.url, req.URL.String())
-					return nil, nil
+			rs := testSender{
+				checkFunc: func(url string, _ string, _ []byte) error {
+					assert.Equal(t, tt.url, url)
+					return nil
 				},
-			}, nil, "")
+			}
 			c := NewPlainTextUploader(rs, metricurlbuilder.New("host"))
 			result := dto.NewMetricsDto()
 			for n, v := range tt.result.Gauge {
@@ -92,6 +106,57 @@ func Test_metricsUploader_Execute(t *testing.T) {
 			}
 
 			assert.NoError(t, c.execute(*result))
+		})
+	}
+}
+
+func Test_plainTextMetricsUploader_Process(t *testing.T) {
+	type fields struct {
+		rs requestSender
+		ub urlBuilder
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		results chan dto.MetricsDto
+		wantErr bool
+	}{
+		{
+			name:    "Test OK",
+			fields:  fields{testSender{}, metricurlbuilder.New("host")},
+			results: make(chan dto.MetricsDto, 1),
+		},
+		{
+			name: "Test with error",
+			fields: fields{testSender{
+				checkFunc: func(url string, _ string, _ []byte) error {
+					return errors.New("test error")
+				},
+			}, metricurlbuilder.New("host")},
+			results: make(chan dto.MetricsDto, 1),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := &plainTextMetricsUploader{
+				rs: tt.fields.rs,
+				ub: tt.fields.ub,
+			}
+			wg := &sync.WaitGroup{}
+			wg.Add(1)
+			go func() {
+				err := c.Process(tt.results)
+				require.Equal(t, tt.wantErr, err != nil)
+				wg.Done()
+			}()
+			wg.Add(1)
+			go func() {
+				tt.results <- *dto.NewMetricsDto()
+				time.Sleep(300 * time.Millisecond)
+				close(tt.results)
+				wg.Done()
+			}()
+			wg.Wait()
 		})
 	}
 }
