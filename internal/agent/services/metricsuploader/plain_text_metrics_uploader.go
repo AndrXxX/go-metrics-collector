@@ -22,7 +22,9 @@ func (c *plainTextMetricsUploader) execute(result dto.MetricsDto) error {
 		}
 		params := types.URLParams{"metricType": metric.MType, "metric": metric.ID, "value": value}
 		url := c.ub.Build(params)
-		_ = c.rs.Post(url, contenttypes.TextPlain, nil)
+		if err := c.rs.Post(url, contenttypes.TextPlain, nil); err != nil {
+			return err
+		}
 	}
 	return nil
 }
