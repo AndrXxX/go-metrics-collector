@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os/signal"
 	"syscall"
@@ -14,8 +15,13 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/envparser"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/flagsparser"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/storageprovider"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/buildformatter"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
+
+var buildVersion string
+var buildDate string
+var buildCommit string
 
 func main() {
 	settings, err := configprovider.New(flagsparser.New(), envparser.New()).Fetch()
@@ -25,6 +31,18 @@ func main() {
 	if iErr := logger.Initialize(settings.LogLevel); iErr != nil {
 		log.Fatal(err)
 	}
+
+	formatter := buildformatter.BuildFormatter{
+		Version: buildVersion,
+		Date:    buildDate,
+		Commit:  buildCommit,
+	}
+	if str, fErr := formatter.Format(); fErr != nil {
+		logger.Log.Error("Failed to print build info", zap.Error(fErr))
+	} else {
+		fmt.Println(str)
+	}
+
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 	db, err := dbprovider.New(settings).DB()
