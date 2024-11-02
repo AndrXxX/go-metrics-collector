@@ -11,11 +11,6 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 )
 
-type valuesInResult struct {
-	gauge   []string
-	counter []string
-}
-
 func TestNewCollector(t *testing.T) {
 	tests := []struct {
 		name string
@@ -46,28 +41,21 @@ func Test_metricsCollector_Execute(t *testing.T) {
 		name    string
 		ml      *config.MetricsList
 		result  dto.MetricsDto
-		include valuesInResult
-		exclude valuesInResult
+		include []string
+		exclude []string
 	}{
 		{
-			name:   "Test Unknown field",
-			ml:     &config.MetricsList{"UnknownMetric"},
-			result: *dto.NewMetricsDto(),
-			include: valuesInResult{
-				counter: []string{metrics.PollCount},
-			},
-			exclude: valuesInResult{
-				counter: []string{"UnknownMetric"},
-				gauge:   []string{"UnknownMetric"},
-			},
+			name:    "Test Unknown field",
+			ml:      &config.MetricsList{"UnknownMetric"},
+			result:  *dto.NewMetricsDto(),
+			include: []string{metrics.PollCount},
+			exclude: []string{"UnknownMetric"},
 		},
 		{
-			name:   "Test Counter",
-			ml:     &config.MetricsList{},
-			result: *dto.NewMetricsDto(),
-			include: valuesInResult{
-				counter: []string{metrics.PollCount},
-			},
+			name:    "Test Counter",
+			ml:      &config.MetricsList{},
+			result:  *dto.NewMetricsDto(),
+			include: []string{metrics.PollCount},
 		},
 		{
 			name: "Test Counter when exist",
@@ -78,53 +66,37 @@ func Test_metricsCollector_Execute(t *testing.T) {
 				v.Set(dto.JSONMetrics{ID: metrics.PollCount, Delta: &current})
 				return v
 			}(),
-			include: valuesInResult{
-				counter: []string{metrics.PollCount},
-			},
+			include: []string{metrics.PollCount},
 		},
 		{
-			name:   "Test Alloc",
-			ml:     &config.MetricsList{metrics.Alloc},
-			result: *dto.NewMetricsDto(),
-			include: valuesInResult{
-				gauge: []string{metrics.Alloc, metrics.RandomValue},
-			},
+			name:    "Test Alloc",
+			ml:      &config.MetricsList{metrics.Alloc},
+			result:  *dto.NewMetricsDto(),
+			include: []string{metrics.Alloc, metrics.RandomValue},
 		},
 		{
-			name:   "Test BuckHashSys, HeapObjects",
-			ml:     &config.MetricsList{metrics.BuckHashSys, metrics.HeapObjects},
-			result: *dto.NewMetricsDto(),
-			include: valuesInResult{
-				gauge: []string{metrics.BuckHashSys, metrics.HeapObjects},
-			},
+			name:    "Test BuckHashSys, HeapObjects",
+			ml:      &config.MetricsList{metrics.BuckHashSys, metrics.HeapObjects},
+			result:  *dto.NewMetricsDto(),
+			include: []string{metrics.BuckHashSys, metrics.HeapObjects},
 		},
 		{
-			name:   "Test empty",
-			ml:     &config.MetricsList{},
-			result: *dto.NewMetricsDto(),
-			include: valuesInResult{
-				gauge: []string{metrics.RandomValue},
-			},
+			name:    "Test empty",
+			ml:      &config.MetricsList{},
+			result:  *dto.NewMetricsDto(),
+			include: []string{metrics.RandomValue},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := &collector{ml: tt.ml}
 			c.execute(tt.result)
-			for _, v := range tt.include.gauge {
+			for _, v := range tt.include {
 				_, ok := tt.result.Get(v)
 				assert.True(t, ok)
 			}
-			for _, v := range tt.include.counter {
-				_, ok := tt.result.Get(v)
-				assert.True(t, ok)
-			}
-			if tt.exclude.gauge != nil {
-				for _, v := range tt.exclude.gauge {
-					_, ok := tt.result.Get(v)
-					assert.False(t, ok)
-				}
-				for _, v := range tt.exclude.counter {
+			if tt.exclude != nil {
+				for _, v := range tt.exclude {
 					_, ok := tt.result.Get(v)
 					assert.False(t, ok)
 				}
@@ -137,21 +109,17 @@ func Test_collector_Collect(t *testing.T) {
 	tests := []struct {
 		name    string
 		ml      *config.MetricsList
-		include valuesInResult
+		include []string
 	}{
 		{
-			name: "Test Counter",
-			ml:   &config.MetricsList{},
-			include: valuesInResult{
-				counter: []string{metrics.PollCount},
-			},
+			name:    "Test Counter",
+			ml:      &config.MetricsList{},
+			include: []string{metrics.PollCount},
 		},
 		{
-			name: "Test Alloc",
-			ml:   &config.MetricsList{metrics.Alloc},
-			include: valuesInResult{
-				gauge: []string{metrics.Alloc, metrics.RandomValue},
-			},
+			name:    "Test Alloc",
+			ml:      &config.MetricsList{metrics.Alloc},
+			include: []string{metrics.Alloc, metrics.RandomValue},
 		},
 	}
 	var wg sync.WaitGroup
@@ -168,11 +136,7 @@ func Test_collector_Collect(t *testing.T) {
 			wg.Add(1)
 			go func() {
 				for result := range ch {
-					for _, v := range tt.include.gauge {
-						_, ok := result.Get(v)
-						assert.True(t, ok)
-					}
-					for _, v := range tt.include.counter {
+					for _, v := range tt.include {
 						_, ok := result.Get(v)
 						assert.True(t, ok)
 					}
