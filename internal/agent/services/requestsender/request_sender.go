@@ -2,12 +2,9 @@ package requestsender
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"net/http"
-
-	"go.uber.org/zap"
-
-	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
 
 // RequestSender сервис для отправки запросов
@@ -33,7 +30,7 @@ func (s *RequestSender) Post(url string, contentType string, data []byte) error 
 	if s.key != "" {
 		encoded, err = io.ReadAll(buf)
 		if err != nil {
-			logger.Log.Error("Error on read encoded data", zap.Error(err))
+			return fmt.Errorf("error on read encoded data: %w", err)
 		}
 		buf = bytes.NewBuffer(encoded)
 	}
