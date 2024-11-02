@@ -10,6 +10,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/compressor"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricsuploader"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricurlbuilder"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/requestsender"
@@ -35,7 +36,7 @@ func Run(commonCtx context.Context, config *config.Config) error {
 
 	ub := metricurlbuilder.New(config.Common.Host)
 	hg := hashgenerator.Factory().SHA256()
-	rs := requestsender.New(http.DefaultClient, hg, config.Common.Key)
+	rs := requestsender.New(http.DefaultClient, hg, config.Common.Key, compressor.GzipCompressor{})
 	for count := config.Common.RateLimit; count > 0; count-- {
 		processor := metricsuploader.NewJSONUploader(rs, ub, config.Intervals.RepeatIntervals)
 		s.AddProcessor(processor, time.Duration(config.Intervals.ReportInterval)*time.Second)

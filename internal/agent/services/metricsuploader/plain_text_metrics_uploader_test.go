@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/compressor"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricurlbuilder"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/requestsender"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
@@ -36,9 +37,12 @@ func TestNewPlainTextUploader(t *testing.T) {
 	}{
 		{
 			name: "Test NewPlainTextUploader plainTextMetricsUploader #1 (Alloc)",
-			rs:   requestsender.New(http.DefaultClient, nil, ""),
+			rs:   requestsender.New(http.DefaultClient, nil, "", compressor.GzipCompressor{}),
 			ub:   metricurlbuilder.New(""),
-			want: &plainTextMetricsUploader{rs: requestsender.New(http.DefaultClient, nil, ""), ub: metricurlbuilder.New("")},
+			want: &plainTextMetricsUploader{
+				rs: requestsender.New(http.DefaultClient, nil, "", compressor.GzipCompressor{}),
+				ub: metricurlbuilder.New(""),
+			},
 		},
 	}
 	for _, tt := range tests {

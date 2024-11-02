@@ -13,6 +13,7 @@ import (
 	"golang.org/x/exp/constraints"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/compressor"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricurlbuilder"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/requestsender"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/contenttypes"
@@ -37,10 +38,10 @@ func TestNewJSONUploader(t *testing.T) {
 	}{
 		{
 			name: "Test NewJSONUploader #1 (Alloc)",
-			rs:   requestsender.New(http.DefaultClient, nil, ""),
+			rs:   requestsender.New(http.DefaultClient, nil, "", compressor.GzipCompressor{}),
 			ub:   metricurlbuilder.New(""),
 			want: &jsonMetricsUploader{
-				rs:              requestsender.New(http.DefaultClient, nil, ""),
+				rs:              requestsender.New(http.DefaultClient, nil, "", compressor.GzipCompressor{}),
 				ub:              metricurlbuilder.New(""),
 				repeatIntervals: []int{},
 			},

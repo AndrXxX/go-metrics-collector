@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/compressor"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/hashgenerator"
 )
 
@@ -104,7 +105,7 @@ func TestRequestSender_Post(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := New(tt.fields.c, hashgenerator.Factory().SHA256(), "test")
+			s := New(tt.fields.c, hashgenerator.Factory().SHA256(), "test", compressor.GzipCompressor{})
 			err := s.Post(tt.args.url, tt.args.contentType, tt.data)
 			assert.Equal(t, tt.wantErr, err != nil, fmt.Errorf("post() error = %v, wantErr %v", err, tt.wantErr))
 		})
@@ -128,7 +129,7 @@ func TestNewRequestSender(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rs := New(tt.args.c, nil, "")
+			rs := New(tt.args.c, nil, "", nil)
 			assert.Equal(t, tt.want, rs)
 		})
 	}
