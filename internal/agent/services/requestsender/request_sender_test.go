@@ -10,7 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/AndrXxX/go-metrics-collector/internal/mocks"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/hashgenerator"
 )
 
@@ -25,6 +24,16 @@ func (m *closableReadableBodyMock) Close() error {
 
 func (m *closableReadableBodyMock) Read(_ []byte) (n int, err error) {
 	return 0, nil
+}
+
+type mockClient struct {
+	mock.Mock
+}
+
+func (m *mockClient) Do(r *http.Request) (*http.Response, error) {
+	args := m.Called(r)
+	resp, _ := args.Get(0).(*http.Response)
+	return resp, args.Error(1)
 }
 
 func TestRequestSender_Post(t *testing.T) {
@@ -45,11 +54,11 @@ func TestRequestSender_Post(t *testing.T) {
 		{
 			name: "Positive test #1",
 			fields: fields{
-				c: &mocks.MockClient{
-					DoFunc: func(req *http.Request) (*http.Response, error) {
-						return nil, nil
-					},
-				},
+				c: func() *mockClient {
+					c := mockClient{}
+					c.On("Do", mock.Anything).Return(nil, nil)
+					return &c
+				}(),
 			},
 			args:    args{url: "", contentType: ""},
 			wantErr: false,
@@ -57,11 +66,12 @@ func TestRequestSender_Post(t *testing.T) {
 		{
 			name: "Positive test #2 with body",
 			fields: fields{
-				c: &mocks.MockClient{
-					DoFunc: func(req *http.Request) (*http.Response, error) {
-						return &http.Response{Header: http.Header{}, Body: &closableReadableBodyMock{}}, nil
-					},
-				},
+				c: func() *mockClient {
+					c := mockClient{}
+					c.On("Do", mock.Anything).
+						Return(&http.Response{Header: http.Header{}, Body: &closableReadableBodyMock{}}, nil)
+					return &c
+				}(),
 			},
 			args:    args{url: "", contentType: ""},
 			wantErr: false,
@@ -69,11 +79,11 @@ func TestRequestSender_Post(t *testing.T) {
 		{
 			name: "Positive test #3 with data",
 			fields: fields{
-				c: &mocks.MockClient{
-					DoFunc: func(req *http.Request) (*http.Response, error) {
-						return nil, nil
-					},
-				},
+				c: func() *mockClient {
+					c := mockClient{}
+					c.On("Do", mock.Anything).Return(nil, nil)
+					return &c
+				}(),
 			},
 			data:    []byte("test"),
 			args:    args{url: "", contentType: ""},
@@ -82,11 +92,11 @@ func TestRequestSender_Post(t *testing.T) {
 		{
 			name: "Error test #1",
 			fields: fields{
-				c: &mocks.MockClient{
-					DoFunc: func(req *http.Request) (*http.Response, error) {
-						return nil, errors.New("error from web server")
-					},
-				},
+				c: func() *mockClient {
+					c := mockClient{}
+					c.On("Do", mock.Anything).Return(nil, errors.New("error from web server"))
+					return &c
+				}(),
 			},
 			args:    args{url: "", contentType: ""},
 			wantErr: true,
