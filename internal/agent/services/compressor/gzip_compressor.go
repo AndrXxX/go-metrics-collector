@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"compress/gzip"
 	"fmt"
+	"io"
 )
 
 type GzipCompressor struct {
 }
 
-func (c GzipCompressor) Compress(data []byte) (*bytes.Buffer, error) {
+func (c GzipCompressor) Compress(data []byte) (io.Reader, error) {
 	var b bytes.Buffer
 	if data == nil {
 		return &b, nil

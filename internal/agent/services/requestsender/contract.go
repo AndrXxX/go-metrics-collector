@@ -1,7 +1,7 @@
 package requestsender
 
 import (
-	"bytes"
+	"io"
 	"net/http"
 )
 
@@ -14,5 +14,5 @@ type hashGenerator interface {
 }
 
 type dataCompressor interface {
-	Compress(in []byte) (*bytes.Buffer, error)
+	Compress(in []byte) (io.Reader, error)
 }
