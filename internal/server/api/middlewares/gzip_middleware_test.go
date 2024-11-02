@@ -51,7 +51,7 @@ func Test_gzipMiddleware_Handler(t *testing.T) {
 
 					reader, cErr := gzipcompressor.NewCompressReader(tw.Result().Body)
 					require.NoError(t, cErr)
-					clErr := tw.Result().Body.Close()
+					clErr := reader.Close()
 					require.NoError(t, clErr)
 					decodedData, rErr := io.ReadAll(reader)
 					require.NoError(t, rErr)
