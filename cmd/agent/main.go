@@ -2,12 +2,9 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os/signal"
 	"syscall"
-
-	"go.uber.org/zap"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/agent"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/configprovider"
@@ -32,15 +29,12 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	formatter := buildformatter.BuildFormatter{
-		Version: buildVersion,
-		Date:    buildDate,
-		Commit:  buildCommit,
+	buildFormatter := buildformatter.BuildFormatter{
+		Labels: []string{"Build version", "Build date", "Build commit"},
+		Values: []string{buildVersion, buildDate, buildCommit},
 	}
-	if str, fErr := formatter.Format(); fErr != nil {
-		logger.Log.Error("Failed to print build info", zap.Error(fErr))
-	} else {
-		fmt.Println(str)
+	for _, bInfo := range buildFormatter.Format() {
+		logger.Log.Info(bInfo)
 	}
 
 	if err := agent.Run(ctx, c); err != nil {

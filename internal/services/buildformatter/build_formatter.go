@@ -1,34 +1,33 @@
 package buildformatter
 
 import (
-	"bytes"
 	"fmt"
-	"text/template"
-
-	"github.com/AndrXxX/go-metrics-collector/internal/services/buildformatter/templates"
 )
+
+const emptyInfoTemplate = "N/A"
 
 // BuildFormatter сервис для форматирования информации о текущей сборке
 type BuildFormatter struct {
-	Version string
-	Date    string
-	Commit  string
-	Buffer  buffer
+	Labels []string
+	Values []string
 }
 
-// Format форматирует информацию о текущей сборке в строку
-func (i BuildFormatter) Format() (string, error) {
-	if i.Buffer == nil {
-		i.Buffer = &bytes.Buffer{}
+// Format форматирует информацию о текущей сборке в строки
+func (f BuildFormatter) Format() []string {
+	var result []string
+	for i, label := range f.Labels {
+		value := ""
+		if len(f.Values) >= i+1 {
+			value = f.Values[i]
+		}
+		result = append(result, f.combine(label, value))
 	}
-	var tmpl = template.Must(template.New("build").Parse(templates.BuildTemplate))
-	err := tmpl.Execute(i.Buffer, templates.BuildData{
-		Version: i.Version,
-		Date:    i.Date,
-		Commit:  i.Commit,
-	})
-	if err != nil {
-		return "", fmt.Errorf("template execution error: %w", err)
+	return result
+}
+
+func (f BuildFormatter) combine(label string, value string) string {
+	if value == "" {
+		value = emptyInfoTemplate
 	}
-	return i.Buffer.String(), nil
+	return fmt.Sprintf("%s: %s", label, value)
 }

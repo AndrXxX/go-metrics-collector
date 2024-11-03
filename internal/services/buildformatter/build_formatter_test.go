@@ -1,75 +1,73 @@
 package buildformatter
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
-type testBuffer struct {
-}
-
-func (b testBuffer) Write(_ []byte) (n int, err error) {
-	return 0, fmt.Errorf("error")
-}
-
-func (b testBuffer) String() string {
-	return ""
-}
-
 func TestBuildFormatter_Format(t *testing.T) {
-	type fields struct {
-		Version string
-		Date    string
-		Commit  string
-		Buffer  buffer
-	}
 	tests := []struct {
-		name    string
-		fields  fields
-		want    string
-		wantErr bool
+		name   string
+		labels []string
+		values []string
+		want   []string
 	}{
 		{
-			name:   "Test with values",
-			fields: fields{"1.1", "01.11.2024", "test", nil},
-			want: `
-Build version:  "1.1" 
-Build date:  "01.11.2024" 
-Build commit:  "test" 
-`,
-			wantErr: false,
+			name:   "Test with Values",
+			labels: []string{"Build version", "Build date", "Build commit"},
+			values: []string{"1.1", "01.11.2024", "test"},
+			want: []string{
+				"Build version: 1.1",
+				"Build date: 01.11.2024",
+				"Build commit: test",
+			},
 		},
 		{
-			name:   "Test without values",
-			fields: fields{},
-			want: `
-Build version:  "N/A" 
-Build date:  "N/A" 
-Build commit:  "N/A" 
-`,
-			wantErr: false,
-		},
-		{
-			name:    "Test with error",
-			fields:  fields{Buffer: testBuffer{}},
-			want:    "",
-			wantErr: true,
+			name:   "Test without Values",
+			labels: []string{"Build version", "Build date", "Build commit"},
+			values: []string{},
+			want: []string{
+				"Build version: N/A",
+				"Build date: N/A",
+				"Build commit: N/A",
+			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			i := BuildFormatter{
-				Version: tt.fields.Version,
-				Date:    tt.fields.Date,
-				Commit:  tt.fields.Commit,
-				Buffer:  tt.fields.Buffer,
+				Labels: tt.labels,
+				Values: tt.values,
 			}
-			str, err := i.Format()
-			require.Equal(t, tt.wantErr, err != nil)
-			assert.Equal(t, tt.want, str)
+			assert.Equal(t, tt.want, i.Format())
+		})
+	}
+}
+
+func TestBuildFormatter_combine(t *testing.T) {
+	tests := []struct {
+		name  string
+		label string
+		value string
+		want  string
+	}{
+		{
+			name:  "Test with empty value",
+			label: "Build version",
+			want:  "Build version: N/A",
+		},
+		{
+			name:  "Test with value 1.1.1",
+			label: "Build version",
+			value: "1.1.1",
+			want:  "Build version: 1.1.1",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			f := BuildFormatter{}
+			assert.Equal(t, tt.want, f.combine(tt.label, tt.value))
 		})
 	}
 }
