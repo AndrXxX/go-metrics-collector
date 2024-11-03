@@ -29,15 +29,14 @@ func (s *dbStorage) Insert(ctx context.Context, name string, value *models.Metri
 		return
 	}
 	defer func(stmt *sql.Stmt) {
-		err := stmt.Close()
-		if err != nil {
-			logger.Log.Error("error on close stmt", zap.Error(err))
+		if cErr := stmt.Close(); cErr != nil {
+			logger.Log.Error("error on close stmt", zap.Error(cErr))
 		}
 	}(stmt)
 
 	op := func() error {
-		_, err := stmt.ExecContext(ctx, name, value.MType, value.Delta, value.Value)
-		return err
+		_, eRrr := stmt.ExecContext(ctx, name, value.MType, value.Delta, value.Value)
+		return eRrr
 	}
 	err = op()
 	if err != nil {
@@ -69,8 +68,7 @@ func (s *dbStorage) All(ctx context.Context) map[string]*models.Metrics {
 		return list
 	}
 	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
+		if cErr := rows.Close(); cErr != nil {
 			logger.Log.Error("close rows on all failed", zap.Error(err))
 		}
 	}(rows)

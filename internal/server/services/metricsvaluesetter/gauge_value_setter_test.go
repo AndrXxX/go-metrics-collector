@@ -48,7 +48,7 @@ func TestGaugeValueSetterSet(t *testing.T) {
 			err := setter.Set(tt.args.m, tt.args.value)
 			assert.Equal(t, tt.wantErr, err != nil)
 			if !tt.wantErr {
-				assert.Equal(t, tt.wantValue, *tt.args.m.Value)
+				assert.InDelta(t, tt.wantValue, *tt.args.m.Value, 0.0001)
 			}
 		})
 	}

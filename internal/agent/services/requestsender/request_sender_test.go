@@ -1,8 +1,8 @@
 package requestsender
 
 import (
+	"bytes"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"testing"
@@ -10,7 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/AndrXxX/go-metrics-collector/internal/mocks"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/hashgenerator"
 )
 
@@ -27,76 +26,154 @@ func (m *closableReadableBodyMock) Read(_ []byte) (n int, err error) {
 	return 0, nil
 }
 
+type mockClient struct {
+	mock.Mock
+}
+
+func (m *mockClient) Do(r *http.Request) (*http.Response, error) {
+	args := m.Called(r)
+	resp, _ := args.Get(0).(*http.Response)
+	return resp, args.Error(1)
+}
+
+type dataCompressorMock struct {
+	mock.Mock
+}
+
+func (m *dataCompressorMock) Compress(in []byte) (io.Reader, error) {
+	args := m.Called(in)
+	resp, _ := args.Get(0).(io.Reader)
+	return resp, args.Error(1)
+}
+
+type readerMock struct {
+	mock.Mock
+}
+
+func (r *readerMock) Read(in []byte) (n int, err error) {
+	args := r.Called(in)
+	return args.Int(0), args.Error(1)
+}
+
 func TestRequestSender_Post(t *testing.T) {
-	type fields struct {
-		c client
+	comp := func() *dataCompressorMock {
+		c := dataCompressorMock{}
+		c.On("Compress", mock.Anything).Return(&bytes.Buffer{}, nil)
+		return &c
 	}
-	type args struct {
-		url         string
-		contentType string
+	type fields struct {
+		c    client
+		comp dataCompressor
 	}
 	tests := []struct {
 		name    string
 		fields  fields
-		args    args
+		url     string
 		data    []byte
 		wantErr bool
 	}{
 		{
 			name: "Positive test #1",
 			fields: fields{
-				c: &mocks.MockClient{
-					DoFunc: func(req *http.Request) (*http.Response, error) {
-						return nil, nil
-					},
-				},
+				c: func() *mockClient {
+					c := mockClient{}
+					c.On("Do", mock.Anything).Return(nil, nil)
+					return &c
+				}(),
+				comp: comp(),
 			},
-			args:    args{url: "", contentType: ""},
 			wantErr: false,
 		},
 		{
 			name: "Positive test #2 with body",
 			fields: fields{
-				c: &mocks.MockClient{
-					DoFunc: func(req *http.Request) (*http.Response, error) {
-						return &http.Response{Header: http.Header{}, Body: &closableReadableBodyMock{}}, nil
-					},
-				},
+				c: func() *mockClient {
+					c := mockClient{}
+					c.On("Do", mock.Anything).Return(&http.Response{Header: http.Header{}, Body: &closableReadableBodyMock{}}, nil)
+					return &c
+				}(),
+				comp: comp(),
 			},
-			args:    args{url: "", contentType: ""},
 			wantErr: false,
 		},
 		{
 			name: "Positive test #3 with data",
 			fields: fields{
-				c: &mocks.MockClient{
-					DoFunc: func(req *http.Request) (*http.Response, error) {
-						return nil, nil
-					},
-				},
+				c: func() *mockClient {
+					c := mockClient{}
+					c.On("Do", mock.Anything).Return(nil, nil)
+					return &c
+				}(),
+				comp: comp(),
 			},
 			data:    []byte("test"),
-			args:    args{url: "", contentType: ""},
 			wantErr: false,
 		},
 		{
-			name: "Error test #1",
+			name: "Error on create request",
 			fields: fields{
-				c: &mocks.MockClient{
-					DoFunc: func(req *http.Request) (*http.Response, error) {
-						return nil, errors.New("error from web server")
-					},
-				},
+				c: func() *mockClient {
+					c := mockClient{}
+					c.On("Do", mock.Anything).Return(nil, nil)
+					return &c
+				}(),
+				comp: comp(),
 			},
-			args:    args{url: "", contentType: ""},
+			url:     string(rune(0x1B)),
+			wantErr: true,
+		},
+		{
+			name: "Error on do request",
+			fields: fields{
+				c: func() *mockClient {
+					c := mockClient{}
+					c.On("Do", mock.Anything).Return(nil, errors.New("error from web server"))
+					return &c
+				}(),
+				comp: comp(),
+			},
+			wantErr: true,
+		},
+		{
+			name: "Error on compress data",
+			fields: fields{
+				c: func() *mockClient {
+					c := mockClient{}
+					c.On("Do", mock.Anything).Return(nil, nil)
+					return &c
+				}(),
+				comp: func() *dataCompressorMock {
+					c := dataCompressorMock{}
+					c.On("Compress", mock.Anything).Return(nil, errors.New("error"))
+					return &c
+				}(),
+			},
+			wantErr: true,
+		},
+		{
+			name: "Error on read compressed data",
+			fields: fields{
+				c: func() *mockClient {
+					c := mockClient{}
+					c.On("Do", mock.Anything).Return(nil, nil)
+					return &c
+				}(),
+				comp: func() *dataCompressorMock {
+					r := readerMock{}
+					r.On("Read", mock.Anything).Return(0, errors.New("error on read"))
+					c := dataCompressorMock{}
+					c.On("Compress", mock.Anything).Return(&r, nil)
+					return &c
+				}(),
+			},
 			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := New(tt.fields.c, hashgenerator.Factory().SHA256(), "test")
-			err := s.Post(tt.args.url, tt.args.contentType, tt.data)
-			assert.Equal(t, tt.wantErr, err != nil, fmt.Errorf("post() error = %v, wantErr %v", err, tt.wantErr))
+			s := New(tt.fields.c, hashgenerator.Factory().SHA256(), "test", tt.fields.comp)
+			err := s.Post(tt.url, "", tt.data)
+			assert.Equal(t, tt.wantErr, err != nil)
 		})
 	}
 }
@@ -118,7 +195,7 @@ func TestNewRequestSender(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rs := New(tt.args.c, nil, "")
+			rs := New(tt.args.c, nil, "", nil)
 			assert.Equal(t, tt.want, rs)
 		})
 	}

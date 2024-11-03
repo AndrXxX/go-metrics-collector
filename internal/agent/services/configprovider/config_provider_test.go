@@ -68,7 +68,7 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name:    "Test with validate Common err",
-			parsers: []parser{tempParser{host: "-"}},
+			parsers: []parser{tempParser{host: "-", pollInterval: 1}},
 			wantErr: true,
 		},
 		{

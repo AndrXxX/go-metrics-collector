@@ -2,31 +2,27 @@ package requestsender
 
 import (
 	"bytes"
-	"compress/gzip"
 	"fmt"
 	"io"
 	"net/http"
-
-	"go.uber.org/zap"
-
-	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
 
 // RequestSender сервис для отправки запросов
 type RequestSender struct {
-	c   client
-	hg  hashGenerator
-	key string
+	c    client
+	hg   hashGenerator
+	comp dataCompressor
+	key  string
 }
 
 // New возвращает сервис RequestSender для отправки запросов
-func New(c client, hg hashGenerator, key string) *RequestSender {
-	return &RequestSender{c, hg, key}
+func New(c client, hg hashGenerator, key string, comp dataCompressor) *RequestSender {
+	return &RequestSender{c, hg, comp, key}
 }
 
 // Post отправляет запрос методом Post
 func (s *RequestSender) Post(url string, contentType string, data []byte) error {
-	buf, err := s.compress(data)
+	buf, err := s.comp.Compress(data)
 	if err != nil {
 		return err
 	}
@@ -34,7 +30,7 @@ func (s *RequestSender) Post(url string, contentType string, data []byte) error 
 	if s.key != "" {
 		encoded, err = io.ReadAll(buf)
 		if err != nil {
-			logger.Log.Error("Error on read encoded data", zap.Error(err))
+			return fmt.Errorf("error on read encoded data: %w", err)
 		}
 		buf = bytes.NewBuffer(encoded)
 	}
@@ -58,22 +54,4 @@ func (s *RequestSender) Post(url string, contentType string, data []byte) error 
 		return resp.Body.Close()
 	}
 	return nil
-}
-
-func (s *RequestSender) compress(data []byte) (*bytes.Buffer, error) {
-	var b bytes.Buffer
-	if data == nil {
-		return &b, nil
-	}
-	w := gzip.NewWriter(&b)
-	_, err := w.Write(data)
-	if err != nil {
-		return nil, fmt.Errorf("failed write data to compress temporary buffer: %v", err)
-	}
-	err = w.Close()
-	if err != nil {
-		return nil, fmt.Errorf("failed compress data: %v", err)
-	}
-
-	return &b, nil
 }

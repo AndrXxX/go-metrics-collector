@@ -185,8 +185,47 @@ func TestStorageGetFloat64(t *testing.T) {
 				s.Insert(ctx, k, v)
 			}
 			value, ok := s.Get(ctx, tt.metric)
-			assert.Equal(t, tt.want.value, value)
+			assert.InDelta(t, tt.want.value, value, 0.0001)
 			assert.Equal(t, tt.want.ok, ok)
+		})
+	}
+}
+
+func TestStorageDelete(t *testing.T) {
+	tests := []struct {
+		name     string
+		store    map[string]float64
+		toDelete string
+		want     map[string]float64
+	}{
+		{
+			name:     "Empty store",
+			store:    map[string]float64{},
+			toDelete: "test",
+			want:     map[string]float64{},
+		},
+		{
+			name:     "Gauge `metric` with value 1.1",
+			store:    map[string]float64{"metric": 1.1},
+			toDelete: "metric",
+			want:     map[string]float64{},
+		},
+		{
+			name:     "Gauge `metric` with value 1.1 and `metric2` with value 10.5",
+			store:    map[string]float64{"metric": 1.1, "metric2": 10.5},
+			toDelete: "metric2",
+			want:     map[string]float64{"metric": 1.1},
+		},
+	}
+	ctx := context.TODO()
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := New[float64]()
+			for k, v := range tt.store {
+				s.Insert(ctx, k, v)
+			}
+			s.Delete(ctx, tt.toDelete)
+			assert.Equal(t, tt.want, s.All(ctx))
 		})
 	}
 }

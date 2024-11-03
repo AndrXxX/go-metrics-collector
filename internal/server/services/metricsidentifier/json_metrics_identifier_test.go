@@ -70,7 +70,7 @@ func TestJSONMetricsIdentifierProcess(t *testing.T) {
 					assert.Equal(t, test.modelValue.Delta, *m.Delta)
 				}
 				if test.modelValue != nil && test.modelValue.Value != 0 {
-					assert.Equal(t, test.modelValue.Value, *m.Value)
+					assert.InDelta(t, test.modelValue.Value, *m.Value, 0.0001)
 				}
 			}
 		})
