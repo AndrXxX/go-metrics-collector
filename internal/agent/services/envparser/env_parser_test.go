@@ -94,6 +94,17 @@ func Test_parseEnv(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "CRYPTO_KEY=path/to/file.pub",
+			config: &config.Config{
+				Common: config.CommonConfig{},
+			},
+			env: map[string]string{"CRYPTO_KEY": "path/to/file.pub"},
+			want: &config.Config{
+				Common: config.CommonConfig{CryptoKey: "path/to/file.pub"},
+			},
+			wantErr: false,
+		},
+		{
 			name: "ADDRESS=new-host REPORT_INTERVAL=2 POLL_INTERVAL=2 KEY=abc",
 			config: &config.Config{
 				Common:    config.CommonConfig{Host: "host"},

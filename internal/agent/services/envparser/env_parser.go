@@ -11,6 +11,7 @@ type envConfig struct {
 	ReportInterval int64  `env:"REPORT_INTERVAL"`
 	PollInterval   int64  `env:"POLL_INTERVAL"`
 	Key            string `env:"KEY"`
+	CryptoKey      string `env:"CRYPTO_KEY"`
 	RateLimit      int64  `env:"RATE_LIMIT"`
 }
 
@@ -32,6 +33,7 @@ func (p envParser) Parse(c *config.Config) error {
 	}
 	c.Common.Host = cfg.Addr
 	c.Common.Key = cfg.Key
+	c.Common.CryptoKey = cfg.CryptoKey
 	c.Common.RateLimit = cfg.RateLimit
 	c.Intervals.ReportInterval = cfg.ReportInterval
 	c.Intervals.PollInterval = cfg.PollInterval
