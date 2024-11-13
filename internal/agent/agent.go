@@ -4,18 +4,19 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/http"
 	"time"
 
 	"go.uber.org/zap"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/client"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/compressor"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricsuploader"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricurlbuilder"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/requestsender"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/runtimemetricscollector"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/scheduler"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/tlsconfig"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/vmmetricscollector"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/hashgenerator"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
@@ -36,7 +37,12 @@ func Run(commonCtx context.Context, config *config.Config) error {
 
 	ub := metricurlbuilder.New(config.Common.Host)
 	hg := hashgenerator.Factory().SHA256()
-	rs := requestsender.New(http.DefaultClient, hg, config.Common.Key, compressor.GzipCompressor{})
+
+	httpClient, err := client.Provider{ConfProvider: tlsconfig.Provider{CryptoKeyPath: config.Common.CryptoKey}}.Fetch()
+	if err != nil {
+		return fmt.Errorf("failed to fetch client: %w", err)
+	}
+	rs := requestsender.New(httpClient, hg, config.Common.Key, compressor.GzipCompressor{})
 	for count := config.Common.RateLimit; count > 0; count-- {
 		processor := metricsuploader.NewJSONUploader(rs, ub, config.Intervals.RepeatIntervals)
 		s.AddProcessor(processor, time.Duration(config.Intervals.ReportInterval)*time.Second)
