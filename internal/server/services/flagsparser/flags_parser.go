@@ -17,6 +17,7 @@ func (p flagsParser) Parse(c *config.Config) error {
 	fl.BoolVar(&c.Restore, "r", c.Restore, "Restore values on start")
 	fl.StringVar(&c.DatabaseDSN, "d", c.DatabaseDSN, "Database DSN")
 	fl.StringVar(&c.Key, "k", c.Key, "Hash key")
+	fl.StringVar(&c.CryptoKey, "crypto-key", c.CryptoKey, "Path to file with private key")
 	fl.Parse()
 	return nil
 }
