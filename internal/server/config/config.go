@@ -10,4 +10,5 @@ type Config struct {
 	Restore         bool
 	DatabaseDSN     string
 	Key             string
+	CryptoKey       string
 }

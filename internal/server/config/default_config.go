@@ -12,5 +12,6 @@ func NewConfig() *Config {
 		FileStoragePath: defaults.FileStoragePath,
 		Restore:         defaults.Restore,
 		Key:             defaults.Key,
+		CryptoKey:       defaults.Key,
 	}
 }
