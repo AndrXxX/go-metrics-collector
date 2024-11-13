@@ -73,9 +73,9 @@ func Test_parseFlags(t *testing.T) {
 			config: &config.Config{
 				Common: config.CommonConfig{RateLimit: 1},
 			},
-			flags: []string{"-l", "2", "crypto-key", "path/to/file.pub"},
+			flags: []string{"-l", "2", "-crypto-key", "/path/to/file.pub"},
 			want: &config.Config{
-				Common: config.CommonConfig{RateLimit: 2},
+				Common: config.CommonConfig{RateLimit: 2, CryptoKey: "/path/to/file.pub"},
 			},
 		},
 		{
