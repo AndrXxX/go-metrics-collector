@@ -15,6 +15,7 @@ type envConfig struct {
 	Restore         bool   `env:"RESTORE"`
 	DatabaseDSN     string `env:"DATABASE_DSN"`
 	Key             string `env:"KEY"`
+	CryptoKey       string `env:"CRYPTO_KEY"`
 }
 
 type envParser struct {
@@ -29,6 +30,7 @@ func (p envParser) Parse(c *config.Config) error {
 		Restore:         c.Restore,
 		DatabaseDSN:     c.DatabaseDSN,
 		Key:             c.Key,
+		CryptoKey:       c.CryptoKey,
 	}
 	err := env.Parse(&cfg)
 	if err != nil {
@@ -40,6 +42,7 @@ func (p envParser) Parse(c *config.Config) error {
 	c.Restore = cfg.Restore
 	c.DatabaseDSN = cfg.DatabaseDSN
 	c.Key = cfg.Key
+	c.CryptoKey = cfg.CryptoKey
 	return nil
 }
 

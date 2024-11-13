@@ -66,6 +66,13 @@ func Test_parseEnv(t *testing.T) {
 			want:    &config.Config{Key: "abc"},
 			wantErr: false,
 		},
+		{
+			name:    "CRYPTO_KEY=path/to/file.pub",
+			config:  &config.Config{CryptoKey: "some-path"},
+			env:     map[string]string{"CRYPTO_KEY": "path/to/file.pub"},
+			want:    &config.Config{CryptoKey: "path/to/file.pub"},
+			wantErr: false,
+		},
 	}
 	parser := New()
 	for _, tt := range tests {

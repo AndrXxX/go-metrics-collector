@@ -23,6 +23,7 @@ func (p envParser) Parse(c *config.Config) error {
 	cfg := envConfig{
 		Addr:           c.Common.Host,
 		Key:            c.Common.Key,
+		CryptoKey:      c.Common.CryptoKey,
 		RateLimit:      c.Common.RateLimit,
 		ReportInterval: c.Intervals.ReportInterval,
 		PollInterval:   c.Intervals.PollInterval,
