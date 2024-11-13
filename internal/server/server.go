@@ -30,6 +30,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsformatter"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsidentifier"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsupdater"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/tlsconfig"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/hashgenerator"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
@@ -140,7 +141,11 @@ func (a *app) Run(commonCtx context.Context) error {
 		r.Get("/", fetchallmetrics.New(a.storage.s).Handler())
 	})
 
-	srv := &http.Server{Addr: a.config.c.Host, Handler: r}
+	tlsConfig, err := tlsconfig.Provider{CryptoKeyPath: a.config.c.CryptoKey}.Fetch()
+	if err != nil {
+		return fmt.Errorf("failed to fetch tls config: %w", err)
+	}
+	srv := &http.Server{Addr: a.config.c.Host, Handler: r, TLSConfig: tlsConfig}
 
 	go func() {
 		if err := srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
