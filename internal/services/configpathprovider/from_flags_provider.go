@@ -10,6 +10,7 @@ import (
 type FromFlagsProvider struct {
 }
 
+// Fetch метод получения пути к файлу конфигурации
 func (p FromFlagsProvider) Fetch() (string, error) {
 	fs := fl.NewFlagSet("path", fl.ContinueOnError)
 	path := fs.String("c", "", "Path to config JSON file")
