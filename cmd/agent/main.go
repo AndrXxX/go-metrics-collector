@@ -7,10 +7,12 @@ import (
 	"syscall"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/agent"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/configfileparser"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/configprovider"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/envparser"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/flagsparser"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/buildformatter"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/configpathprovider"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
 
@@ -19,7 +21,12 @@ var buildDate string
 var buildCommit string
 
 func main() {
-	c, err := configprovider.New(flagsparser.New(), envparser.New()).Fetch()
+	cpp := configpathprovider.PathProvider{Fetchers: []configpathprovider.Provider{
+		configpathprovider.FromFlagsProvider{},
+		configpathprovider.FromEnvProvider{},
+	}}
+	cfp := configfileparser.ConfigFileParser{PathProvider: cpp}
+	c, err := configprovider.New(cfp, flagsparser.New(), envparser.New()).Fetch()
 	if err != nil {
 		log.Fatal(err)
 	}
