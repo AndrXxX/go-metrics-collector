@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
+	"github.com/AndrXxX/go-metrics-collector/internal/types/jsontime"
 )
 
 // Parser сервис для парсинга файла конфигурации
@@ -53,8 +54,8 @@ func set[T comparable](val *T, target *T) {
 	*target = *val
 }
 
-func convertDurationToInt(d *duration) *int64 {
-	var zero duration
+func convertDurationToInt(d *jsontime.Duration) *int64 {
+	var zero jsontime.Duration
 	if d == nil || *d == zero {
 		return nil
 	}
