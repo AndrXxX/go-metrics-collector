@@ -1,4 +1,4 @@
-package configpathprovider
+package configpath
 
 import (
 	fl "flag"
@@ -6,12 +6,11 @@ import (
 	"os"
 )
 
-// FromFlagsProvider сервис для получения пути к файлу конфигурации из аргументов командной строки
-type FromFlagsProvider struct {
+type fromFlagsProvider struct {
 }
 
 // Fetch метод получения пути к файлу конфигурации
-func (p FromFlagsProvider) Fetch() (string, error) {
+func (p fromFlagsProvider) Fetch() (string, error) {
 	fs := fl.NewFlagSet("path", fl.ContinueOnError)
 	path := fs.String("c", "", "Path to config JSON file")
 	path2 := fs.String("config", "", "Path to config JSON file")

@@ -1,4 +1,4 @@
-package configpathprovider
+package configpath
 
 import (
 	"fmt"
@@ -20,25 +20,25 @@ func (f testFetcher) Fetch() (string, error) {
 func TestPathProvider_Fetch(t *testing.T) {
 	tests := []struct {
 		name     string
-		provider PathProvider
+		provider pathProvider
 		want     string
 		wantErr  bool
 	}{
 		{
 			name:     "Test with empty fetchers",
-			provider: PathProvider{},
+			provider: pathProvider{},
 			want:     "",
 			wantErr:  false,
 		},
 		{
 			name:     "Test with error on fetch",
-			provider: PathProvider{[]Provider{testFetcher{err: fmt.Errorf("test error")}}},
+			provider: pathProvider{[]fetcher{testFetcher{err: fmt.Errorf("test error")}}},
 			want:     "",
 			wantErr:  true,
 		},
 		{
 			name:     "Test with not empty path",
-			provider: PathProvider{[]Provider{testFetcher{path: "/test/path"}}},
+			provider: pathProvider{[]fetcher{testFetcher{path: "/test/path"}}},
 			want:     "/test/path",
 			wantErr:  false,
 		},

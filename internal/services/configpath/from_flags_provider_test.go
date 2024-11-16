@@ -1,4 +1,4 @@
-package configpathprovider
+package configpath
 
 import (
 	"flag"
@@ -54,7 +54,7 @@ func TestFlagPathProvider_Fetch(t *testing.T) {
 			os.Args = os.Args[:1]
 			os.Args = append(os.Args[:1], tt.flags...)
 
-			p := FromFlagsProvider{}
+			p := fromFlagsProvider{}
 			got, err := p.Fetch()
 			require.Equal(t, tt.wantErr, err != nil, fmt.Sprintf("%v", err))
 			assert.Equal(t, tt.want, got)

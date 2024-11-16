@@ -12,7 +12,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/envparser"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/flagsparser"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/buildformatter"
-	"github.com/AndrXxX/go-metrics-collector/internal/services/configpathprovider"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/configpath"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
 
@@ -21,10 +21,7 @@ var buildDate string
 var buildCommit string
 
 func main() {
-	cpp := configpathprovider.PathProvider{Fetchers: []configpathprovider.Provider{
-		configpathprovider.FromFlagsProvider{},
-		configpathprovider.FromEnvProvider{},
-	}}
+	cpp := configpath.NewProvider(configpath.WithFlags(), configpath.WithEnv())
 	cfp := configfileparser.ConfigFileParser{PathProvider: cpp}
 	c, err := configprovider.New(cfp, flagsparser.New(), envparser.New()).Fetch()
 	if err != nil {

@@ -1,4 +1,4 @@
-package configpathprovider
+package configpath
 
 import (
 	"fmt"
@@ -41,7 +41,7 @@ func TestFromEnvProvider_Fetch(t *testing.T) {
 			for k, v := range tt.env {
 				_ = os.Setenv(k, v)
 			}
-			got, err := FromEnvProvider{}.Fetch()
+			got, err := fromEnvProvider{}.Fetch()
 			require.Equal(t, tt.wantErr, err != nil, fmt.Sprintf("%v", err))
 			assert.Equal(t, tt.want, got)
 		})
