@@ -32,9 +32,9 @@ func WithEnv() func(*pathProvider) {
 }
 
 // WithFlags парсинг пути из аргументов командной строки
-func WithFlags() func(*pathProvider) {
+func WithFlags(flags ...string) func(*pathProvider) {
 	return func(p *pathProvider) {
-		p.addFetcher(fromFlagsProvider{})
+		p.addFetcher(fromFlagsProvider{flags})
 	}
 }
 

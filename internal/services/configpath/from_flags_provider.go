@@ -7,18 +7,23 @@ import (
 )
 
 type fromFlagsProvider struct {
+	flags []string
 }
 
 // Fetch метод получения пути к файлу конфигурации
 func (p fromFlagsProvider) Fetch() (string, error) {
 	fs := fl.NewFlagSet("path", fl.ContinueOnError)
-	path := fs.String("c", "", "Path to config JSON file")
-	path2 := fs.String("config", "", "Path to config JSON file")
+	paths := make([]*string, len(p.flags))
+	for i := range p.flags {
+		paths[i] = fs.String(p.flags[i], "", fmt.Sprintf("Path to config JSON file -%s", p.flags[i]))
+	}
 	if err := fs.Parse(os.Args[1:]); err != nil {
 		return "", fmt.Errorf("failed to parse flag: %s", err)
 	}
-	if *path == "" {
-		path = path2
+	for _, path := range paths {
+		if *path != "" {
+			return *path, nil
+		}
 	}
-	return *path, nil
+	return "", nil
 }

@@ -21,7 +21,7 @@ var buildDate string
 var buildCommit string
 
 func main() {
-	cpp := configpath.NewProvider(configpath.WithFlags(), configpath.WithEnv())
+	cpp := configpath.NewProvider(configpath.WithFlags("c", "config"), configpath.WithEnv())
 	cfp := configfileparser.ConfigFileParser{PathProvider: cpp}
 	c, err := configprovider.New(cfp, flagsparser.New(), envparser.New()).Fetch()
 	if err != nil {
