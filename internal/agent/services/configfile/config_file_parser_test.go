@@ -1,4 +1,4 @@
-package configfileparser
+package configfile
 
 import (
 	"fmt"
@@ -90,7 +90,7 @@ func TestConfigFileParser_Parse(t *testing.T) {
 				require.NoError(t, os.WriteFile(tt.path, []byte(tt.fileData), 0644))
 			}
 
-			p := ConfigFileParser{tt.provider}
+			p := Parser{tt.provider}
 			err := p.Parse(tt.c)
 
 			if tt.createFile {

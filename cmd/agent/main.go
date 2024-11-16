@@ -7,7 +7,7 @@ import (
 	"syscall"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/agent"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/configfileparser"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/configfile"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/configprovider"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/envparser"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/flagsparser"
@@ -22,8 +22,7 @@ var buildCommit string
 
 func main() {
 	cpp := configpath.NewProvider(configpath.WithFlags("c", "config"), configpath.WithEnv())
-	cfp := configfileparser.ConfigFileParser{PathProvider: cpp}
-	c, err := configprovider.New(cfp, flagsparser.New(), envparser.New()).Fetch()
+	c, err := configprovider.New(configfile.Parser{PathProvider: cpp}, flagsparser.New(), envparser.New()).Fetch()
 	if err != nil {
 		log.Fatal(err)
 	}

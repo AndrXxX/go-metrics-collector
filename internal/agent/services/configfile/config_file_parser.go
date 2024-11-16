@@ -1,4 +1,4 @@
-package configfileparser
+package configfile
 
 import (
 	"encoding/json"
@@ -9,13 +9,13 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 )
 
-// ConfigFileParser сервис для парсинга файла конфигурации по пути из аргумента командной строки
-type ConfigFileParser struct {
+// Parser сервис для парсинга файла конфигурации
+type Parser struct {
 	PathProvider pathProvider
 }
 
-// Parse парсит файла конфигурации по пути из аргумента командной строки
-func (p ConfigFileParser) Parse(c *config.Config) error {
+// Parse парсит файл конфигурации
+func (p Parser) Parse(c *config.Config) error {
 	if p.PathProvider == nil {
 		return nil
 	}
