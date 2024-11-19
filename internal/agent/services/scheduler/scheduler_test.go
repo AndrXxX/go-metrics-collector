@@ -152,7 +152,7 @@ func Test_intervalScheduler_Run(t *testing.T) {
 		processors []processor
 		collectors []collector
 		running    bool
-		stopping   bool
+		shutdown   bool
 		wantErr    bool
 	}{
 		{
@@ -161,38 +161,34 @@ func Test_intervalScheduler_Run(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name:       "Test stopping",
-			collectors: []collector{&executor{}},
-			processors: []processor{&executor{}},
-			stopping:   true,
-			wantErr:    false,
-		},
-		{
 			name:       "Test with 1 collector and 1 processor",
 			collectors: []collector{&executor{err: fmt.Errorf("test error")}},
 			processors: []processor{&executor{}},
+			shutdown:   true,
 			wantErr:    false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			is := NewIntervalScheduler(100 * time.Millisecond)
+			is := NewIntervalScheduler(50 * time.Millisecond)
 			is.running.Store(tt.running)
-			is.stopping.Store(tt.stopping)
 			for _, c := range tt.collectors {
-				is.AddCollector(c, 10*time.Millisecond)
+				is.AddCollector(c, 75*time.Millisecond)
 			}
 			for _, p := range tt.processors {
-				is.AddProcessor(p, 10*time.Millisecond)
+				is.AddProcessor(p, 75*time.Millisecond)
 			}
 			go func() {
 				assert.Equal(t, tt.wantErr, is.Run() != nil)
 			}()
-			go func() {
-				is.wg.Add(1)
-				time.Sleep(200 * time.Millisecond)
-				is.stopping.Store(true)
-			}()
+			if tt.shutdown {
+				go func() {
+					time.Sleep(200 * time.Millisecond)
+					is.wg.Add(1)
+					is.stopping.Store(true)
+				}()
+			}
+			time.Sleep(200 * time.Millisecond)
 			is.wg.Wait()
 		})
 	}

@@ -39,9 +39,7 @@ func (s *intervalScheduler) Run() error {
 	}
 	logger.Log.Info("Scheduler running")
 	s.running.Store(true)
-	s.stopping.Store(false)
 	for {
-
 		ch := s.fanIn(s.collect()...)
 		s.process(ch)
 
@@ -50,8 +48,7 @@ func (s *intervalScheduler) Run() error {
 			s.running.Store(false)
 			s.wg.Done()
 			return nil
-		}
-		if len(s.collectors) > 0 || len(s.processors) > 0 {
+		} else if len(s.collectors) > 0 || len(s.processors) > 0 {
 			s.wg.Wait()
 		}
 		time.Sleep(s.sleepInterval)
