@@ -42,16 +42,16 @@ func (s *intervalScheduler) Run() error {
 	s.stopping.Store(false)
 	for {
 		channels := make([]chan dto.MetricsDto, 0)
-		for _, c := range s.collectors {
-			if !canExecute(c.lastExecuted, c.interval) {
+		for i := range s.collectors {
+			if !canExecute(s.collectors[i].lastExecuted, s.collectors[i].interval) {
 				continue
 			}
 			s.wg.Add(1)
 			ch := make(chan dto.MetricsDto)
 			channels = append(channels, ch)
 			go func() {
-				err := c.c.Collect(ch)
-				c.lastExecuted = time.Now()
+				err := s.collectors[i].c.Collect(ch)
+				s.collectors[i].lastExecuted = time.Now()
 				if err != nil {
 					logger.Log.Error("Error on collect", zap.Error(err))
 				}
@@ -100,15 +100,15 @@ func (s *intervalScheduler) Shutdown(ctx context.Context) error {
 }
 
 func (s *intervalScheduler) process(ch <-chan dto.MetricsDto) {
-	for _, p := range s.processors {
+	for i := range s.processors {
 		s.wg.Add(1)
 		go func() {
-			if !canExecute(p.lastExecuted, p.interval) {
+			if !canExecute(s.processors[i].lastExecuted, s.processors[i].interval) {
 				s.wg.Done()
 				return
 			}
-			err := p.p.Process(ch)
-			p.lastExecuted = time.Now()
+			err := s.processors[i].p.Process(ch)
+			s.processors[i].lastExecuted = time.Now()
 			if err != nil {
 				logger.Log.Error("Error on collect", zap.Error(err))
 			}
