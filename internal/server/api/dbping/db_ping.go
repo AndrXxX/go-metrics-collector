@@ -15,20 +15,13 @@ type dbPingHandler struct {
 // Handler возвращает http.HandlerFunc
 func (h *dbPingHandler) Handler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		h.handle(w, r, nil)
-	}
-}
-
-func (h *dbPingHandler) handle(w http.ResponseWriter, r *http.Request, next http.Handler) {
-	err := h.c.Check(r.Context())
-	if err != nil {
-		logger.Log.Error("Error on check db", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
-	if next != nil {
-		next.ServeHTTP(w, r)
+		err := h.c.Check(r.Context())
+		if err != nil {
+			logger.Log.Error("Error on check db", zap.Error(err))
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
 	}
 }
 
