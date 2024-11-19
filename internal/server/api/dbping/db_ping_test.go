@@ -8,13 +8,14 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-type testDbChecker struct {
+type testDBChecker struct {
 	err error
 }
 
-func (c testDbChecker) Check(_ context.Context) error {
+func (c testDBChecker) Check(_ context.Context) error {
 	return c.err
 }
 
@@ -26,8 +27,8 @@ func TestNew(t *testing.T) {
 	}{
 		{
 			name: "Test with checker",
-			c:    testDbChecker{},
-			want: &dbPingHandler{testDbChecker{}},
+			c:    testDBChecker{},
+			want: &dbPingHandler{testDBChecker{}},
 		},
 		{
 			name: "Test without checker",
@@ -49,12 +50,12 @@ func Test_dbPingHandler_Handler(t *testing.T) {
 	}{
 		{
 			name:     "StatusInternalServerError",
-			c:        testDbChecker{err: fmt.Errorf("test error")},
+			c:        testDBChecker{err: fmt.Errorf("test error")},
 			wantCode: http.StatusInternalServerError,
 		},
 		{
 			name:     "StatusOK",
-			c:        testDbChecker{},
+			c:        testDBChecker{},
 			wantCode: http.StatusOK,
 		},
 	}
@@ -66,6 +67,10 @@ func Test_dbPingHandler_Handler(t *testing.T) {
 			h.Handler()(w, r)
 			result := w.Result()
 			assert.Equal(t, tt.wantCode, result.StatusCode)
+			if result.Body != nil {
+				err := result.Body.Close()
+				require.NoError(t, err)
+			}
 		})
 	}
 }
