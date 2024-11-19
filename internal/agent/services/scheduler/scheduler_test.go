@@ -2,7 +2,7 @@ package scheduler
 
 import (
 	"context"
-	"sync"
+	"fmt"
 	"testing"
 	"time"
 
@@ -12,17 +12,20 @@ import (
 )
 
 type executor struct {
+	err           error
+	calledProcess bool
 }
 
 func (t *executor) Collect(_ chan<- dto.MetricsDto) error {
-	return nil
+	return t.err
 }
 
-func (t *executor) Process(<-chan dto.MetricsDto) error {
-	return nil
+func (t *executor) Process(ch <-chan dto.MetricsDto) error {
+	t.calledProcess = true
+	return t.err
 }
 
-func TestIntervalScheduler_AddCollector(t *testing.T) {
+func Test_intervalScheduler_AddCollector(t *testing.T) {
 	type args struct {
 		c        collector
 		interval time.Duration
@@ -55,7 +58,7 @@ func TestIntervalScheduler_AddCollector(t *testing.T) {
 	}
 }
 
-func TestIntervalScheduler_AddProcessor(t *testing.T) {
+func Test_intervalScheduler_AddProcessor(t *testing.T) {
 	type args struct {
 		p        processor
 		interval time.Duration
@@ -144,37 +147,152 @@ func Test_canExecute(t *testing.T) {
 }
 
 func Test_intervalScheduler_Run(t *testing.T) {
-	type fields struct {
-		processors    []processorItem
-		collectors    []collectorItem
-		running       bool
-		stopping      bool
-		sleepInterval time.Duration
-	}
 	tests := []struct {
-		name    string
-		fields  fields
-		wantErr bool
+		name       string
+		processors []processor
+		collectors []collector
+		running    bool
+		stopping   bool
+		wantErr    bool
 	}{
-		{},
+		{
+			name:    "Test with error on already run",
+			running: true,
+			wantErr: true,
+		},
+		{
+			name:       "Test stopping",
+			collectors: []collector{&executor{}},
+			processors: []processor{&executor{}},
+			stopping:   true,
+			wantErr:    false,
+		},
+		{
+			name:       "Test with 1 collector and 1 processor",
+			collectors: []collector{&executor{err: fmt.Errorf("test error")}},
+			processors: []processor{&executor{}},
+			wantErr:    false,
+		},
 	}
 	for _, tt := range tests {
-		var wg sync.WaitGroup
 		t.Run(tt.name, func(t *testing.T) {
-			// TODO: написать test cases
 			is := NewIntervalScheduler(1)
-			wg.Add(1)
+			is.running.Store(tt.running)
+			is.stopping.Store(tt.stopping)
+			for _, c := range tt.collectors {
+				is.AddCollector(c, 10*time.Millisecond)
+			}
+			for _, p := range tt.processors {
+				is.AddProcessor(p, 10*time.Millisecond)
+			}
 			go func() {
 				assert.Equal(t, tt.wantErr, is.Run() != nil)
-				wg.Done()
 			}()
-			wg.Add(1)
 			go func() {
 				time.Sleep(100 * time.Millisecond)
-				_ = is.Shutdown(context.Background())
-				wg.Done()
+				is.stopping.Store(true)
 			}()
-			wg.Wait()
+			time.Sleep(200 * time.Millisecond)
+			is.wg.Wait()
 		})
 	}
+}
+
+func Test_intervalScheduler_Shutdown(t *testing.T) {
+	t.Run("Test shutdown by cancel context", func(t *testing.T) {
+		s := &intervalScheduler{}
+		ctx, cancel := context.WithCancel(context.Background())
+		go func() {
+			assert.Equal(t, true, s.Shutdown(ctx) != nil)
+		}()
+		cancel()
+	})
+	t.Run("Test shutdown OK", func(t *testing.T) {
+		s := &intervalScheduler{}
+		go s.wg.Done()
+		assert.Equal(t, false, s.Shutdown(context.Background()) != nil)
+	})
+}
+
+func Test_intervalScheduler_fanIn(t *testing.T) {
+	push := func(ch chan dto.MetricsDto, list ...dto.MetricsDto) {
+		for _, v := range list {
+			ch <- v
+		}
+		close(ch)
+	}
+	tests := []struct {
+		name string
+		chs  []chan dto.MetricsDto
+		want chan dto.MetricsDto
+	}{
+		{
+			name: "Test with zero chan",
+			chs:  make([]chan dto.MetricsDto, 0),
+			want: make(chan dto.MetricsDto),
+		},
+		{
+			name: "Test with one chan (1 item)",
+			chs: func() []chan dto.MetricsDto {
+				res := make([]chan dto.MetricsDto, 0)
+				ch1 := make(chan dto.MetricsDto)
+				res = append(res, ch1)
+				go push(ch1, dto.MetricsDto{})
+				return res
+			}(),
+			want: make(chan dto.MetricsDto),
+		},
+		{
+			name: "Test with 2 chan (2 and 1 items)",
+			chs: func() []chan dto.MetricsDto {
+				res := make([]chan dto.MetricsDto, 0)
+				ch1 := make(chan dto.MetricsDto, 2)
+				res = append(res, ch1)
+				go push(ch1, dto.MetricsDto{}, dto.MetricsDto{})
+				ch2 := make(chan dto.MetricsDto)
+				res = append(res, ch2)
+				go push(ch2, dto.MetricsDto{})
+				return res
+			}(),
+			want: make(chan dto.MetricsDto, 3),
+		},
+		{
+			name: "Test with two chan",
+			chs: func() []chan dto.MetricsDto {
+				res := make([]chan dto.MetricsDto, 0)
+				ch1 := make(chan dto.MetricsDto, 2)
+				res = append(res, ch1)
+				go push(ch1, dto.MetricsDto{}, dto.MetricsDto{})
+				ch2 := make(chan dto.MetricsDto)
+				res = append(res, ch2)
+				go push(ch2, dto.MetricsDto{})
+				return res
+			}(),
+			want: make(chan dto.MetricsDto, 3),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := NewIntervalScheduler(0)
+			assert.Equal(t, len(tt.want), len(s.fanIn(tt.chs...)))
+		})
+	}
+}
+
+func Test_intervalScheduler_process(t *testing.T) {
+	t.Run("Test with one processor", func(t *testing.T) {
+		s := NewIntervalScheduler(50 * time.Millisecond)
+		excr := executor{err: fmt.Errorf("test error")}
+		s.AddProcessor(&excr, 1000*time.Millisecond)
+		ch := make(chan dto.MetricsDto, 1)
+		s.process(ch)
+		s.wg.Wait()
+		assert.Equal(t, true, excr.calledProcess)
+
+		time.Sleep(200 * time.Millisecond)
+		excr.calledProcess = false
+		s.process(ch)
+		s.wg.Wait()
+		assert.Equal(t, false, excr.calledProcess)
+	})
 }
