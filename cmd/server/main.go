@@ -42,7 +42,7 @@ func main() {
 		logger.Log.Info(bInfo)
 	}
 
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 	defer stop()
 	db, err := dbprovider.New(c).DB()
 	if err != nil {
