@@ -70,10 +70,10 @@ func (s *intervalScheduler) Run() error {
 			}()
 		}
 		if s.stopping.Load() {
-			s.wg.Done()
 			s.stopping.Store(false)
 			s.running.Store(false)
 			logger.Log.Info("Scheduler stopped")
+			s.wg.Done()
 			return nil
 		}
 		if len(s.collectors) > 0 || len(s.processors) > 0 {
