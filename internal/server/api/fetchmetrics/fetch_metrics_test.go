@@ -2,23 +2,39 @@ package fetchmetrics
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
-	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricschecker"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsformatter"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsidentifier"
 )
+
+type testIdentifier struct {
+	err error
+	m   models.Metrics
+}
+
+func (i testIdentifier) Process(_ *http.Request) (*models.Metrics, error) {
+	return &i.m, i.err
+}
+
+type testFormatter struct {
+	err error
+	v   string
+}
+
+// Format возвращает значение метрики в виде строки
+func (s testFormatter) Format(_ *models.Metrics) (string, error) {
+	return s.v, s.err
+}
 
 func TestFetchMetricsHandlerGaugeHandle(t *testing.T) {
 	type want struct {
@@ -26,57 +42,57 @@ func TestFetchMetricsHandlerGaugeHandle(t *testing.T) {
 		body       string
 	}
 	tests := []struct {
-		name    string
-		request string
-		vars    map[string]string
-		method  string
-		fields  map[string]float64
-		want    want
+		name   string
+		fields map[string]float64
+		i      identifier
+		f      formatter
+		want   want
 	}{
 		{
-			name:    "StatusBadRequest test with unknown metric type",
-			request: "/value/counter/test",
-			vars:    map[string]string{vars.Metric: "test", vars.MetricType: "unknown"},
-			method:  http.MethodGet,
-			fields:  map[string]float64{},
-			want: want{
-				statusCode: http.StatusBadRequest,
-				body:       "",
-			},
-		},
-		{
-			name:    "StatusNotFound test with empty metric in storage",
-			request: "/value/gauge/test",
-			vars:    map[string]string{vars.Metric: "test", vars.MetricType: metrics.Gauge},
-			method:  http.MethodGet,
-			fields:  map[string]float64{},
+			name: "StatusNotFound test with not processed metric",
+			i:    testIdentifier{err: fmt.Errorf("test error")},
 			want: want{
 				statusCode: http.StatusNotFound,
-				body:       "",
 			},
 		},
 		{
-			name:    "StatusOK test",
-			request: "/value/gauge/test",
-			vars:    map[string]string{vars.Metric: "test", vars.MetricType: metrics.Gauge},
-			method:  http.MethodGet,
-			fields:  map[string]float64{"test": 10.1},
+			name: "StatusBadRequest test with unknown metric type",
+			i:    testIdentifier{m: models.Metrics{ID: "test", MType: "unknown"}},
+			want: want{
+				statusCode: http.StatusBadRequest,
+			},
+		},
+		{
+			name: "StatusNotFound test with empty metric in storage",
+			i:    testIdentifier{m: models.Metrics{ID: "test", MType: metrics.Gauge}},
+			want: want{
+				statusCode: http.StatusNotFound,
+			},
+		},
+		{
+			name:   "StatusOK test",
+			fields: map[string]float64{"test": 10.1},
+			i:      testIdentifier{m: models.Metrics{ID: "test", MType: metrics.Gauge}},
+			f:      testFormatter{v: "10.1"},
 			want: want{
 				statusCode: http.StatusOK,
 				body:       "10.1",
 			},
 		},
+		{
+			name:   "StatusInternalServerError on format value",
+			fields: map[string]float64{"test": 10.1},
+			i:      testIdentifier{m: models.Metrics{ID: "test", MType: metrics.Gauge}},
+			f:      testFormatter{err: fmt.Errorf("test error")},
+			want: want{
+				statusCode: http.StatusInternalServerError,
+			},
+		},
 	}
 
-	identifier := metricsidentifier.NewURLIdentifier()
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			request := httptest.NewRequest(test.method, test.request, nil)
-			rc := chi.NewRouteContext()
-			request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, rc))
-			for k, v := range test.vars {
-				rc.URLParams.Add(k, v)
-			}
+			request := httptest.NewRequest(http.MethodGet, "/test", nil)
 
 			storage := memory.New[*models.Metrics]()
 			ctx := context.TODO()
@@ -88,7 +104,7 @@ func TestFetchMetricsHandlerGaugeHandle(t *testing.T) {
 				})
 			}
 			w := httptest.NewRecorder()
-			h := New(&storage, metricsformatter.MetricsValueFormatter{}, identifier, metricschecker.New())
+			h := New(&storage, test.f, test.i, metricschecker.New())
 			h.Handler()(w, request)
 			result := w.Result()
 
@@ -110,41 +126,31 @@ func TestFetchMetricsHandlerCounterHandle(t *testing.T) {
 		body       string
 	}
 	tests := []struct {
-		name    string
-		request string
-		vars    map[string]string
-		method  string
-		fields  map[string]int64
-		want    want
+		name   string
+		fields map[string]int64
+		i      identifier
+		f      formatter
+		want   want
 	}{
 		{
-			name:    "StatusBadRequest test with unknown metric type",
-			request: "/value/counter/test",
-			vars:    map[string]string{vars.Metric: "test", vars.MetricType: "unknown"},
-			method:  http.MethodGet,
-			fields:  map[string]int64{},
+			name: "StatusBadRequest test with unknown metric type",
+			i:    testIdentifier{m: models.Metrics{ID: "test", MType: "unknown"}},
 			want: want{
 				statusCode: http.StatusBadRequest,
-				body:       "",
 			},
 		},
 		{
-			name:    "StatusNotFound test with empty metric in storage",
-			request: "/value/counter/test",
-			vars:    map[string]string{vars.Metric: "test", vars.MetricType: metrics.Counter},
-			method:  http.MethodGet,
-			fields:  map[string]int64{},
+			name: "StatusNotFound test with empty metric in storage",
+			i:    testIdentifier{m: models.Metrics{ID: "test", MType: metrics.Counter}},
 			want: want{
 				statusCode: http.StatusNotFound,
-				body:       "",
 			},
 		},
 		{
-			name:    "StatusOK test",
-			request: "/value/counter/test",
-			vars:    map[string]string{vars.Metric: "test", vars.MetricType: metrics.Counter},
-			method:  http.MethodGet,
-			fields:  map[string]int64{"test": 10},
+			name:   "StatusOK test",
+			fields: map[string]int64{"test": 10},
+			i:      testIdentifier{m: models.Metrics{ID: "test", MType: metrics.Counter}},
+			f:      testFormatter{v: "10"},
 			want: want{
 				statusCode: http.StatusOK,
 				body:       "10",
@@ -152,15 +158,9 @@ func TestFetchMetricsHandlerCounterHandle(t *testing.T) {
 		},
 	}
 
-	identifier := metricsidentifier.NewURLIdentifier()
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			request := httptest.NewRequest(test.method, test.request, nil)
-			rc := chi.NewRouteContext()
-			request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, rc))
-			for k, v := range test.vars {
-				rc.URLParams.Add(k, v)
-			}
+			request := httptest.NewRequest(http.MethodGet, "/test", nil)
 
 			ctx := context.TODO()
 			storage := memory.New[*models.Metrics]()
@@ -172,7 +172,7 @@ func TestFetchMetricsHandlerCounterHandle(t *testing.T) {
 				})
 			}
 			w := httptest.NewRecorder()
-			h := New(&storage, metricsformatter.MetricsValueFormatter{}, identifier, metricschecker.New())
+			h := New(&storage, test.f, test.i, metricschecker.New())
 			h.Handler()(w, request)
 			result := w.Result()
 
