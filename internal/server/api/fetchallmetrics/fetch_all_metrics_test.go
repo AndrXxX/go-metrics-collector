@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
@@ -72,9 +73,14 @@ func Test_fetchAllMetricsHandler_Handler(t *testing.T) {
 			h.Handler()(w, r)
 			result := w.Result()
 			assert.Equal(t, tt.wantCode, result.StatusCode)
-			body, _ := io.ReadAll(result.Body)
+			body, err := io.ReadAll(result.Body)
+			require.NoError(t, err)
 			for _, val := range tt.wantInBody {
 				assert.Contains(t, string(body), val)
+			}
+			if result.Body != nil {
+				err := result.Body.Close()
+				require.NoError(t, err)
 			}
 		})
 	}
