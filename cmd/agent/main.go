@@ -29,7 +29,7 @@ func main() {
 	if err := logger.Initialize(c.Common.LogLevel); err != nil {
 		log.Fatal(err)
 	}
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 	defer stop()
 
 	buildFormatter := buildformatter.BuildFormatter{
