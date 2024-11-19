@@ -176,7 +176,7 @@ func Test_intervalScheduler_Run(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			is := NewIntervalScheduler(1)
+			is := NewIntervalScheduler(100 * time.Millisecond)
 			is.running.Store(tt.running)
 			is.stopping.Store(tt.stopping)
 			for _, c := range tt.collectors {
@@ -189,10 +189,10 @@ func Test_intervalScheduler_Run(t *testing.T) {
 				assert.Equal(t, tt.wantErr, is.Run() != nil)
 			}()
 			go func() {
-				time.Sleep(100 * time.Millisecond)
+				is.wg.Add(1)
+				time.Sleep(200 * time.Millisecond)
 				is.stopping.Store(true)
 			}()
-			time.Sleep(200 * time.Millisecond)
 			is.wg.Wait()
 		})
 	}

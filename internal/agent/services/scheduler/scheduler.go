@@ -41,15 +41,14 @@ func (s *intervalScheduler) Run() error {
 	s.running.Store(true)
 	s.stopping.Store(false)
 	for {
-		channels := make([]chan dto.MetricsDto, 0)
-		s.collect(channels)
-		ch := s.fanIn(channels...)
+
+		ch := s.fanIn(s.collect()...)
 		s.process(ch)
 
 		if s.stopping.Load() {
 			s.stopping.Store(false)
 			s.running.Store(false)
-			logger.Log.Info("Scheduler stopped")
+			s.wg.Done()
 			return nil
 		}
 		if len(s.collectors) > 0 || len(s.processors) > 0 {
@@ -69,6 +68,7 @@ func (s *intervalScheduler) Shutdown(ctx context.Context) error {
 			s.stopping.Store(true)
 		}()
 		s.wg.Wait()
+		logger.Log.Info("Scheduler stopped")
 	case <-ctx.Done():
 		return ctx.Err()
 	}
@@ -92,7 +92,8 @@ func (s *intervalScheduler) process(ch <-chan dto.MetricsDto) {
 	}
 }
 
-func (s *intervalScheduler) collect(channels []chan dto.MetricsDto) {
+func (s *intervalScheduler) collect() []chan dto.MetricsDto {
+	channels := make([]chan dto.MetricsDto, 0)
 	for i := range s.collectors {
 		if !canExecute(s.collectors[i].lastExecuted, s.collectors[i].interval) {
 			continue
@@ -109,6 +110,7 @@ func (s *intervalScheduler) collect(channels []chan dto.MetricsDto) {
 			s.wg.Done()
 		}()
 	}
+	return channels
 }
 
 func (s *intervalScheduler) fanIn(chs ...chan dto.MetricsDto) chan dto.MetricsDto {
@@ -116,11 +118,11 @@ func (s *intervalScheduler) fanIn(chs ...chan dto.MetricsDto) chan dto.MetricsDt
 
 	var wg sync.WaitGroup
 	for _, ch := range chs {
-		chClosure := ch
+		curChan := ch
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			for data := range chClosure {
+			for data := range curChan {
 				finalCh <- data
 			}
 		}()
