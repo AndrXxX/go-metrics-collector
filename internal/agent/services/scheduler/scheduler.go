@@ -59,16 +59,11 @@ func (s *intervalScheduler) Run() error {
 			}()
 		}
 		ch := s.fanIn(channels...)
-		for _, p := range s.processors {
-			if !canExecute(p.lastExecuted, p.interval) {
-				continue
-			}
-			s.wg.Add(1)
-			go func() {
-				s.process(ch)
-				s.wg.Done()
-			}()
-		}
+		s.wg.Add(1)
+		go func() {
+			s.process(ch)
+			s.wg.Done()
+		}()
 		if s.stopping.Load() {
 			s.stopping.Store(false)
 			s.running.Store(false)
