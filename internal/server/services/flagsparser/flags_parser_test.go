@@ -61,6 +61,12 @@ func Test_parseFlags(t *testing.T) {
 			flags:  []string{"-k", "abc"},
 			want:   &config.Config{Key: "abc"},
 		},
+		{
+			name:   "-crypto-key=/path/to/file.private",
+			config: &config.Config{CryptoKey: "some-path"},
+			flags:  []string{"-crypto-key", "/path/to/file.private"},
+			want:   &config.Config{CryptoKey: "/path/to/file.private"},
+		},
 	}
 	for _, tt := range tests {
 		run(t, tt)

@@ -12,6 +12,7 @@ func NewConfig() *Config {
 			Host:      defaults.Host,
 			LogLevel:  defaults.LogLevel,
 			Key:       defaults.Key,
+			CryptoKey: defaults.Key,
 			RateLimit: defaults.RateLimit,
 		},
 		Intervals: Intervals{
