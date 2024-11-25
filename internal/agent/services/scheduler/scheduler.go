@@ -78,14 +78,14 @@ func (s *intervalScheduler) process(ch <-chan dto.MetricsDto) {
 			continue
 		}
 		s.wg.Add(1)
-		go func() {
-			err := s.processors[i].p.Process(ch)
-			s.processors[i].lastExecuted = time.Now()
+		go func(id int) {
+			err := s.processors[id].p.Process(ch)
+			s.processors[id].lastExecuted = time.Now()
 			if err != nil {
 				logger.Log.Error("Error on collect", zap.Error(err))
 			}
 			s.wg.Done()
-		}()
+		}(i)
 	}
 }
 
@@ -98,14 +98,14 @@ func (s *intervalScheduler) collect() []chan dto.MetricsDto {
 		s.wg.Add(1)
 		ch := make(chan dto.MetricsDto)
 		channels = append(channels, ch)
-		go func() {
-			err := s.collectors[i].c.Collect(ch)
-			s.collectors[i].lastExecuted = time.Now()
+		go func(id int) {
+			err := s.collectors[id].c.Collect(ch)
+			s.collectors[id].lastExecuted = time.Now()
 			if err != nil {
 				logger.Log.Error("Error on collect", zap.Error(err))
 			}
 			s.wg.Done()
-		}()
+		}(i)
 	}
 	return channels
 }
@@ -115,14 +115,13 @@ func (s *intervalScheduler) fanIn(chs ...chan dto.MetricsDto) chan dto.MetricsDt
 
 	var wg sync.WaitGroup
 	for _, ch := range chs {
-		curChan := ch
 		wg.Add(1)
-		go func() {
+		go func(curChan chan dto.MetricsDto) {
 			defer wg.Done()
 			for data := range curChan {
 				finalCh <- data
 			}
-		}()
+		}(ch)
 	}
 
 	go func() {
