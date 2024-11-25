@@ -60,6 +60,13 @@ func TestFlagPathProvider_Fetch(t *testing.T) {
 			want:      "/path/to/file",
 			wantErr:   false,
 		},
+		{
+			name:      "Test with -config=/path/to/file and additional flags",
+			flagNames: []string{"c", "config"},
+			flags:     []string{"-config", "/path/to/file", "-a", "someValue"},
+			want:      "/path/to/file",
+			wantErr:   false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
