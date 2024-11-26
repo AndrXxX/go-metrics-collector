@@ -40,8 +40,10 @@ func (s *intervalScheduler) Run() error {
 	logger.Log.Info("Scheduler running")
 	s.running.Store(true)
 	for {
-		ch := s.fanIn(s.collect()...)
-		s.process(ch)
+		chs := s.collect()
+		if len(chs) > 0 {
+			s.process(s.fanIn(chs))
+		}
 
 		if s.stopping.Load() {
 			s.stopping.Store(false)
@@ -112,9 +114,8 @@ func (s *intervalScheduler) collect() []chan dto.MetricsDto {
 	return channels
 }
 
-func (s *intervalScheduler) fanIn(chs ...chan dto.MetricsDto) chan dto.MetricsDto {
+func (s *intervalScheduler) fanIn(chs []chan dto.MetricsDto) chan dto.MetricsDto {
 	finalCh := make(chan dto.MetricsDto)
-
 	var wg sync.WaitGroup
 	for _, ch := range chs {
 		wg.Add(1)
