@@ -48,7 +48,6 @@ func (s *intervalScheduler) Run() error {
 		if s.stopping.Load() {
 			s.stopping.Store(false)
 			s.running.Store(false)
-			s.wg.Done()
 			return nil
 		} else if len(s.collectors) > 0 || len(s.processors) > 0 {
 			s.wg.Wait()
@@ -62,11 +61,13 @@ func (s *intervalScheduler) Shutdown(ctx context.Context) error {
 	select {
 	default:
 		logger.Log.Info("Scheduler shutting down")
-		s.wg.Add(1)
-		go func() {
-			s.stopping.Store(true)
-		}()
-		s.wg.Wait()
+		s.stopping.Store(true)
+		for {
+			if !s.running.Load() {
+				break
+			}
+			time.Sleep(s.sleepInterval)
+		}
 		logger.Log.Info("Scheduler stopped")
 	case <-ctx.Done():
 		return ctx.Err()
