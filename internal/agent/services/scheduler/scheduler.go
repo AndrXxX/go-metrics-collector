@@ -24,12 +24,12 @@ type intervalScheduler struct {
 
 // AddProcessor добавляет обработчик для выполнения действий с собранными метриками
 func (s *intervalScheduler) AddProcessor(p processor, interval time.Duration) {
-	s.processors = append(s.processors, processorItem{p: p, interval: interval})
+	s.processors = append(s.processors, processorItem{p: p, item: item{interval: interval}})
 }
 
 // AddCollector добавляет обработчик для сбора метрик
 func (s *intervalScheduler) AddCollector(c collector, interval time.Duration) {
-	s.collectors = append(s.collectors, collectorItem{c: c, interval: interval})
+	s.collectors = append(s.collectors, collectorItem{c: c, item: item{interval: interval}})
 }
 
 // Run запускает планировщик
@@ -40,8 +40,10 @@ func (s *intervalScheduler) Run() error {
 	logger.Log.Info("Scheduler running")
 	s.running.Store(true)
 	for {
-		ch := s.fanIn(s.collect()...)
-		s.process(ch)
+		chs := s.collect()
+		if len(chs) > 0 {
+			s.process(s.fanIn(chs))
+		}
 
 		if s.stopping.Load() {
 			s.stopping.Store(false)
@@ -74,33 +76,35 @@ func (s *intervalScheduler) Shutdown(ctx context.Context) error {
 
 func (s *intervalScheduler) process(ch <-chan dto.MetricsDto) {
 	for i := range s.processors {
-		if !canExecute(s.processors[i].lastExecuted, s.processors[i].interval) {
+		if !s.processors[i].canExecute() {
 			continue
 		}
+		s.processors[i].start()
 		s.wg.Add(1)
-		go func(id int) {
+		go func(id int, ch <-chan dto.MetricsDto) {
 			err := s.processors[id].p.Process(ch)
-			s.processors[id].lastExecuted = time.Now()
+			s.processors[id].finish()
 			if err != nil {
-				logger.Log.Error("Error on collect", zap.Error(err))
+				logger.Log.Error("Error on process", zap.Error(err))
 			}
 			s.wg.Done()
-		}(i)
+		}(i, ch)
 	}
 }
 
 func (s *intervalScheduler) collect() []chan dto.MetricsDto {
 	channels := make([]chan dto.MetricsDto, 0)
 	for i := range s.collectors {
-		if !canExecute(s.collectors[i].lastExecuted, s.collectors[i].interval) {
+		if !s.collectors[i].canExecute() {
 			continue
 		}
+		s.collectors[i].start()
 		s.wg.Add(1)
 		ch := make(chan dto.MetricsDto)
 		channels = append(channels, ch)
 		go func(id int) {
 			err := s.collectors[id].c.Collect(ch)
-			s.collectors[id].lastExecuted = time.Now()
+			s.collectors[id].finish()
 			if err != nil {
 				logger.Log.Error("Error on collect", zap.Error(err))
 			}
@@ -110,9 +114,8 @@ func (s *intervalScheduler) collect() []chan dto.MetricsDto {
 	return channels
 }
 
-func (s *intervalScheduler) fanIn(chs ...chan dto.MetricsDto) chan dto.MetricsDto {
+func (s *intervalScheduler) fanIn(chs []chan dto.MetricsDto) chan dto.MetricsDto {
 	finalCh := make(chan dto.MetricsDto)
-
 	var wg sync.WaitGroup
 	for _, ch := range chs {
 		wg.Add(1)
@@ -129,10 +132,6 @@ func (s *intervalScheduler) fanIn(chs ...chan dto.MetricsDto) chan dto.MetricsDt
 		close(finalCh)
 	}()
 	return finalCh
-}
-
-func canExecute(lastExecuted time.Time, interval time.Duration) bool {
-	return time.Since(lastExecuted) >= interval
 }
 
 // NewIntervalScheduler возвращает планировщик, управляющий сборщиками и обработчиками
