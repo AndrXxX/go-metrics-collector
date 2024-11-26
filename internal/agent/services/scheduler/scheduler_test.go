@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
 )
@@ -104,11 +105,8 @@ func Test_intervalScheduler_Run(t *testing.T) {
 				assert.Equal(t, tt.wantErr, is.Run() != nil)
 			}()
 			if tt.shutdown {
-				go func() {
-					time.Sleep(200 * time.Millisecond)
-					is.wg.Add(1)
-					is.stopping.Store(true)
-				}()
+				time.Sleep(200 * time.Millisecond)
+				require.NoError(t, is.Shutdown(context.Background()))
 			}
 			time.Sleep(200 * time.Millisecond)
 			is.wg.Wait()
@@ -127,7 +125,6 @@ func Test_intervalScheduler_Shutdown(t *testing.T) {
 	})
 	t.Run("Test shutdown OK", func(t *testing.T) {
 		s := &intervalScheduler{}
-		go s.wg.Done()
 		assert.Equal(t, false, s.Shutdown(context.Background()) != nil)
 	})
 }
