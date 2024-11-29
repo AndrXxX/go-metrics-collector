@@ -76,6 +76,7 @@ func (a *app) Run(commonCtx context.Context) error {
 
 	r.Route("/updates", func(r chi.Router) {
 		r.Use(apilogger.New().Handler)
+		r.Use(middlewares.HasGrantedXRealIPOr403(a.config.c.TrustedSubnet).Handler)
 		r.Use(middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key).Handler)
 		r.Use(middlewares.CompressGzip().Handler)
 		r.Use(middlewares.SetContentType(contenttypes.ApplicationJSON).Handler)
@@ -86,6 +87,7 @@ func (a *app) Run(commonCtx context.Context) error {
 
 	r.Route(fmt.Sprintf("/update/{%v}/{%v}/{%v}", vars.MetricType, vars.Metric, vars.Value), func(r chi.Router) {
 		r.Use(apilogger.New().Handler)
+		r.Use(middlewares.HasGrantedXRealIPOr403(a.config.c.TrustedSubnet).Handler)
 		r.Use(middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key).Handler)
 		r.Use(middlewares.SetContentType(contenttypes.TextPlain).Handler)
 		r.Use(middlewares.HasMetricOr404().Handler)
@@ -99,6 +101,7 @@ func (a *app) Run(commonCtx context.Context) error {
 
 	r.Route("/update", func(r chi.Router) {
 		r.Use(apilogger.New().Handler)
+		r.Use(middlewares.HasGrantedXRealIPOr403(a.config.c.TrustedSubnet).Handler)
 		r.Use(middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key).Handler)
 		r.Use(middlewares.CompressGzip().Handler)
 		r.Use(middlewares.SetContentType(contenttypes.ApplicationJSON).Handler)
