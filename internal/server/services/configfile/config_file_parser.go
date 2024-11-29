@@ -45,6 +45,7 @@ func (p Parser) Parse(c *config.Config) error {
 	set(jc.StoreFile, &c.FileStoragePath)
 	set(jc.DatabaseDsn, &c.DatabaseDSN)
 	set(jc.CryptoKey, &c.CryptoKey)
+	set(jc.TrustedSubnet, &c.TrustedSubnet)
 	return nil
 }
 
