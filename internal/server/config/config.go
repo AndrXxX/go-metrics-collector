@@ -11,4 +11,5 @@ type Config struct {
 	DatabaseDSN     string
 	Key             string
 	CryptoKey       string
+	TrustedSubnet   string
 }
