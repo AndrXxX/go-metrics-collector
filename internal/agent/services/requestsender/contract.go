@@ -3,6 +3,8 @@ package requestsender
 import (
 	"io"
 	"net/http"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/requestsender/dto"
 )
 
 type client interface {
@@ -16,3 +18,5 @@ type hashGenerator interface {
 type dataCompressor interface {
 	Compress(in []byte) (io.Reader, error)
 }
+
+type Option func(*dto.ParamsDto) error

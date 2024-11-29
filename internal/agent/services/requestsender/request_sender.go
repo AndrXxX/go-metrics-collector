@@ -2,50 +2,41 @@ package requestsender
 
 import (
 	"bytes"
-	"fmt"
-	"io"
 	"net/http"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/requestsender/dto"
 )
 
 // RequestSender сервис для отправки запросов
 type RequestSender struct {
 	c    client
-	hg   hashGenerator
-	comp dataCompressor
-	key  string
-	ip   string
+	opts []Option
 }
 
 // New возвращает сервис RequestSender для отправки запросов
-func New(c client, hg hashGenerator, key string, comp dataCompressor, ip string) *RequestSender {
-	return &RequestSender{c, hg, comp, key, ip}
+func New(c client, opts ...Option) *RequestSender {
+	return &RequestSender{c, opts}
 }
 
 // Post отправляет запрос методом Post
 func (s *RequestSender) Post(url string, contentType string, data []byte) error {
-	buf, err := s.comp.Compress(data)
-	if err != nil {
-		return err
+	params := dto.ParamsDto{
+		Buf:     bytes.NewBuffer(data),
+		Data:    data,
+		Headers: map[string]string{"Content-Type": contentType},
 	}
-	var encoded []byte
-	if s.key != "" {
-		encoded, err = io.ReadAll(buf)
+	for _, opt := range s.opts {
+		err := opt(&params)
 		if err != nil {
-			return fmt.Errorf("error on read encoded data: %w", err)
+			return err
 		}
-		buf = bytes.NewBuffer(encoded)
 	}
-
-	r, err := http.NewRequest("POST", url, buf)
+	r, err := http.NewRequest("POST", url, params.Buf)
 	if err != nil {
 		return err
 	}
-	r.Header.Set("Content-Type", contentType)
-	r.Header.Set("Content-Encoding", "gzip")
-	r.Header.Set("Accept-Encoding", "gzip")
-	r.Header.Set("X-Real-IP", s.ip)
-	if s.key != "" {
-		r.Header.Set("HashSHA256", s.hg.Generate(s.key, encoded))
+	for k, v := range params.Headers {
+		r.Header.Set(k, v)
 	}
 
 	resp, err := s.c.Do(r)
