@@ -18,7 +18,6 @@ func WithSHA256(hg hashGenerator, key string) Option {
 			return fmt.Errorf("error on read encoded data: %w", err)
 		}
 		p.Buf = bytes.NewBuffer(encoded)
-		p.Data = encoded
 		p.Headers["HashSHA256"] = hg.Generate(key, encoded)
 		return nil
 	}

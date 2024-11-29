@@ -1,10 +1,18 @@
 package requestsender
 
-import "github.com/AndrXxX/go-metrics-collector/internal/agent/services/requestsender/dto"
+import (
+	"io"
+
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/requestsender/dto"
+)
 
 func WithGzip(comp dataCompressor) Option {
 	return func(p *dto.ParamsDto) error {
-		buf, err := comp.Compress(p.Data)
+		data, err := io.ReadAll(p.Buf)
+		if err != nil {
+			return err
+		}
+		buf, err := comp.Compress(data)
 		if err != nil {
 			return err
 		}

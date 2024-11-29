@@ -22,7 +22,6 @@ func New(c client, opts ...Option) *RequestSender {
 func (s *RequestSender) Post(url string, contentType string, data []byte) error {
 	params := dto.ParamsDto{
 		Buf:     bytes.NewBuffer(data),
-		Data:    data,
 		Headers: map[string]string{"Content-Type": contentType},
 	}
 	for _, opt := range s.opts {
