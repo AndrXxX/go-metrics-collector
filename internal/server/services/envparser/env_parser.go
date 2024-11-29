@@ -16,6 +16,7 @@ type envConfig struct {
 	DatabaseDSN     string `env:"DATABASE_DSN"`
 	Key             string `env:"KEY"`
 	CryptoKey       string `env:"CRYPTO_KEY"`
+	TrustedSubnet   string `env:"TRUSTED_SUBNET"`
 }
 
 type envParser struct {
@@ -31,6 +32,7 @@ func (p envParser) Parse(c *config.Config) error {
 		DatabaseDSN:     c.DatabaseDSN,
 		Key:             c.Key,
 		CryptoKey:       c.CryptoKey,
+		TrustedSubnet:   c.TrustedSubnet,
 	}
 	err := env.Parse(&cfg)
 	if err != nil {
@@ -43,6 +45,7 @@ func (p envParser) Parse(c *config.Config) error {
 	c.DatabaseDSN = cfg.DatabaseDSN
 	c.Key = cfg.Key
 	c.CryptoKey = cfg.CryptoKey
+	c.TrustedSubnet = cfg.TrustedSubnet
 	return nil
 }
 
