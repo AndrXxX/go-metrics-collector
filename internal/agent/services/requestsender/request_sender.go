@@ -13,11 +13,12 @@ type RequestSender struct {
 	hg   hashGenerator
 	comp dataCompressor
 	key  string
+	ip   string
 }
 
 // New возвращает сервис RequestSender для отправки запросов
-func New(c client, hg hashGenerator, key string, comp dataCompressor) *RequestSender {
-	return &RequestSender{c, hg, comp, key}
+func New(c client, hg hashGenerator, key string, comp dataCompressor, ip string) *RequestSender {
+	return &RequestSender{c, hg, comp, key, ip}
 }
 
 // Post отправляет запрос методом Post
@@ -42,6 +43,7 @@ func (s *RequestSender) Post(url string, contentType string, data []byte) error 
 	r.Header.Set("Content-Type", contentType)
 	r.Header.Set("Content-Encoding", "gzip")
 	r.Header.Set("Accept-Encoding", "gzip")
+	r.Header.Set("X-Real-IP", s.ip)
 	if s.key != "" {
 		r.Header.Set("HashSHA256", s.hg.Generate(s.key, encoded))
 	}

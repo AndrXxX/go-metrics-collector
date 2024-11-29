@@ -38,10 +38,10 @@ func TestNewJSONUploader(t *testing.T) {
 	}{
 		{
 			name: "Test NewJSONUploader #1 (Alloc)",
-			rs:   requestsender.New(http.DefaultClient, nil, "", compressor.GzipCompressor{}),
+			rs:   requestsender.New(http.DefaultClient, nil, "", compressor.GzipCompressor{}, ""),
 			ub:   metricurlbuilder.New(""),
 			want: &jsonMetricsUploader{
-				rs:              requestsender.New(http.DefaultClient, nil, "", compressor.GzipCompressor{}),
+				rs:              requestsender.New(http.DefaultClient, nil, "", compressor.GzipCompressor{}, ""),
 				ub:              metricurlbuilder.New(""),
 				repeatIntervals: []int{},
 			},

@@ -37,10 +37,10 @@ func TestNewPlainTextUploader(t *testing.T) {
 	}{
 		{
 			name: "Test NewPlainTextUploader plainTextMetricsUploader #1 (Alloc)",
-			rs:   requestsender.New(http.DefaultClient, nil, "", compressor.GzipCompressor{}),
+			rs:   requestsender.New(http.DefaultClient, nil, "", compressor.GzipCompressor{}, ""),
 			ub:   metricurlbuilder.New(""),
 			want: &plainTextMetricsUploader{
-				rs: requestsender.New(http.DefaultClient, nil, "", compressor.GzipCompressor{}),
+				rs: requestsender.New(http.DefaultClient, nil, "", compressor.GzipCompressor{}, ""),
 				ub: metricurlbuilder.New(""),
 			},
 		},

@@ -42,7 +42,7 @@ func Run(commonCtx context.Context, config *config.Config) error {
 	if err != nil {
 		return fmt.Errorf("failed to fetch client: %w", err)
 	}
-	rs := requestsender.New(httpClient, hg, config.Common.Key, compressor.GzipCompressor{})
+	rs := requestsender.New(httpClient, hg, config.Common.Key, compressor.GzipCompressor{}, config.Common.Host)
 	for count := config.Common.RateLimit; count > 0; count-- {
 		processor := metricsuploader.NewJSONUploader(rs, ub, config.Intervals.RepeatIntervals)
 		s.AddProcessor(processor, time.Duration(config.Intervals.ReportInterval)*time.Second)
