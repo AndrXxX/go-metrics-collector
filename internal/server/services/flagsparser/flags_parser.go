@@ -18,6 +18,7 @@ func (p flagsParser) Parse(c *config.Config) error {
 	fl.StringVar(&c.DatabaseDSN, "d", c.DatabaseDSN, "Database DSN")
 	fl.StringVar(&c.Key, "k", c.Key, "Hash key")
 	fl.StringVar(&c.CryptoKey, "crypto-key", c.CryptoKey, "Path to file with private key")
+	fl.StringVar(&c.TrustedSubnet, "t", c.TrustedSubnet, "Строковое представление бесклассовой адресации (CIDR)")
 	fl.Parse()
 	return nil
 }
