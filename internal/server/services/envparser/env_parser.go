@@ -10,6 +10,7 @@ import (
 
 type envConfig struct {
 	Addr            string `env:"ADDRESS"`
+	GRPCAddr        string `env:"GRPC_ADDRESS"`
 	StoreInterval   int64  `env:"STORE_INTERVAL"`
 	FileStoragePath string `env:"FILE_STORAGE_PATH"`
 	Restore         bool   `env:"RESTORE"`
@@ -26,6 +27,7 @@ type envParser struct {
 func (p envParser) Parse(c *config.Config) error {
 	cfg := envConfig{
 		Addr:            c.Host,
+		GRPCAddr:        c.GRPCHost,
 		StoreInterval:   c.StoreInterval,
 		FileStoragePath: c.FileStoragePath,
 		Restore:         c.Restore,
@@ -39,6 +41,7 @@ func (p envParser) Parse(c *config.Config) error {
 		return fmt.Errorf("error on parse config: %w", err)
 	}
 	c.Host = cfg.Addr
+	c.GRPCHost = cfg.GRPCAddr
 	c.StoreInterval = cfg.StoreInterval
 	c.FileStoragePath = cfg.FileStoragePath
 	c.Restore = cfg.Restore
