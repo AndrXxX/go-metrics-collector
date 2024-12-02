@@ -11,6 +11,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/client"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/compressor"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/grpc"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricsuploader"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricurlbuilder"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/requestsender"
@@ -85,20 +86,26 @@ func getCollectors(config *config.Config) []scheduler.Collector {
 
 func getProcessors(config *config.Config) ([]scheduler.Processor, error) {
 	var list []scheduler.Processor
-	ub := metricurlbuilder.New(config.Common.Host)
-	hg := hashgenerator.Factory().SHA256()
-
-	httpClient, err := client.Provider{ConfProvider: tlsconfig.Provider{CryptoKeyPath: config.Common.CryptoKey}}.Fetch()
-	if err != nil {
-		return nil, fmt.Errorf("failed to fetch client: %w", err)
+	if config.Common.GRPCHost != "" {
+		updater := grpc.NewGRPCMetricsUpdater(config.Common.GRPCHost)
+		list = append(list, metricsuploader.NewGRPCUploader(updater))
 	}
-	rs := requestsender.New(
-		httpClient,
-		requestsender.WithGzip(compressor.GzipCompressor{}),
-		requestsender.WithSHA256(hg, config.Common.Key),
-		requestsender.WithXRealIP(config.Common.Host),
-	)
-	processor := metricsuploader.NewJSONUploader(rs, ub, config.Intervals.RepeatIntervals)
-	list = append(list, processor)
+	if config.Common.Host != "" {
+		ub := metricurlbuilder.New(config.Common.Host)
+		hg := hashgenerator.Factory().SHA256()
+
+		httpClient, err := client.Provider{ConfProvider: tlsconfig.Provider{CryptoKeyPath: config.Common.CryptoKey}}.Fetch()
+		if err != nil {
+			return nil, fmt.Errorf("failed to fetch client: %w", err)
+		}
+		rs := requestsender.New(
+			httpClient,
+			requestsender.WithGzip(compressor.GzipCompressor{}),
+			requestsender.WithSHA256(hg, config.Common.Key),
+			requestsender.WithXRealIP(config.Common.Host),
+		)
+		processor := metricsuploader.NewJSONUploader(rs, ub, config.Intervals.RepeatIntervals)
+		list = append(list, processor)
+	}
 	return list, nil
 }

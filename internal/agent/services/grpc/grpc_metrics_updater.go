@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
 
 	pb "github.com/AndrXxX/go-metrics-collector/internal/proto"
@@ -20,7 +21,7 @@ func NewGRPCMetricsUpdater(host string) *metricsUpdater {
 
 func (u metricsUpdater) Update(ctx context.Context, list []*pb.Metric) error {
 	// устанавливаем соединение с сервером
-	conn, err := grpc.NewClient(u.host)
+	conn, err := grpc.NewClient(u.host, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return fmt.Errorf("grpc connection error: %w", err)
 	}
