@@ -6,15 +6,18 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/contenttypes"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
+	pb "github.com/AndrXxX/go-metrics-collector/internal/proto"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/dbping"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchallmetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchmetrics"
@@ -23,6 +26,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updatemanymetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updatemetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
+	igrpc "github.com/AndrXxX/go-metrics-collector/internal/server/grpc"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/dbchecker"
@@ -158,6 +162,22 @@ func (a *app) Run(commonCtx context.Context) error {
 
 	logger.Log.Info("listening", zap.String("host", a.config.c.Host))
 
+	var s *grpc.Server
+	if a.config.c.GRPCHost != "" {
+		listen, err := net.Listen("tcp", a.config.c.GRPCHost)
+		if err != nil {
+			log.Fatal(err)
+		}
+		s = grpc.NewServer()
+
+		pb.RegisterMetricsServer(s, &igrpc.MetricsServer{})
+
+		logger.Log.Info("gRPC server starts", zap.String("host", a.config.c.GRPCHost))
+		if err := s.Serve(listen); err != nil {
+			logger.Log.Error("failed to start gRPC server", zap.Error(err))
+		}
+	}
+
 	<-commonCtx.Done()
 	logger.Log.Info("shutting down server gracefully")
 
@@ -178,6 +198,9 @@ func (a *app) Run(commonCtx context.Context) error {
 		}
 		if a.storage.db != nil {
 			_ = a.storage.db.Close()
+		}
+		if s != nil {
+			s.GracefulStop()
 		}
 		shutdown <- struct{}{}
 	}()
