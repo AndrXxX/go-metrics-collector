@@ -15,7 +15,7 @@ import (
 // MetricsServer поддерживает все необходимые методы сервера.
 type MetricsServer struct {
 	pb.UnimplementedMetricsServer
-	mu updater
+	Updater updater
 }
 
 // UpdateMetrics реализует интерфейс обновления метрик.
@@ -31,7 +31,7 @@ func (s *MetricsServer) UpdateMetrics(ctx context.Context, in *pb.UpdateMetricsR
 			Value: &metric.Value,
 		})
 	}
-	err := s.mu.UpdateMany(ctx, list)
+	err := s.Updater.UpdateMany(ctx, list)
 	if err != nil {
 		logger.Log.Error("Ошибка при обновлении метрик", zap.Error(err))
 		return nil, status.Error(codes.Internal, "Ошибка при обновлении метрик")

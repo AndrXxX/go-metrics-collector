@@ -170,7 +170,7 @@ func (a *app) Run(commonCtx context.Context) error {
 		}
 		s = grpc.NewServer()
 
-		pb.RegisterMetricsServer(s, &igrpc.MetricsServer{})
+		pb.RegisterMetricsServer(s, &igrpc.MetricsServer{Updater: metricsupdater.New(a.storage.s)})
 
 		logger.Log.Info("gRPC server starts", zap.String("host", a.config.c.GRPCHost))
 		if err := s.Serve(listen); err != nil {
