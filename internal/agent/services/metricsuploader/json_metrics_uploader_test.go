@@ -137,7 +137,7 @@ func Test_jsonMetricsUploader_Process(t *testing.T) {
 					return &val
 				}()})
 				results <- v
-				time.Sleep(300 * time.Millisecond)
+				time.Sleep(100 * time.Millisecond)
 				close(results)
 				wg.Done()
 			}()

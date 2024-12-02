@@ -162,7 +162,7 @@ func Test_plainTextMetricsUploader_Process(t *testing.T) {
 					return &val
 				}()})
 				tt.results <- v
-				time.Sleep(300 * time.Millisecond)
+				time.Sleep(100 * time.Millisecond)
 				close(tt.results)
 				wg.Done()
 			}()
