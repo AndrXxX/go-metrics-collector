@@ -40,6 +40,7 @@ func (p Parser) Parse(c *config.Config) error {
 		return fmt.Errorf("failed to parse config file: %s", err)
 	}
 	set(jc.Address, &c.Common.Host)
+	set(jc.GRPCAddress, &c.Common.GRPCHost)
 	set(jc.CryptoKey, &c.Common.CryptoKey)
 	set(convertDurationToInt(jc.ReportInterval), &c.Intervals.ReportInterval)
 	set(convertDurationToInt(jc.PollInterval), &c.Intervals.PollInterval)

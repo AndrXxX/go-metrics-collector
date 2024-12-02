@@ -12,6 +12,7 @@ type flagsParser struct {
 // Parse парсит аргументы командной строки и наполняет конфигурацию
 func (p flagsParser) Parse(c *config.Config) error {
 	fl.StringVar(&c.Common.Host, "a", c.Common.Host, "Net address host:port")
+	fl.StringVar(&c.Common.GRPCHost, "ga", c.Common.GRPCHost, "Net address for gRPC host:port")
 	fl.StringVar(&c.Common.Key, "k", c.Common.Key, "Hash key")
 	fl.StringVar(&c.Common.CryptoKey, "crypto-key", c.Common.CryptoKey, "Path to file with public key")
 	fl.Int64Var(&c.Common.RateLimit, "l", c.Common.RateLimit, "Rate Limit")
