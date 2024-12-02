@@ -13,7 +13,7 @@ type grpcMetricsUploader struct {
 }
 
 func (c *grpcMetricsUploader) convert(result dto.MetricsDto) []*pb.Metric {
-	var list []*pb.Metric
+	list := make([]*pb.Metric, 0)
 	for _, metric := range result.All() {
 		var d int64
 		var v float64
