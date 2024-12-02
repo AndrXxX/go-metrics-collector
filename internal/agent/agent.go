@@ -29,28 +29,19 @@ func Run(commonCtx context.Context, config *config.Config) error {
 	ctx, cancel := context.WithCancel(commonCtx)
 	defer cancel()
 	s := scheduler.NewIntervalScheduler(time.Duration(config.Intervals.SleepInterval) * time.Second)
-	rmc := runtimemetricscollector.New(&config.Metrics)
-	s.AddCollector(rmc, time.Duration(config.Intervals.PollInterval)*time.Second)
 
-	vmc := vmmetricscollector.New()
-	s.AddCollector(vmc, time.Duration(config.Intervals.PollInterval)*time.Second)
-
-	ub := metricurlbuilder.New(config.Common.Host)
-	hg := hashgenerator.Factory().SHA256()
-
-	httpClient, err := client.Provider{ConfProvider: tlsconfig.Provider{CryptoKeyPath: config.Common.CryptoKey}}.Fetch()
-	if err != nil {
-		return fmt.Errorf("failed to fetch client: %w", err)
+	for _, collector := range getCollectors(config) {
+		s.AddCollector(collector, time.Duration(config.Intervals.PollInterval)*time.Second)
 	}
-	rs := requestsender.New(
-		httpClient,
-		requestsender.WithGzip(compressor.GzipCompressor{}),
-		requestsender.WithSHA256(hg, config.Common.Key),
-		requestsender.WithXRealIP(config.Common.Host),
-	)
-	for count := config.Common.RateLimit; count > 0; count-- {
-		processor := metricsuploader.NewJSONUploader(rs, ub, config.Intervals.RepeatIntervals)
-		s.AddProcessor(processor, time.Duration(config.Intervals.ReportInterval)*time.Second)
+
+	if processors, err := getProcessors(config); err != nil {
+		return err
+	} else {
+		for _, processor := range processors {
+			for count := config.Common.RateLimit; count > 0; count-- {
+				s.AddProcessor(processor, time.Duration(config.Intervals.ReportInterval)*time.Second)
+			}
+		}
 	}
 
 	go func() {
@@ -83,4 +74,31 @@ func Run(commonCtx context.Context, config *config.Config) error {
 	}
 
 	return nil
+}
+
+func getCollectors(config *config.Config) []scheduler.Collector {
+	var list []scheduler.Collector
+	list = append(list, runtimemetricscollector.New(&config.Metrics))
+	list = append(list, vmmetricscollector.New())
+	return list
+}
+
+func getProcessors(config *config.Config) ([]scheduler.Processor, error) {
+	var list []scheduler.Processor
+	ub := metricurlbuilder.New(config.Common.Host)
+	hg := hashgenerator.Factory().SHA256()
+
+	httpClient, err := client.Provider{ConfProvider: tlsconfig.Provider{CryptoKeyPath: config.Common.CryptoKey}}.Fetch()
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch client: %w", err)
+	}
+	rs := requestsender.New(
+		httpClient,
+		requestsender.WithGzip(compressor.GzipCompressor{}),
+		requestsender.WithSHA256(hg, config.Common.Key),
+		requestsender.WithXRealIP(config.Common.Host),
+	)
+	processor := metricsuploader.NewJSONUploader(rs, ub, config.Intervals.RepeatIntervals)
+	list = append(list, processor)
+	return list, nil
 }
