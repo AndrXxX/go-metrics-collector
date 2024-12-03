@@ -27,6 +27,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updatemetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 	igrpc "github.com/AndrXxX/go-metrics-collector/internal/server/grpc"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/grpc/interceptors"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/dbchecker"
@@ -168,7 +169,9 @@ func (a *app) Run(commonCtx context.Context) error {
 		if err != nil {
 			log.Fatal(err)
 		}
-		s = grpc.NewServer()
+		var opts []grpc.ServerOption
+		opts = append(opts, grpc.UnaryInterceptor(interceptors.UnaryLogger()))
+		s = grpc.NewServer(opts...)
 
 		pb.RegisterMetricsServer(s, &igrpc.MetricsServer{Updater: metricsupdater.New(a.storage.s)})
 
