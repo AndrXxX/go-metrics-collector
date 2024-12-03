@@ -174,6 +174,7 @@ func (a *app) Run(commonCtx context.Context) error {
 		encoding.RegisterCompressor(encoding.GetCompressor(gzip.Name))
 		var opts []grpc.ServerOption
 		opts = append(opts, grpc.UnaryInterceptor(interceptors.UnaryHasGrantedXRealIP(a.config.c.TrustedSubnet)))
+		opts = append(opts, grpc.UnaryInterceptor(interceptors.UnaryHasCorrectSHA256(hg, a.config.c.Key)))
 		opts = append(opts, grpc.UnaryInterceptor(interceptors.UnaryLogger()))
 		s = grpc.NewServer(opts...)
 
