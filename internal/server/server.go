@@ -173,9 +173,11 @@ func (a *app) Run(commonCtx context.Context) error {
 		pb.RegisterMetricsServer(s, &igrpc.MetricsServer{Updater: metricsupdater.New(a.storage.s)})
 
 		logger.Log.Info("gRPC server starts", zap.String("host", a.config.c.GRPCHost))
-		if err := s.Serve(listen); err != nil {
-			logger.Log.Error("failed to start gRPC server", zap.Error(err))
-		}
+		go func() {
+			if err := s.Serve(listen); err != nil {
+				logger.Log.Error("failed to start gRPC server", zap.Error(err))
+			}
+		}()
 	}
 
 	<-commonCtx.Done()
