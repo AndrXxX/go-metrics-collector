@@ -5,8 +5,6 @@ import (
 	"fmt"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/encoding/gzip"
 	"google.golang.org/grpc/status"
 
 	pb "github.com/AndrXxX/go-metrics-collector/internal/proto"
@@ -14,18 +12,15 @@ import (
 
 type metricsUpdater struct {
 	host string
+	opts []grpc.DialOption
 }
 
-func NewGRPCMetricsUpdater(host string) *metricsUpdater {
-	return &metricsUpdater{host: host}
+func NewGRPCMetricsUpdater(host string, opts []grpc.DialOption) *metricsUpdater {
+	return &metricsUpdater{host: host, opts: opts}
 }
 
 func (u metricsUpdater) Update(ctx context.Context, list []*pb.Metric) error {
-	// устанавливаем соединение с сервером
-	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	opts = append(opts, grpc.WithDefaultCallOptions(grpc.UseCompressor(gzip.Name)))
-	conn, err := grpc.NewClient(u.host, opts...)
+	conn, err := grpc.NewClient(u.host, u.opts...)
 	if err != nil {
 		return fmt.Errorf("grpc connection error: %w", err)
 	}

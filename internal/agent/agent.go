@@ -7,11 +7,14 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/encoding/gzip"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/client"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/compressor"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/grpc"
+	grpsserv "github.com/AndrXxX/go-metrics-collector/internal/agent/services/grpc"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricsuploader"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricurlbuilder"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/requestsender"
@@ -87,7 +90,10 @@ func getCollectors(config *config.Config) []scheduler.Collector {
 func getProcessors(config *config.Config) ([]scheduler.Processor, error) {
 	var list []scheduler.Processor
 	if config.Common.GRPCHost != "" {
-		updater := grpc.NewGRPCMetricsUpdater(config.Common.GRPCHost)
+		var opts []grpc.DialOption
+		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		opts = append(opts, grpc.WithDefaultCallOptions(grpc.UseCompressor(gzip.Name)))
+		updater := grpsserv.NewGRPCMetricsUpdater(config.Common.GRPCHost, opts)
 		list = append(list, metricsuploader.NewGRPCUploader(updater))
 	}
 	if config.Common.Host != "" && len(list) == 0 {
