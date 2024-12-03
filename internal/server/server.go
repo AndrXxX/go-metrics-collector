@@ -14,6 +14,8 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/encoding"
+	"google.golang.org/grpc/encoding/gzip"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/contenttypes"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
@@ -169,6 +171,7 @@ func (a *app) Run(commonCtx context.Context) error {
 		if err != nil {
 			log.Fatal(err)
 		}
+		encoding.RegisterCompressor(encoding.GetCompressor(gzip.Name))
 		var opts []grpc.ServerOption
 		opts = append(opts, grpc.UnaryInterceptor(interceptors.UnaryLogger()))
 		s = grpc.NewServer(opts...)
