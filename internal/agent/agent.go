@@ -15,6 +15,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/client"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/compressor"
 	grpsserv "github.com/AndrXxX/go-metrics-collector/internal/agent/services/grpc"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/grpc/dealoptions"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricsuploader"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricurlbuilder"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/requestsender"
@@ -93,6 +94,7 @@ func getProcessors(config *config.Config) ([]scheduler.Processor, error) {
 		var opts []grpc.DialOption
 		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		opts = append(opts, grpc.WithDefaultCallOptions(grpc.UseCompressor(gzip.Name)))
+		opts = append(opts, grpc.WithUnaryInterceptor(dealoptions.WithXRealIP(config.Common.Host)))
 		updater := grpsserv.NewGRPCMetricsUpdater(config.Common.GRPCHost, opts)
 		list = append(list, metricsuploader.NewGRPCUploader(updater))
 	}
