@@ -89,18 +89,19 @@ func getCollectors(config *config.Config) []scheduler.Collector {
 }
 
 func getProcessors(config *config.Config) ([]scheduler.Processor, error) {
+	hg := hashgenerator.Factory().SHA256()
 	var list []scheduler.Processor
 	if config.Common.GRPCHost != "" {
 		var opts []grpc.DialOption
 		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		opts = append(opts, grpc.WithDefaultCallOptions(grpc.UseCompressor(gzip.Name)))
 		opts = append(opts, grpc.WithUnaryInterceptor(dealoptions.WithXRealIP(config.Common.Host)))
+		opts = append(opts, grpc.WithUnaryInterceptor(dealoptions.WithSHA256(hg, config.Common.Key)))
 		updater := grpsserv.NewGRPCMetricsUpdater(config.Common.GRPCHost, opts)
 		list = append(list, metricsuploader.NewGRPCUploader(updater))
 	}
 	if config.Common.Host != "" && len(list) == 0 {
 		ub := metricurlbuilder.New(config.Common.Host)
-		hg := hashgenerator.Factory().SHA256()
 
 		httpClient, err := client.Provider{ConfProvider: tlsconfig.Provider{CryptoKeyPath: config.Common.CryptoKey}}.Fetch()
 		if err != nil {
