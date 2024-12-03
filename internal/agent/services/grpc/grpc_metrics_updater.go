@@ -34,8 +34,6 @@ func (u metricsUpdater) Update(ctx context.Context, list []*pb.Metric) error {
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
 			return fmt.Errorf("grpc response error: %s %w", e.Code(), e.Err())
-		} else {
-			return fmt.Errorf("grpc response error: %w", e.Err())
 		}
 	}
 	return nil
