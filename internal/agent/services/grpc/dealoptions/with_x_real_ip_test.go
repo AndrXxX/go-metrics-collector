@@ -14,17 +14,17 @@ func TestWithXRealIP(t *testing.T) {
 	tests := []struct {
 		name    string
 		ip      string
-		wantIp  string
+		wantIP  string
 		wantErr bool
 	}{
 		{
 			name:   "Test with empty ip",
-			wantIp: "",
+			wantIP: "",
 		},
 		{
 			name:   "Test with ip 192.168.0.12",
 			ip:     "192.168.0.12",
-			wantIp: "192.168.0.12",
+			wantIP: "192.168.0.12",
 		},
 	}
 
@@ -44,7 +44,7 @@ func TestWithXRealIP(t *testing.T) {
 			}
 			err := f(ctx, "", "", nil, nil, invoker)
 			require.Equal(t, tt.wantErr, err != nil)
-			assert.Equal(t, tt.wantIp, ip)
+			assert.Equal(t, tt.wantIP, ip)
 		})
 	}
 }
