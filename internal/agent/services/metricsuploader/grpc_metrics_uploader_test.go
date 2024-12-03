@@ -3,6 +3,8 @@ package metricsuploader
 import (
 	"context"
 	"fmt"
+	"slices"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -104,16 +106,16 @@ func Test_grpcMetricsUploader_convert(t *testing.T) {
 			},
 		},
 	}
+	sortFunc := func(e, e2 *pb.Metric) int {
+		return strings.Compare(strings.ToLower(e.Id), strings.ToLower(e2.Id))
+	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := NewGRPCUploader(nil)
 			res := c.convert(tt.result)
-			for i := range tt.want {
-				assert.Equal(t, tt.want[i].Id, res[i].Id)
-				assert.Equal(t, tt.want[i].Type, res[i].Type)
-				assert.Equal(t, tt.want[i].Value, res[i].Value)
-				assert.Equal(t, tt.want[i].Delta, res[i].Delta)
-			}
+			slices.SortFunc(res, sortFunc)
+			slices.SortFunc(tt.want, sortFunc)
+			assert.EqualExportedValues(t, tt.want, res)
 		})
 	}
 }
