@@ -90,7 +90,7 @@ func getProcessors(config *config.Config) ([]scheduler.Processor, error) {
 		updater := grpc.NewGRPCMetricsUpdater(config.Common.GRPCHost)
 		list = append(list, metricsuploader.NewGRPCUploader(updater))
 	}
-	if config.Common.Host != "" {
+	if config.Common.Host != "" && len(list) == 0 {
 		ub := metricurlbuilder.New(config.Common.Host)
 		hg := hashgenerator.Factory().SHA256()
 
