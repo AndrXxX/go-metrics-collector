@@ -6,6 +6,8 @@ import (
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
@@ -17,13 +19,19 @@ func UnaryLogger() grpc.UnaryServerInterceptor {
 		res, err := handler(ctx, req)
 
 		duration := time.Since(start)
+		var code codes.Code
+		if err != nil {
+			if e, ok := status.FromError(err); ok {
+				code = e.Code()
+			}
+		}
 
 		logger.Log.Info(
 			"got incoming gRPC request",
 			zap.String("method", info.FullMethod),
-			//zap.Int("status", responseData.status),
+			zap.Uint32("code", uint32(code)),
 			zap.Duration("duration", duration),
-			//zap.Int("size", responseData.size),
+			zap.Error(err),
 		)
 		return res, err
 	}
