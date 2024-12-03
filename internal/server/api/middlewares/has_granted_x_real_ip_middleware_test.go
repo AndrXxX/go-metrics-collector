@@ -87,6 +87,7 @@ func Test_hasGrantedXRealIPMiddleware_check(t *testing.T) {
 		{
 			name:          "Test with wrong subnet",
 			trustedSubnet: "192.168.1.1.0/24",
+			ip:            "193.168.1.1",
 			want:          true,
 		},
 		{
