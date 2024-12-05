@@ -14,6 +14,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/encoding"
 	"google.golang.org/grpc/encoding/gzip"
 
@@ -173,10 +174,12 @@ func (a *app) Run(commonCtx context.Context) error {
 			log.Fatal(err)
 		}
 		encoding.RegisterCompressor(encoding.GetCompressor(gzip.Name))
-		var opts []grpc.ServerOption
-		opts = append(opts, grpc.UnaryInterceptor(interceptors.UnaryHasGrantedXRealIP(a.config.c.TrustedSubnet)))
-		opts = append(opts, grpc.UnaryInterceptor(interceptors.UnaryHasCorrectSHA256(hg, a.config.c.Key)))
-		opts = append(opts, grpc.UnaryInterceptor(interceptors.UnaryLogger()))
+		opts := make([]grpc.ServerOption, 0)
+		opts = append(opts, grpc.ChainUnaryInterceptor(
+			interceptors.UnaryHasGrantedXRealIP(a.config.c.TrustedSubnet),
+			interceptors.UnaryHasCorrectSHA256(hg, a.config.c.Key),
+			interceptors.UnaryLogger(),
+		))
 		s = grpc.NewServer(opts...)
 
 		mp.RegisterMetricsServer(s, &igrpc.MetricsServer{Updater: metricsupdater.New(a.storage.s)})
