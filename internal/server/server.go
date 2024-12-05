@@ -175,6 +175,9 @@ func (a *app) Run(commonCtx context.Context) error {
 		}
 		encoding.RegisterCompressor(encoding.GetCompressor(gzip.Name))
 		opts := make([]grpc.ServerOption, 0)
+		if tlsConfig != nil {
+			opts = append(opts, grpc.Creds(credentials.NewTLS(tlsConfig)))
+		}
 		opts = append(opts, grpc.ChainUnaryInterceptor(
 			interceptors.UnaryHasGrantedXRealIP(a.config.c.TrustedSubnet),
 			interceptors.UnaryHasCorrectSHA256(hg, a.config.c.Key),
