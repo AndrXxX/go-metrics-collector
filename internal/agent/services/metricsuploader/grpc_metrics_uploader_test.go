@@ -12,15 +12,16 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	mp "github.com/AndrXxX/go-metrics-collector/pkg/metricsproto"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
-	pb "github.com/AndrXxX/go-metrics-collector/internal/proto"
 )
 
 type grpcTestUpdater struct {
 	err error
 }
 
-func (u *grpcTestUpdater) Update(_ context.Context, _ []*pb.Metric) error {
+func (u *grpcTestUpdater) Update(_ context.Context, _ []*mp.Metric) error {
 	return u.err
 }
 
@@ -85,12 +86,12 @@ func Test_grpcMetricsUploader_convert(t *testing.T) {
 	tests := []struct {
 		name   string
 		result dto.MetricsDto
-		want   []*pb.Metric
+		want   []*mp.Metric
 	}{
 		{
 			name:   "Test with empty list",
 			result: dto.MetricsDto{},
-			want:   []*pb.Metric{},
+			want:   []*mp.Metric{},
 		},
 		{
 			name: "Test with two examples",
@@ -100,13 +101,13 @@ func Test_grpcMetricsUploader_convert(t *testing.T) {
 				v.Set(dto.JSONMetrics{ID: "test2", MType: "type2", Value: pointer[float64](5.1)})
 				return *v
 			}(),
-			want: []*pb.Metric{
+			want: []*mp.Metric{
 				{Id: "test1", Type: "type1", Delta: 55},
 				{Id: "test2", Type: "type2", Value: 5.1},
 			},
 		},
 	}
-	sortFunc := func(e, e2 *pb.Metric) int {
+	sortFunc := func(e, e2 *mp.Metric) int {
 		return strings.Compare(strings.ToLower(e.Id), strings.ToLower(e2.Id))
 	}
 	for _, tt := range tests {

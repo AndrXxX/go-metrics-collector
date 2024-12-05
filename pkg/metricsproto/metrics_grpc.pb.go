@@ -2,12 +2,13 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v3.21.12
-// source: internal/proto/metrics.proto
+// source: api/metrics.proto
 
-package proto
+package api
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -19,8 +20,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Metrics_UpdateMetrics_FullMethodName = "/proto.Metrics/UpdateMetrics"
-	Metrics_GetMetric_FullMethodName     = "/proto.Metrics/GetMetric"
+	Metrics_UpdateMetrics_FullMethodName = "/api.Metrics/UpdateMetrics"
+	Metrics_GetMetric_FullMethodName     = "/api.Metrics/GetMetric"
 )
 
 // MetricsClient is the client API for Metrics service.
@@ -142,7 +143,7 @@ func _Metrics_GetMetric_Handler(srv interface{}, ctx context.Context, dec func(i
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Metrics_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "proto.Metrics",
+	ServiceName: "api.Metrics",
 	HandlerType: (*MetricsServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -155,5 +156,5 @@ var Metrics_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "internal/proto/metrics.proto",
+	Metadata: "api/metrics.proto",
 }

@@ -24,4 +24,4 @@ vendor/
 .idea
 .vscode
 
-pkg
+pkg/mod

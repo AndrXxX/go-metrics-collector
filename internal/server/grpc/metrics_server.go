@@ -7,20 +7,21 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	pb "github.com/AndrXxX/go-metrics-collector/internal/proto"
+	mp "github.com/AndrXxX/go-metrics-collector/pkg/metricsproto"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
 
 // MetricsServer поддерживает все необходимые методы сервера.
 type MetricsServer struct {
-	pb.UnimplementedMetricsServer
+	mp.UnimplementedMetricsServer
 	Updater updater
 }
 
 // UpdateMetrics реализует интерфейс обновления метрик.
-func (s *MetricsServer) UpdateMetrics(ctx context.Context, in *pb.UpdateMetricsRequest) (*pb.UpdateMetricsResponse, error) {
-	var response pb.UpdateMetricsResponse
+func (s *MetricsServer) UpdateMetrics(ctx context.Context, in *mp.UpdateMetricsRequest) (*mp.UpdateMetricsResponse, error) {
+	var response mp.UpdateMetricsResponse
 
 	var list []models.Metrics
 	for _, metric := range in.Metrics {

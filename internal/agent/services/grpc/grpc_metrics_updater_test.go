@@ -15,17 +15,17 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	pb "github.com/AndrXxX/go-metrics-collector/internal/proto"
+	mp "github.com/AndrXxX/go-metrics-collector/pkg/metricsproto"
 )
 
 type testGRPCServer struct {
-	pb.UnimplementedMetricsServer
+	mp.UnimplementedMetricsServer
 	err error
 	srv *grpc.Server
-	req *pb.UpdateMetricsRequest
+	req *mp.UpdateMetricsRequest
 }
 
-func (s *testGRPCServer) UpdateMetrics(_ context.Context, req *pb.UpdateMetricsRequest) (*pb.UpdateMetricsResponse, error) {
+func (s *testGRPCServer) UpdateMetrics(_ context.Context, req *mp.UpdateMetricsRequest) (*mp.UpdateMetricsResponse, error) {
 	s.req = req
 	return nil, s.err
 }
@@ -36,7 +36,7 @@ func (s *testGRPCServer) start(host string) {
 		log.Fatal(err)
 	}
 	s.srv = grpc.NewServer()
-	pb.RegisterMetricsServer(s.srv, s)
+	mp.RegisterMetricsServer(s.srv, s)
 	go func() {
 		err = s.srv.Serve(listen)
 	}()
@@ -51,7 +51,7 @@ func Test_metricsUpdater_Update(t *testing.T) {
 		name    string
 		host    string
 		opts    []grpc.DialOption
-		list    []*pb.Metric
+		list    []*mp.Metric
 		srv     *testGRPCServer
 		wantErr bool
 	}{
@@ -80,7 +80,7 @@ func Test_metricsUpdater_Update(t *testing.T) {
 			wantErr: false,
 		},
 	}
-	sortFunc := func(e, e2 *pb.Metric) int {
+	sortFunc := func(e, e2 *mp.Metric) int {
 		return strings.Compare(strings.ToLower(e.Id), strings.ToLower(e2.Id))
 	}
 	for _, tt := range tests {

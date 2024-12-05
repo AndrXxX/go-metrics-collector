@@ -4,16 +4,17 @@ import (
 	"context"
 	"fmt"
 
+	mp "github.com/AndrXxX/go-metrics-collector/pkg/metricsproto"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
-	pb "github.com/AndrXxX/go-metrics-collector/internal/proto"
 )
 
 type grpcMetricsUploader struct {
 	u grpcMetricsUpdater
 }
 
-func (c *grpcMetricsUploader) convert(result dto.MetricsDto) []*pb.Metric {
-	list := make([]*pb.Metric, 0)
+func (c *grpcMetricsUploader) convert(result dto.MetricsDto) []*mp.Metric {
+	list := make([]*mp.Metric, 0)
 	for _, metric := range result.All() {
 		var d int64
 		var v float64
@@ -23,7 +24,7 @@ func (c *grpcMetricsUploader) convert(result dto.MetricsDto) []*pb.Metric {
 		if metric.Value != nil {
 			v = *metric.Value
 		}
-		list = append(list, &pb.Metric{
+		list = append(list, &mp.Metric{
 			Id:    metric.ID,
 			Type:  metric.MType,
 			Delta: d,

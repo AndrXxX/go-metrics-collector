@@ -3,8 +3,9 @@ package metricsuploader
 import (
 	"context"
 
+	mp "github.com/AndrXxX/go-metrics-collector/pkg/metricsproto"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/types"
-	pb "github.com/AndrXxX/go-metrics-collector/internal/proto"
 )
 
 type urlBuilder interface {
@@ -16,5 +17,5 @@ type requestSender interface {
 }
 
 type grpcMetricsUpdater interface {
-	Update(ctx context.Context, list []*pb.Metric) error
+	Update(ctx context.Context, list []*mp.Metric) error
 }

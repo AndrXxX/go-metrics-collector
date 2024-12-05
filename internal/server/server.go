@@ -17,9 +17,10 @@ import (
 	"google.golang.org/grpc/encoding"
 	"google.golang.org/grpc/encoding/gzip"
 
+	mp "github.com/AndrXxX/go-metrics-collector/pkg/metricsproto"
+
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/contenttypes"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
-	pb "github.com/AndrXxX/go-metrics-collector/internal/proto"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/dbping"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchallmetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/fetchmetrics"
@@ -178,7 +179,7 @@ func (a *app) Run(commonCtx context.Context) error {
 		opts = append(opts, grpc.UnaryInterceptor(interceptors.UnaryLogger()))
 		s = grpc.NewServer(opts...)
 
-		pb.RegisterMetricsServer(s, &igrpc.MetricsServer{Updater: metricsupdater.New(a.storage.s)})
+		mp.RegisterMetricsServer(s, &igrpc.MetricsServer{Updater: metricsupdater.New(a.storage.s)})
 
 		logger.Log.Info("gRPC server starts", zap.String("host", a.config.c.GRPCHost))
 		go func() {

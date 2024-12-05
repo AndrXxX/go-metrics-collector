@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package proto;
+package api;
 
-option go_package = "go-metrics-collector/proto";
+option go_package = "go-metrics-collector/api";
 
 message Metric {
     string id = 1;
