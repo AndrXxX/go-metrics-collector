@@ -19,10 +19,9 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricsuploader"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricurlbuilder"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/requestsender"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/runtimemetricscollector"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/scheduler"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/tlsconfig"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/vmmetricscollector"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/types"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/hashgenerator"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
@@ -30,11 +29,15 @@ import (
 const shutdownTimeout = 5 * time.Second
 
 type agent struct {
-	c *config.Config
+	c          *config.Config
+	collectors types.ItemsList[scheduler.Collector]
 }
 
 func New(c *config.Config, opts ...Option) *agent {
-	a := agent{c: c}
+	a := agent{
+		c:          c,
+		collectors: make(types.ItemsList[scheduler.Collector], 0),
+	}
 	for _, opt := range opts {
 		opt(a)
 	}
@@ -47,7 +50,7 @@ func (a *agent) Run(commonCtx context.Context) error {
 	defer cancel()
 	s := scheduler.NewIntervalScheduler(time.Duration(a.c.Intervals.SleepInterval) * time.Second)
 
-	for _, collector := range getCollectors(a.c) {
+	for _, collector := range a.collectors {
 		s.AddCollector(collector, time.Duration(a.c.Intervals.PollInterval)*time.Second)
 	}
 
@@ -91,13 +94,6 @@ func (a *agent) Run(commonCtx context.Context) error {
 	}
 
 	return nil
-}
-
-func getCollectors(config *config.Config) []scheduler.Collector {
-	return []scheduler.Collector{
-		runtimemetricscollector.New(&config.Metrics),
-		vmmetricscollector.New(),
-	}
 }
 
 func getProcessors(config *config.Config) ([]scheduler.Processor, error) {

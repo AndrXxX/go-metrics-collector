@@ -40,7 +40,8 @@ func main() {
 		logger.Log.Info(bInfo)
 	}
 
-	if err := agent.New(c).Run(ctx); err != nil {
+	a := agent.New(c, agent.WithRuntimeCollector(), agent.WithVmCollector())
+	if err := a.Run(ctx); err != nil {
 		log.Fatal(err)
 	}
 }
