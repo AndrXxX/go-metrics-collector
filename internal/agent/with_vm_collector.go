@@ -4,7 +4,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/vmmetricscollector"
 )
 
-func WithVmCollector() Option {
+func WithVMCollector() Option {
 	return func(a *agent) {
 		a.collectors.Add(vmmetricscollector.New())
 	}

@@ -43,7 +43,7 @@ func main() {
 
 	hg := hashgenerator.Factory().SHA256()
 	a := agent.New(c,
-		agent.WithRuntimeCollector(), agent.WithVmCollector(),
+		agent.WithRuntimeCollector(), agent.WithVMCollector(),
 		agent.WithGRPCMetricsUploader(hg), agent.WithHTTPMetricsUploader(hg),
 	)
 	if err := a.Run(ctx); err != nil {
