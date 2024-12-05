@@ -39,13 +39,13 @@ func Run(commonCtx context.Context, config *config.Config) error {
 		s.AddCollector(collector, time.Duration(config.Intervals.PollInterval)*time.Second)
 	}
 
-	if processors, err := getProcessors(config); err != nil {
+	processors, err := getProcessors(config)
+	if err != nil {
 		return err
-	} else {
-		for _, processor := range processors {
-			for count := config.Common.RateLimit; count > 0; count-- {
-				s.AddProcessor(processor, time.Duration(config.Intervals.ReportInterval)*time.Second)
-			}
+	}
+	for _, processor := range processors {
+		for count := config.Common.RateLimit; count > 0; count-- {
+			s.AddProcessor(processor, time.Duration(config.Intervals.ReportInterval)*time.Second)
 		}
 	}
 
