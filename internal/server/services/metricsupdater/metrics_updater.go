@@ -33,10 +33,7 @@ func (u *metricsUpdater) Update(ctx context.Context, newModel *models.Metrics) (
 // UpdateMany обновляет несколько метрик в хранилище
 func (u *metricsUpdater) UpdateMany(ctx context.Context, list []models.Metrics) error {
 	for _, model := range list {
-		_, err := u.Update(ctx, &model)
-		if err != nil {
-			return err
-		}
+		_, _ = u.Update(ctx, &model)
 	}
 	return nil
 }
