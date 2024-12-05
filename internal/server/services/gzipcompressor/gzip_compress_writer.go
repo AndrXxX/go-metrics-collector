@@ -2,12 +2,13 @@ package gzipcompressor
 
 import (
 	"compress/gzip"
+	"io"
 	"net/http"
 )
 
 type compressWriter struct {
 	w  http.ResponseWriter
-	zw *gzip.Writer
+	zw io.WriteCloser
 }
 
 // NewCompressWriter возвращает сервис для записи сжатых данных gzip
