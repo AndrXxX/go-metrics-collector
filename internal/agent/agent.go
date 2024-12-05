@@ -7,22 +7,10 @@ import (
 	"time"
 
 	"go.uber.org/zap"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/encoding/gzip"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/client"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/compressor"
-	grpsserv "github.com/AndrXxX/go-metrics-collector/internal/agent/services/grpc"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/grpc/dealoptions"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricsuploader"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricurlbuilder"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/requestsender"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/scheduler"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/tlsconfig"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/types"
-	"github.com/AndrXxX/go-metrics-collector/internal/services/hashgenerator"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
 
@@ -31,12 +19,14 @@ const shutdownTimeout = 5 * time.Second
 type agent struct {
 	c          *config.Config
 	collectors types.ItemsList[scheduler.Collector]
+	processors types.ItemsList[scheduler.Processor]
 }
 
 func New(c *config.Config, opts ...Option) *agent {
 	a := &agent{
 		c:          c,
 		collectors: make(types.ItemsList[scheduler.Collector], 0),
+		processors: make(types.ItemsList[scheduler.Processor], 0),
 	}
 	for _, opt := range opts {
 		opt(a)
@@ -53,12 +43,7 @@ func (a *agent) Run(commonCtx context.Context) error {
 	for _, collector := range a.collectors {
 		s.AddCollector(collector, time.Duration(a.c.Intervals.PollInterval)*time.Second)
 	}
-
-	processors, err := getProcessors(a.c)
-	if err != nil {
-		return err
-	}
-	for _, processor := range processors {
+	for _, processor := range a.processors {
 		for count := a.c.Common.RateLimit; count > 0; count-- {
 			s.AddProcessor(processor, time.Duration(a.c.Intervals.ReportInterval)*time.Second)
 		}
@@ -94,36 +79,4 @@ func (a *agent) Run(commonCtx context.Context) error {
 	}
 
 	return nil
-}
-
-func getProcessors(config *config.Config) ([]scheduler.Processor, error) {
-	hg := hashgenerator.Factory().SHA256()
-	var list []scheduler.Processor
-	if config.Common.GRPCHost != "" {
-		opts := []grpc.DialOption{
-			grpc.WithTransportCredentials(insecure.NewCredentials()),
-			grpc.WithDefaultCallOptions(grpc.UseCompressor(gzip.Name)),
-			grpc.WithUnaryInterceptor(dealoptions.WithXRealIP(config.Common.Host)),
-			grpc.WithUnaryInterceptor(dealoptions.WithSHA256(hg, config.Common.Key)),
-		}
-		updater := grpsserv.NewGRPCMetricsUpdater(config.Common.GRPCHost, opts)
-		list = append(list, metricsuploader.NewGRPCUploader(updater))
-	}
-	if config.Common.Host != "" && len(list) == 0 {
-		ub := metricurlbuilder.New(config.Common.Host)
-
-		httpClient, err := client.Provider{ConfProvider: tlsconfig.Provider{CryptoKeyPath: config.Common.CryptoKey}}.Fetch()
-		if err != nil {
-			return nil, fmt.Errorf("failed to fetch client: %w", err)
-		}
-		rs := requestsender.New(
-			httpClient,
-			requestsender.WithGzip(compressor.GzipCompressor{}),
-			requestsender.WithSHA256(hg, config.Common.Key),
-			requestsender.WithXRealIP(config.Common.Host),
-		)
-		processor := metricsuploader.NewJSONUploader(rs, ub, config.Intervals.RepeatIntervals)
-		list = append(list, processor)
-	}
-	return list, nil
 }

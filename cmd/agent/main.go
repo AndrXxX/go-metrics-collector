@@ -13,6 +13,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/flagsparser"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/buildformatter"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/configpath"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/hashgenerator"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
 
@@ -40,7 +41,11 @@ func main() {
 		logger.Log.Info(bInfo)
 	}
 
-	a := agent.New(c, agent.WithRuntimeCollector(), agent.WithVmCollector())
+	hg := hashgenerator.Factory().SHA256()
+	a := agent.New(c,
+		agent.WithRuntimeCollector(), agent.WithVmCollector(),
+		agent.WithGRPCMetricsUploader(hg), agent.WithHTTPMetricsUploader(hg),
+	)
 	if err := a.Run(ctx); err != nil {
 		log.Fatal(err)
 	}
