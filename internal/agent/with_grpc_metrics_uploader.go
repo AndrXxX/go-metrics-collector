@@ -10,19 +10,18 @@ import (
 	grpsserv "github.com/AndrXxX/go-metrics-collector/internal/agent/services/grpc"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/grpc/dealoptions"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricsuploader"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/tlsconfig"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/types"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
 
-func WithGRPCMetricsUploader(hg hashGenerator) Option {
+func WithGRPCMetricsUploader(hg hashGenerator, tlsProvider tlsConfigProvider) Option {
 	return func(a *agent) {
 		if a.c.Common.GRPCHost == "" {
 			return
 		}
 		var opts types.ItemsList[grpc.DialOption]
 
-		tlsConf, err := tlsconfig.Provider{CryptoKeyPath: a.c.Common.CryptoKey}.Fetch()
+		tlsConf, err := tlsProvider.Fetch()
 		if err != nil {
 			logger.Log.Error("failed to fetch tlsConf", zap.Error(err))
 		}

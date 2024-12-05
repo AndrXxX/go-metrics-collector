@@ -11,6 +11,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/configprovider"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/envparser"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/flagsparser"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/tlsconfig"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/buildformatter"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/configpath"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/hashgenerator"
@@ -43,8 +44,10 @@ func main() {
 
 	hg := hashgenerator.Factory().SHA256()
 	a := agent.New(c,
-		agent.WithRuntimeCollector(), agent.WithVMCollector(),
-		agent.WithGRPCMetricsUploader(hg), agent.WithHTTPMetricsUploader(hg),
+		agent.WithRuntimeCollector(),
+		agent.WithVMCollector(),
+		agent.WithGRPCMetricsUploader(hg, tlsconfig.Provider{CryptoKeyPath: c.Common.CryptoKey}),
+		agent.WithHTTPMetricsUploader(hg),
 	)
 	if err := a.Run(ctx); err != nil {
 		log.Fatal(err)
