@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_requestLogger_Handler(t *testing.T) {
@@ -37,6 +38,10 @@ func Test_requestLogger_Handler(t *testing.T) {
 			h.ServeHTTP(w, request)
 			result := w.Result()
 			assert.Equal(t, tt.wantCode, result.StatusCode)
+			if result.Body != nil {
+				err := result.Body.Close()
+				require.NoError(t, err)
+			}
 		})
 	}
 }
