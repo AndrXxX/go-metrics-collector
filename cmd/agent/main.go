@@ -7,6 +7,7 @@ import (
 	"syscall"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/agent"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/client"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/configfile"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/configprovider"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/envparser"
@@ -43,11 +44,12 @@ func main() {
 	}
 
 	hg := hashgenerator.Factory().SHA256()
+	tlsProvider := tlsconfig.Provider{CryptoKeyPath: c.Common.CryptoKey}
 	a := agent.New(c,
 		agent.WithRuntimeCollector(),
 		agent.WithVMCollector(),
-		agent.WithGRPCMetricsUploader(hg, tlsconfig.Provider{CryptoKeyPath: c.Common.CryptoKey}),
-		agent.WithHTTPMetricsUploader(hg),
+		agent.WithGRPCMetricsUploader(hg, tlsProvider),
+		agent.WithHTTPMetricsUploader(hg, client.Provider{ConfProvider: tlsProvider}),
 	)
 	if err := a.Run(ctx); err != nil {
 		log.Fatal(err)

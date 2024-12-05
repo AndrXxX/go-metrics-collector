@@ -1,6 +1,9 @@
 package agent
 
-import "crypto/tls"
+import (
+	"crypto/tls"
+	"net/http"
+)
 
 type Option func(a *agent)
 
@@ -10,4 +13,8 @@ type hashGenerator interface {
 
 type tlsConfigProvider interface {
 	Fetch() (*tls.Config, error)
+}
+
+type clientProvider interface {
+	Fetch() (*http.Client, error)
 }
