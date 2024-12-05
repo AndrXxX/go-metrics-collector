@@ -82,10 +82,10 @@ func Run(commonCtx context.Context, config *config.Config) error {
 }
 
 func getCollectors(config *config.Config) []scheduler.Collector {
-	var list []scheduler.Collector
-	list = append(list, runtimemetricscollector.New(&config.Metrics))
-	list = append(list, vmmetricscollector.New())
-	return list
+	return []scheduler.Collector{
+		runtimemetricscollector.New(&config.Metrics),
+		vmmetricscollector.New(),
+	}
 }
 
 func getProcessors(config *config.Config) ([]scheduler.Processor, error) {
