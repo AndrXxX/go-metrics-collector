@@ -5,7 +5,7 @@ import (
 )
 
 func WithVmCollector() Option {
-	return func(a agent) {
+	return func(a *agent) {
 		a.collectors.Add(vmmetricscollector.New())
 	}
 }

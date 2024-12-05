@@ -34,14 +34,14 @@ type agent struct {
 }
 
 func New(c *config.Config, opts ...Option) *agent {
-	a := agent{
+	a := &agent{
 		c:          c,
 		collectors: make(types.ItemsList[scheduler.Collector], 0),
 	}
 	for _, opt := range opts {
 		opt(a)
 	}
-	return &a
+	return a
 }
 
 // Run запускает агента
