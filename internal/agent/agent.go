@@ -29,23 +29,35 @@ import (
 
 const shutdownTimeout = 5 * time.Second
 
+type agent struct {
+	c *config.Config
+}
+
+func New(c *config.Config, opts ...Option) *agent {
+	a := agent{c: c}
+	for _, opt := range opts {
+		opt(a)
+	}
+	return &a
+}
+
 // Run запускает агента
-func Run(commonCtx context.Context, config *config.Config) error {
+func (a *agent) Run(commonCtx context.Context) error {
 	ctx, cancel := context.WithCancel(commonCtx)
 	defer cancel()
-	s := scheduler.NewIntervalScheduler(time.Duration(config.Intervals.SleepInterval) * time.Second)
+	s := scheduler.NewIntervalScheduler(time.Duration(a.c.Intervals.SleepInterval) * time.Second)
 
-	for _, collector := range getCollectors(config) {
-		s.AddCollector(collector, time.Duration(config.Intervals.PollInterval)*time.Second)
+	for _, collector := range getCollectors(a.c) {
+		s.AddCollector(collector, time.Duration(a.c.Intervals.PollInterval)*time.Second)
 	}
 
-	processors, err := getProcessors(config)
+	processors, err := getProcessors(a.c)
 	if err != nil {
 		return err
 	}
 	for _, processor := range processors {
-		for count := config.Common.RateLimit; count > 0; count-- {
-			s.AddProcessor(processor, time.Duration(config.Intervals.ReportInterval)*time.Second)
+		for count := a.c.Common.RateLimit; count > 0; count-- {
+			s.AddProcessor(processor, time.Duration(a.c.Intervals.ReportInterval)*time.Second)
 		}
 	}
 

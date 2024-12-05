@@ -40,7 +40,7 @@ func main() {
 		logger.Log.Info(bInfo)
 	}
 
-	if err := agent.Run(ctx, c); err != nil {
+	if err := agent.New(c).Run(ctx); err != nil {
 		log.Fatal(err)
 	}
 }
