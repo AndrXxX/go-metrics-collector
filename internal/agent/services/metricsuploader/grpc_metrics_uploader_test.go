@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/AndrXxX/go-metrics-collector/internal/services/utils"
 	mp "github.com/AndrXxX/go-metrics-collector/pkg/metricsproto"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
@@ -97,8 +98,8 @@ func Test_grpcMetricsUploader_convert(t *testing.T) {
 			name: "Test with two examples",
 			result: func() dto.MetricsDto {
 				v := dto.NewMetricsDto()
-				v.Set(dto.JSONMetrics{ID: "test1", MType: "type1", Delta: pointer[int64](55)})
-				v.Set(dto.JSONMetrics{ID: "test2", MType: "type2", Value: pointer[float64](5.1)})
+				v.Set(dto.JSONMetrics{ID: "test1", MType: "type1", Delta: utils.Pointer[int64](55)})
+				v.Set(dto.JSONMetrics{ID: "test2", MType: "type2", Value: utils.Pointer[float64](5.1)})
 				return *v
 			}(),
 			want: []*mp.Metric{
