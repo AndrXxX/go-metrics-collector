@@ -92,11 +92,12 @@ func getProcessors(config *config.Config) ([]scheduler.Processor, error) {
 	hg := hashgenerator.Factory().SHA256()
 	var list []scheduler.Processor
 	if config.Common.GRPCHost != "" {
-		var opts []grpc.DialOption
-		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
-		opts = append(opts, grpc.WithDefaultCallOptions(grpc.UseCompressor(gzip.Name)))
-		opts = append(opts, grpc.WithUnaryInterceptor(dealoptions.WithXRealIP(config.Common.Host)))
-		opts = append(opts, grpc.WithUnaryInterceptor(dealoptions.WithSHA256(hg, config.Common.Key)))
+		opts := []grpc.DialOption{
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			grpc.WithDefaultCallOptions(grpc.UseCompressor(gzip.Name)),
+			grpc.WithUnaryInterceptor(dealoptions.WithXRealIP(config.Common.Host)),
+			grpc.WithUnaryInterceptor(dealoptions.WithSHA256(hg, config.Common.Key)),
+		}
 		updater := grpsserv.NewGRPCMetricsUpdater(config.Common.GRPCHost, opts)
 		list = append(list, metricsuploader.NewGRPCUploader(updater))
 	}
