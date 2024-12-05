@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/utils"
 )
 
 func TestNewMetrics(t *testing.T) {
@@ -94,7 +95,6 @@ func TestMetricsDto_Get(t *testing.T) {
 }
 
 func TestMetricsDto_Set(t *testing.T) {
-	getPointer := func(val float64) *float64 { return &val }
 	tests := []struct {
 		name   string
 		fields map[string]JSONMetrics
@@ -107,8 +107,8 @@ func TestMetricsDto_Set(t *testing.T) {
 		},
 		{
 			name:   "Set Alloc metric when exist",
-			fields: map[string]JSONMetrics{metrics.Alloc: {ID: metrics.Alloc, Value: getPointer(9)}},
-			metric: JSONMetrics{ID: metrics.Alloc, Value: getPointer(10.1)},
+			fields: map[string]JSONMetrics{metrics.Alloc: {ID: metrics.Alloc, Value: utils.Pointer[float64](9)}},
+			metric: JSONMetrics{ID: metrics.Alloc, Value: utils.Pointer[float64](10.1)},
 		},
 	}
 	for _, tt := range tests {
