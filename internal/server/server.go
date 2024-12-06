@@ -181,7 +181,7 @@ func (a *app) Run(commonCtx context.Context) error {
 		opts = append(opts, grpc.ChainUnaryInterceptor(
 			interceptors.UnaryHasGrantedXRealIP(a.config.c.TrustedSubnet),
 			interceptors.UnaryHasCorrectSHA256(hg, a.config.c.Key),
-			interceptors.UnaryLogger(),
+			interceptors.UnaryLogger(logger.Log),
 		))
 		s = grpc.NewServer(opts...)
 

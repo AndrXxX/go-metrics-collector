@@ -8,11 +8,9 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
 
-func UnaryLogger() grpc.UnaryServerInterceptor {
+func UnaryLogger(l logger) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		start := time.Now()
 
@@ -26,7 +24,7 @@ func UnaryLogger() grpc.UnaryServerInterceptor {
 			}
 		}
 
-		logger.Log.Info(
+		l.Info(
 			"got incoming gRPC request",
 			zap.String("method", info.FullMethod),
 			zap.Uint32("code", uint32(code)),
