@@ -2,16 +2,15 @@ package dbchecker
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 )
 
 type dbChecker struct {
-	db *sql.DB
+	db conn
 }
 
 // New возвращает сервис dbChecker для проверки соединения с базой данных
-func New(db *sql.DB) *dbChecker {
+func New(db conn) *dbChecker {
 	return &dbChecker{db}
 }
 
