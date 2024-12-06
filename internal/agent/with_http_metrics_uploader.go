@@ -1,6 +1,8 @@
 package agent
 
 import (
+	"bytes"
+
 	"go.uber.org/zap"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/compressor"
@@ -23,7 +25,7 @@ func WithHTTPMetricsUploader(hg hashGenerator, cp clientProvider) Option {
 		}
 		rs := requestsender.New(
 			httpClient,
-			requestsender.WithGzip(compressor.GzipCompressor{}),
+			requestsender.WithGzip(compressor.GzipCompressor{Buff: bytes.NewBuffer(nil)}),
 			requestsender.WithSHA256(hg, a.c.Common.Key),
 			requestsender.WithXRealIP(a.c.Common.Host),
 		)
