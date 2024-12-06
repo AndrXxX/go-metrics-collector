@@ -4,35 +4,22 @@ import (
 	"context"
 	"fmt"
 
-	"go.uber.org/zap"
-
-	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/storagesaver"
-	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
 
 type fileStorage struct {
-	c  *config.Config
 	s  repositories.Storage[*models.Metrics]
 	ss storageSaver
 }
 
 // New возвращает хранилище метрик в файле
-func New(c *config.Config, s repositories.Storage[*models.Metrics]) fileStorage {
-	ss := storagesaver.New(c.FileStoragePath, s, c.RepeatIntervals)
-	if c.Restore {
-		err := ss.Restore(context.TODO())
-		if err != nil {
-			logger.Log.Error("Error restoring storage", zap.Error(err))
-		}
+func New(s repositories.Storage[*models.Metrics], opts ...Option) *fileStorage {
+	fs := &fileStorage{s: s}
+	for _, opt := range opts {
+		opt(fs)
 	}
-	return fileStorage{
-		c,
-		s,
-		ss,
-	}
+	return fs
 }
 
 // Insert вставляет запись
@@ -63,7 +50,10 @@ func (s *fileStorage) Shutdown(ctx context.Context) error {
 
 // Save сохранение хранилища
 func (s *fileStorage) Save(ctx context.Context) error {
-	err := s.ss.Save(ctx)
+	var err error
+	if s.ss != nil {
+		err = s.ss.Save(ctx)
+	}
 	if err != nil {
 		return fmt.Errorf("error saving storage: %w", err)
 	}
