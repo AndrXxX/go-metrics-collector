@@ -29,10 +29,7 @@ func (ss *storageSaver) Save(ctx context.Context) error {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
 	defer func(file *os.File) {
-		err := file.Close()
-		if err != nil {
-			logger.Log.Info("failed to close file", zap.Error(err))
-		}
+		_ = file.Close()
 	}(file)
 
 	bufWriter := bufio.NewWriter(file)
@@ -57,10 +54,7 @@ func (ss *storageSaver) Restore(ctx context.Context) error {
 		return err
 	}
 	defer func(file *os.File) {
-		err := file.Close()
-		if err != nil {
-			logger.Log.Error("Error on close file on restore value", zap.Error(err))
-		}
+		_ = file.Close()
 	}(file)
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
