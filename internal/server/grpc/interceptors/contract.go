@@ -6,6 +6,6 @@ type hashGenerator interface {
 	Generate(key string, data []byte) string
 }
 
-type logger interface {
+type logService interface {
 	Info(msg string, fields ...zap.Field)
 }

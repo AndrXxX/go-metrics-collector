@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func UnaryLogger(l logger) grpc.UnaryServerInterceptor {
+func UnaryLogger(l logService) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		start := time.Now()
 
