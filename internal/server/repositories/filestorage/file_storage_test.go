@@ -54,7 +54,7 @@ func Test_fileStorage_Delete(t *testing.T) {
 	tests := []struct {
 		name        string
 		exist       map[string]*models.Metrics
-		forDeleteId string
+		forDeleteID string
 		want        map[string]*models.Metrics
 	}{
 		{
@@ -63,7 +63,7 @@ func Test_fileStorage_Delete(t *testing.T) {
 				"test1": {ID: "test1", MType: "type1", Value: utils.Pointer[float64](10.1)},
 				"test2": {ID: "test2", MType: "type2", Delta: utils.Pointer[int64](10)},
 			},
-			forDeleteId: "test1",
+			forDeleteID: "test1",
 			want: map[string]*models.Metrics{
 				"test2": {ID: "test2", MType: "type2", Delta: utils.Pointer[int64](10)},
 			},
@@ -82,7 +82,7 @@ func Test_fileStorage_Delete(t *testing.T) {
 				ms.Insert(ctx, m.ID, m)
 			}
 			s := New(&ms)
-			s.Delete(ctx, tt.forDeleteId)
+			s.Delete(ctx, tt.forDeleteID)
 			assert.EqualValues(t, tt.want, s.All(ctx))
 		})
 	}
@@ -92,7 +92,7 @@ func Test_fileStorage_Get(t *testing.T) {
 	tests := []struct {
 		name     string
 		exist    map[string]*models.Metrics
-		forGetId string
+		forGetID string
 		wantM    *models.Metrics
 		wantOk   bool
 	}{
@@ -102,7 +102,7 @@ func Test_fileStorage_Get(t *testing.T) {
 				"test1": {ID: "test1", MType: "type1", Value: utils.Pointer[float64](10.1)},
 				"test2": {ID: "test2", MType: "type2", Delta: utils.Pointer[int64](10)},
 			},
-			forGetId: "test2",
+			forGetID: "test2",
 			wantM:    &models.Metrics{ID: "test2", MType: "type2", Delta: utils.Pointer[int64](10)},
 			wantOk:   true,
 		},
@@ -112,7 +112,7 @@ func Test_fileStorage_Get(t *testing.T) {
 				"test1": {ID: "test1", MType: "type1", Value: utils.Pointer[float64](10.1)},
 				"test2": {ID: "test2", MType: "type2", Delta: utils.Pointer[int64](10)},
 			},
-			forGetId: "test3",
+			forGetID: "test3",
 			wantM:    nil,
 			wantOk:   false,
 		},
@@ -125,7 +125,7 @@ func Test_fileStorage_Get(t *testing.T) {
 				ms.Insert(ctx, m.ID, m)
 			}
 			s := New(&ms)
-			m, ok := s.Get(ctx, tt.forGetId)
+			m, ok := s.Get(ctx, tt.forGetID)
 			assert.Equal(t, tt.wantOk, ok)
 			assert.Equal(t, tt.wantM, m)
 		})
