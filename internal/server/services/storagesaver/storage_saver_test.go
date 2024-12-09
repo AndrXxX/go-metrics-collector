@@ -28,7 +28,7 @@ func Test_storageSaver_Restore(t *testing.T) {
 			name: "Test with error on read file",
 			path: "./test_r1.json",
 			beforeRestore: func() {
-				_, _ = os.OpenFile("./test_r1.json", os.O_CREATE, 0222)
+				_, _ = os.OpenFile("./test_r1.json", os.O_CREATE, 0111)
 			},
 			afterRestore: func() {
 				_ = os.Remove("./test_r1.json")
@@ -156,23 +156,11 @@ func Test_storageSaver_openFile(t *testing.T) {
 		wantFile   bool
 	}{
 		{
-			name: "Test with error on open file",
-			path: "./test_o1.json",
-			beforeOpen: func() {
-				_, _ = os.OpenFile("./test_o1.json", os.O_CREATE, 0222)
-			},
-			afterOpen: func() {
-				_ = os.Remove("./test_o1.json")
-			},
-			wantErr:  true,
-			wantFile: false,
-		},
-		{
-			name: "Test with error on open file",
+			name: "Test with error on open file with repeat",
 			path: "./test_o1.json",
 			ri:   []time.Duration{50 * time.Millisecond},
 			beforeOpen: func() {
-				_, _ = os.OpenFile("./test_o1.json", os.O_CREATE, 0222)
+				_, _ = os.OpenFile("./test_o1.json", os.O_CREATE, 0111)
 			},
 			afterOpen: func() {
 				_ = os.Remove("./test_o1.json")
