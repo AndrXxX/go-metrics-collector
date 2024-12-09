@@ -33,7 +33,11 @@ func (sp *storageProvider) Storage(ctx context.Context) interfaces.MetricsStorag
 	}
 	ms := memory.New[*models.Metrics]()
 	if sp.c.FileStoragePath != "" {
-		s := filestorage.New(&ms, filestorage.WithStorageSaver(sp.c, storagesaver.New(sp.c.FileStoragePath, &ms, sp.c.RepeatIntervals)))
+		ri := make([]time.Duration, len(sp.c.RepeatIntervals))
+		for i, interval := range sp.c.RepeatIntervals {
+			ri[i] = time.Duration(interval) * time.Second
+		}
+		s := filestorage.New(&ms, filestorage.WithStorageSaver(sp.c, storagesaver.New(sp.c.FileStoragePath, &ms, ri)))
 		sst := savestoragetask.New(time.Duration(sp.c.StoreInterval)*time.Second, s)
 		go sst.Execute(ctx)
 		return s

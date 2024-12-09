@@ -5,6 +5,7 @@ import (
 	"context"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -71,7 +72,7 @@ func Test_storageSaver_Restore(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := memory.New[*models.Metrics]()
-			ss := New(tt.path, &s, []int{})
+			ss := New(tt.path, &s, []time.Duration{})
 			if tt.beforeRestore != nil {
 				tt.beforeRestore()
 			}
@@ -127,7 +128,7 @@ func Test_storageSaver_Save(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := memory.New[*models.Metrics]()
-			ss := New(tt.path, &s, []int{})
+			ss := New(tt.path, &s, []time.Duration{})
 			if tt.vals != nil {
 				for _, val := range tt.vals {
 					s.Insert(context.Background(), val.ID, val)
@@ -148,7 +149,7 @@ func Test_storageSaver_openFile(t *testing.T) {
 	tests := []struct {
 		name       string
 		path       string
-		ri         []int
+		ri         []time.Duration
 		beforeOpen func()
 		afterOpen  func()
 		wantErr    bool
@@ -169,7 +170,7 @@ func Test_storageSaver_openFile(t *testing.T) {
 		{
 			name: "Test with error on open file",
 			path: "./test_o1.json",
-			ri:   []int{1},
+			ri:   []time.Duration{50 * time.Millisecond},
 			beforeOpen: func() {
 				_, _ = os.OpenFile("./test_o1.json", os.O_CREATE, 0222)
 			},
