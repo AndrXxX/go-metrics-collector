@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"os"
+	"sync"
 	"testing"
 	"time"
 
@@ -15,7 +16,20 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/services/utils"
 )
 
+var errorOnFailedAccessRights = false
+
+var checkRights = sync.OnceFunc(func() {
+	name := "./check.tmp"
+	_, _ = os.OpenFile(name, os.O_CREATE, 0111)
+	_, err := os.OpenFile(name, os.O_RDONLY|os.O_CREATE, permission)
+	if err != nil {
+		errorOnFailedAccessRights = true
+	}
+	_ = os.Remove(name)
+})
+
 func Test_storageSaver_Restore(t *testing.T) {
+	checkRights()
 	tests := []struct {
 		name          string
 		path          string
@@ -33,7 +47,7 @@ func Test_storageSaver_Restore(t *testing.T) {
 			afterRestore: func() {
 				_ = os.Remove("./test_r1.json")
 			},
-			wantErr: true,
+			wantErr: errorOnFailedAccessRights,
 			want:    map[string]*models.Metrics{},
 		},
 		{
@@ -86,6 +100,7 @@ func Test_storageSaver_Restore(t *testing.T) {
 }
 
 func Test_storageSaver_Save(t *testing.T) {
+	checkRights()
 	tests := []struct {
 		name       string
 		path       string
@@ -103,7 +118,7 @@ func Test_storageSaver_Save(t *testing.T) {
 			afterSave: func() {
 				_ = os.Remove("./test_s1.json")
 			},
-			wantErr: true,
+			wantErr: errorOnFailedAccessRights,
 		},
 		{
 			name: "Test with succeed save data",
@@ -146,6 +161,7 @@ func Test_storageSaver_Save(t *testing.T) {
 }
 
 func Test_storageSaver_openFile(t *testing.T) {
+	checkRights()
 	tests := []struct {
 		name       string
 		path       string
@@ -165,8 +181,8 @@ func Test_storageSaver_openFile(t *testing.T) {
 			afterOpen: func() {
 				_ = os.Remove("./test_o1.json")
 			},
-			wantErr:  true,
-			wantFile: false,
+			wantErr:  errorOnFailedAccessRights,
+			wantFile: !errorOnFailedAccessRights,
 		},
 		{
 			name: "Test with succeed open file",
