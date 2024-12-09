@@ -1,21 +1,20 @@
 package compressor
 
 import (
-	"bytes"
 	"compress/gzip"
 	"fmt"
 	"io"
 )
 
 type GzipCompressor struct {
+	Buff buffer
 }
 
 func (c GzipCompressor) Compress(data []byte) (io.Reader, error) {
-	var b bytes.Buffer
 	if data == nil {
-		return &b, nil
+		return c.Buff, nil
 	}
-	w := gzip.NewWriter(&b)
+	w := gzip.NewWriter(c.Buff)
 	_, err := w.Write(data)
 	if err != nil {
 		return nil, fmt.Errorf("failed write data to compress temporary buffer: %v", err)
@@ -25,5 +24,5 @@ func (c GzipCompressor) Compress(data []byte) (io.Reader, error) {
 		return nil, fmt.Errorf("failed compress data: %v", err)
 	}
 
-	return &b, nil
+	return c.Buff, nil
 }

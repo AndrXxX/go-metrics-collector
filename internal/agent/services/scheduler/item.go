@@ -7,12 +7,12 @@ import (
 
 type collectorItem struct {
 	item
-	c collector
+	c Collector
 }
 
 type processorItem struct {
 	item
-	p processor
+	p Processor
 }
 
 type item struct {

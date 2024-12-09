@@ -2,128 +2,99 @@ package updatemetrics
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 
-	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
-	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsformatter"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsidentifier"
-	"github.com/AndrXxX/go-metrics-collector/internal/server/services/metricsupdater"
 )
 
-func TestUpdateMetricsHandlerGaugeHandle(t *testing.T) {
-	type want struct {
-		statusCode int
-	}
-	tests := []struct {
-		name    string
-		request string
-		vars    map[string]string
-		method  string
-		want    want
-	}{
-		{
-			name:    "StatusOK test",
-			request: "/update/gauge/test/10.1",
-			vars:    map[string]string{vars.MetricType: metrics.Gauge, vars.Metric: "test", vars.Value: "10.1"},
-			method:  http.MethodPost,
-			want: want{
-				statusCode: http.StatusOK,
-			},
-		},
-		{
-			name:    "StatusBadRequest test",
-			request: "/update/gauge/test/aaa",
-			vars:    map[string]string{vars.MetricType: metrics.Gauge, vars.Metric: "test", vars.Value: "aaa"},
-			method:  http.MethodPost,
-			want: want{
-				statusCode: http.StatusBadRequest,
-			},
-		},
-	}
-	storage := memory.New[*models.Metrics]()
-	h := New(metricsupdater.New(&storage), metricsformatter.MetricsEmptyFormatter{}, metricsidentifier.NewURLIdentifier())
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			request := httptest.NewRequest(test.method, test.request, nil)
-			ctx := chi.NewRouteContext()
-			request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, ctx))
-			for k, v := range test.vars {
-				ctx.URLParams.Add(k, v)
-			}
-
-			w := httptest.NewRecorder()
-			h.Handler()(w, request)
-			result := w.Result()
-
-			assert.Equal(t, test.want.statusCode, result.StatusCode)
-			if result.Body != nil {
-				err := result.Body.Close()
-				require.NoError(t, err)
-			}
-		})
-	}
+type testUpdater struct {
+	m   *models.Metrics
+	err error
 }
 
-func TestUpdateMetricsHandlerCounterHandle(t *testing.T) {
-	type want struct {
-		statusCode int
+func (u testUpdater) Update(_ context.Context, _ *models.Metrics) (*models.Metrics, error) {
+	return u.m, u.err
+}
+
+type testFormatter struct {
+	str string
+	err error
+}
+
+func (f testFormatter) Format(_ *models.Metrics) (string, error) {
+	return f.str, f.err
+}
+
+type tesIdentifier struct {
+	m   *models.Metrics
+	err error
+}
+
+func (i tesIdentifier) Process(_ *http.Request) (*models.Metrics, error) {
+	return i.m, i.err
+}
+
+func Test_updateMetricsHandler_Handler(t *testing.T) {
+	type fields struct {
+		u updater
+		f formatter
+		i identifier
 	}
 	tests := []struct {
-		name    string
-		request string
-		vars    map[string]string
-		method  string
-		want    want
+		name     string
+		fields   fields
+		wantCode int
 	}{
 		{
-			name:    "StatusOK test",
-			request: "/update/counter/test/10",
-			vars:    map[string]string{vars.MetricType: metrics.Counter, vars.Metric: "test", vars.Value: "10"},
-			method:  http.MethodPost,
-			want: want{
-				statusCode: http.StatusOK,
-			},
+			name:     "Test with error on identify",
+			fields:   fields{i: tesIdentifier{err: fmt.Errorf("some error")}},
+			wantCode: http.StatusBadRequest,
 		},
 		{
-			name:    "StatusBadRequest test",
-			request: "/update/counter/test/aaa",
-			vars:    map[string]string{vars.MetricType: metrics.Counter, vars.Metric: "test", vars.Value: "aaa"},
-			method:  http.MethodPost,
-			want: want{
-				statusCode: http.StatusBadRequest,
+			name:     "Test with nil metric on identify",
+			fields:   fields{i: tesIdentifier{}},
+			wantCode: http.StatusBadRequest,
+		},
+		{
+			name: "Test with error on update",
+			fields: fields{
+				i: tesIdentifier{m: &models.Metrics{}},
+				u: testUpdater{err: fmt.Errorf("some error")},
 			},
+			wantCode: http.StatusBadRequest,
+		},
+		{
+			name: "Test with error on format",
+			fields: fields{
+				i: tesIdentifier{m: &models.Metrics{}},
+				u: testUpdater{m: &models.Metrics{}},
+				f: testFormatter{err: fmt.Errorf("some error")},
+			},
+			wantCode: http.StatusInternalServerError,
+		},
+		{
+			name: "Test OK",
+			fields: fields{
+				i: tesIdentifier{m: &models.Metrics{}},
+				u: testUpdater{m: &models.Metrics{}},
+				f: testFormatter{str: "{}"},
+			},
+			wantCode: http.StatusOK,
 		},
 	}
-	storage := memory.New[*models.Metrics]()
-	h := New(metricsupdater.New(&storage), metricsformatter.MetricsEmptyFormatter{}, metricsidentifier.NewURLIdentifier())
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			request := httptest.NewRequest(test.method, test.request, nil)
-			ctx := chi.NewRouteContext()
-			request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, ctx))
-			for k, v := range test.vars {
-				ctx.URLParams.Add(k, v)
-			}
-
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			h := New(tt.fields.u, tt.fields.f, tt.fields.i)
+			f := h.Handler()
+			r := httptest.NewRequest("", "/test", nil)
 			w := httptest.NewRecorder()
-
-			h.Handler()(w, request)
-			result := w.Result()
-
-			assert.Equal(t, test.want.statusCode, result.StatusCode)
-			if result.Body != nil {
-				err := result.Body.Close()
-				require.NoError(t, err)
-			}
+			f(w, r)
+			assert.Equal(t, tt.wantCode, w.Code)
 		})
 	}
 }

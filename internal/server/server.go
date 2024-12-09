@@ -6,12 +6,19 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/encoding"
+	"google.golang.org/grpc/encoding/gzip"
+
+	mp "github.com/AndrXxX/go-metrics-collector/pkg/metricsproto"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/contenttypes"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/vars"
@@ -23,6 +30,8 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updatemanymetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/api/updatemetrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/config"
+	igrpc "github.com/AndrXxX/go-metrics-collector/internal/server/grpc"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/grpc/interceptors"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/interfaces"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/services/dbchecker"
@@ -76,6 +85,7 @@ func (a *app) Run(commonCtx context.Context) error {
 
 	r.Route("/updates", func(r chi.Router) {
 		r.Use(apilogger.New().Handler)
+		r.Use(middlewares.HasGrantedXRealIPOr403(a.config.c.TrustedSubnet).Handler)
 		r.Use(middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key).Handler)
 		r.Use(middlewares.CompressGzip().Handler)
 		r.Use(middlewares.SetContentType(contenttypes.ApplicationJSON).Handler)
@@ -86,6 +96,7 @@ func (a *app) Run(commonCtx context.Context) error {
 
 	r.Route(fmt.Sprintf("/update/{%v}/{%v}/{%v}", vars.MetricType, vars.Metric, vars.Value), func(r chi.Router) {
 		r.Use(apilogger.New().Handler)
+		r.Use(middlewares.HasGrantedXRealIPOr403(a.config.c.TrustedSubnet).Handler)
 		r.Use(middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key).Handler)
 		r.Use(middlewares.SetContentType(contenttypes.TextPlain).Handler)
 		r.Use(middlewares.HasMetricOr404().Handler)
@@ -99,6 +110,7 @@ func (a *app) Run(commonCtx context.Context) error {
 
 	r.Route("/update", func(r chi.Router) {
 		r.Use(apilogger.New().Handler)
+		r.Use(middlewares.HasGrantedXRealIPOr403(a.config.c.TrustedSubnet).Handler)
 		r.Use(middlewares.HasCorrectSHA256HashOr500(hg, a.config.c.Key).Handler)
 		r.Use(middlewares.CompressGzip().Handler)
 		r.Use(middlewares.SetContentType(contenttypes.ApplicationJSON).Handler)
@@ -155,6 +167,34 @@ func (a *app) Run(commonCtx context.Context) error {
 
 	logger.Log.Info("listening", zap.String("host", a.config.c.Host))
 
+	var s *grpc.Server
+	if a.config.c.GRPCHost != "" {
+		listen, err := net.Listen("tcp", a.config.c.GRPCHost)
+		if err != nil {
+			log.Fatal(err)
+		}
+		encoding.RegisterCompressor(encoding.GetCompressor(gzip.Name))
+		opts := make([]grpc.ServerOption, 0)
+		if tlsConfig != nil {
+			opts = append(opts, grpc.Creds(credentials.NewTLS(tlsConfig)))
+		}
+		opts = append(opts, grpc.ChainUnaryInterceptor(
+			interceptors.UnaryHasGrantedXRealIP(a.config.c.TrustedSubnet),
+			interceptors.UnaryHasCorrectSHA256(hg, a.config.c.Key),
+			interceptors.UnaryLogger(logger.Log),
+		))
+		s = grpc.NewServer(opts...)
+
+		mp.RegisterMetricsServer(s, &igrpc.MetricsServer{Updater: metricsupdater.New(a.storage.s)})
+
+		logger.Log.Info("gRPC server starts", zap.String("host", a.config.c.GRPCHost))
+		go func() {
+			if err := s.Serve(listen); err != nil {
+				logger.Log.Error("failed to start gRPC server", zap.Error(err))
+			}
+		}()
+	}
+
 	<-commonCtx.Done()
 	logger.Log.Info("shutting down server gracefully")
 
@@ -175,6 +215,9 @@ func (a *app) Run(commonCtx context.Context) error {
 		}
 		if a.storage.db != nil {
 			_ = a.storage.db.Close()
+		}
+		if s != nil {
+			s.GracefulStop()
 		}
 		shutdown <- struct{}{}
 	}()

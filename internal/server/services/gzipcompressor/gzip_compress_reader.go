@@ -7,7 +7,7 @@ import (
 
 type compressReader struct {
 	r  io.ReadCloser
-	zr *gzip.Reader
+	zr io.ReadCloser
 }
 
 // NewCompressReader возвращает сервис для чтения сжатых данных gzip

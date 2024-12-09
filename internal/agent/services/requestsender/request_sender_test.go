@@ -171,7 +171,7 @@ func TestRequestSender_Post(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := New(tt.fields.c, hashgenerator.Factory().SHA256(), "test", tt.fields.comp)
+			s := New(tt.fields.c, WithGzip(tt.fields.comp), WithSHA256(hashgenerator.Factory().SHA256(), "test"))
 			err := s.Post(tt.url, "", tt.data)
 			assert.Equal(t, tt.wantErr, err != nil)
 		})
@@ -195,7 +195,7 @@ func TestNewRequestSender(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rs := New(tt.args.c, nil, "", nil)
+			rs := New(tt.args.c)
 			assert.Equal(t, tt.want, rs)
 		})
 	}

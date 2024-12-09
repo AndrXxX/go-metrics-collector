@@ -23,12 +23,12 @@ type intervalScheduler struct {
 }
 
 // AddProcessor добавляет обработчик для выполнения действий с собранными метриками
-func (s *intervalScheduler) AddProcessor(p processor, interval time.Duration) {
+func (s *intervalScheduler) AddProcessor(p Processor, interval time.Duration) {
 	s.processors = append(s.processors, processorItem{p: p, item: item{interval: interval}})
 }
 
 // AddCollector добавляет обработчик для сбора метрик
-func (s *intervalScheduler) AddCollector(c collector, interval time.Duration) {
+func (s *intervalScheduler) AddCollector(c Collector, interval time.Duration) {
 	s.collectors = append(s.collectors, collectorItem{c: c, item: item{interval: interval}})
 }
 

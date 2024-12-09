@@ -12,6 +12,7 @@ import (
 
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/models"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/utils"
 )
 
 type testStorage struct {
@@ -21,9 +22,6 @@ type testStorage struct {
 func (t *testStorage) All(_ context.Context) map[string]*models.Metrics {
 	return t.l
 }
-
-func floatPointer(val float64) *float64 { return &val }
-func intPointer(val int64) *int64       { return &val }
 
 func TestNew(t *testing.T) {
 	tests := []struct {
@@ -58,8 +56,8 @@ func Test_fetchAllMetricsHandler_Handler(t *testing.T) {
 		{
 			name: "StatusOK with ",
 			s: &testStorage{l: map[string]*models.Metrics{
-				"gauge145":   {MType: metrics.Gauge, Value: floatPointer(99999.1)},
-				"counter111": {MType: metrics.Counter, Delta: intPointer(15345)},
+				"gauge145":   {MType: metrics.Gauge, Value: utils.Pointer[float64](99999.1)},
+				"counter111": {MType: metrics.Counter, Delta: utils.Pointer[int64](15345)},
 			}},
 			wantInBody: []string{"gauge145", "99999.1", "counter111", "15345"},
 			wantCode:   http.StatusOK,
@@ -95,8 +93,8 @@ func Test_fetchAllMetricsHandler_fetchMetrics(t *testing.T) {
 		{
 			name: "Test with float values",
 			s: &testStorage{l: map[string]*models.Metrics{
-				"gauge145": {MType: metrics.Gauge, Value: floatPointer(10.1)},
-				"gauge111": {MType: metrics.Gauge, Value: floatPointer(9.1)},
+				"gauge145": {MType: metrics.Gauge, Value: utils.Pointer[float64](10.1)},
+				"gauge111": {MType: metrics.Gauge, Value: utils.Pointer[float64](9.1)},
 			}},
 			want: map[string]string{
 				"gauge145": "10.1",
@@ -106,8 +104,8 @@ func Test_fetchAllMetricsHandler_fetchMetrics(t *testing.T) {
 		{
 			name: "Test with float values",
 			s: &testStorage{l: map[string]*models.Metrics{
-				"counter12": {MType: metrics.Counter, Delta: intPointer(12)},
-				"counter19": {MType: metrics.Counter, Delta: intPointer(19)},
+				"counter12": {MType: metrics.Counter, Delta: utils.Pointer[int64](12)},
+				"counter19": {MType: metrics.Counter, Delta: utils.Pointer[int64](19)},
 			}},
 			want: map[string]string{
 				"counter12": "12",

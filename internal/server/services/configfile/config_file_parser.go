@@ -40,11 +40,13 @@ func (p Parser) Parse(c *config.Config) error {
 		return fmt.Errorf("failed to parse config file: %s", err)
 	}
 	set(jc.Address, &c.Host)
+	set(jc.GRPCAddress, &c.GRPCHost)
 	set(jc.Restore, &c.Restore)
 	set(convertDurationToInt(jc.StoreInterval), &c.StoreInterval)
 	set(jc.StoreFile, &c.FileStoragePath)
 	set(jc.DatabaseDsn, &c.DatabaseDSN)
 	set(jc.CryptoKey, &c.CryptoKey)
+	set(jc.TrustedSubnet, &c.TrustedSubnet)
 	return nil
 }
 

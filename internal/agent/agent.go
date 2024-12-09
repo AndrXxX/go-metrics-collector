@@ -9,43 +9,44 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/client"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/compressor"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricsuploader"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricurlbuilder"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/requestsender"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/runtimemetricscollector"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/scheduler"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/tlsconfig"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/vmmetricscollector"
-	"github.com/AndrXxX/go-metrics-collector/internal/services/hashgenerator"
+	"github.com/AndrXxX/go-metrics-collector/internal/agent/types"
 	"github.com/AndrXxX/go-metrics-collector/internal/services/logger"
 )
 
 const shutdownTimeout = 5 * time.Second
 
+type agent struct {
+	c          *config.Config
+	collectors types.ItemsList[scheduler.Collector]
+	processors types.ItemsList[scheduler.Processor]
+}
+
+func New(c *config.Config, opts ...Option) *agent {
+	a := &agent{
+		c:          c,
+		collectors: make(types.ItemsList[scheduler.Collector], 0),
+		processors: make(types.ItemsList[scheduler.Processor], 0),
+	}
+	for _, opt := range opts {
+		opt(a)
+	}
+	return a
+}
+
 // Run запускает агента
-func Run(commonCtx context.Context, config *config.Config) error {
+func (a *agent) Run(commonCtx context.Context) error {
 	ctx, cancel := context.WithCancel(commonCtx)
 	defer cancel()
-	s := scheduler.NewIntervalScheduler(time.Duration(config.Intervals.SleepInterval) * time.Second)
-	rmc := runtimemetricscollector.New(&config.Metrics)
-	s.AddCollector(rmc, time.Duration(config.Intervals.PollInterval)*time.Second)
+	s := scheduler.NewIntervalScheduler(time.Duration(a.c.Intervals.SleepInterval) * time.Second)
 
-	vmc := vmmetricscollector.New()
-	s.AddCollector(vmc, time.Duration(config.Intervals.PollInterval)*time.Second)
-
-	ub := metricurlbuilder.New(config.Common.Host)
-	hg := hashgenerator.Factory().SHA256()
-
-	httpClient, err := client.Provider{ConfProvider: tlsconfig.Provider{CryptoKeyPath: config.Common.CryptoKey}}.Fetch()
-	if err != nil {
-		return fmt.Errorf("failed to fetch client: %w", err)
+	for _, collector := range a.collectors {
+		s.AddCollector(collector, time.Duration(a.c.Intervals.PollInterval)*time.Second)
 	}
-	rs := requestsender.New(httpClient, hg, config.Common.Key, compressor.GzipCompressor{})
-	for count := config.Common.RateLimit; count > 0; count-- {
-		processor := metricsuploader.NewJSONUploader(rs, ub, config.Intervals.RepeatIntervals)
-		s.AddProcessor(processor, time.Duration(config.Intervals.ReportInterval)*time.Second)
+	for _, processor := range a.processors {
+		for count := a.c.Common.RateLimit; count > 0; count-- {
+			s.AddProcessor(processor, time.Duration(a.c.Intervals.ReportInterval)*time.Second)
+		}
 	}
 
 	go func() {

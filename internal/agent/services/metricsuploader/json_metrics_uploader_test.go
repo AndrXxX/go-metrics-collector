@@ -10,19 +10,14 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"golang.org/x/exp/constraints"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
-	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/compressor"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/metricurlbuilder"
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/services/requestsender"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/contenttypes"
 	"github.com/AndrXxX/go-metrics-collector/internal/enums/metrics"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/utils"
 )
-
-func pointer[T constraints.Ordered](v T) *T {
-	return &v
-}
 
 func jsonEncode(v any) []byte {
 	encoded, _ := json.Marshal(v)
@@ -38,10 +33,10 @@ func TestNewJSONUploader(t *testing.T) {
 	}{
 		{
 			name: "Test NewJSONUploader #1 (Alloc)",
-			rs:   requestsender.New(http.DefaultClient, nil, "", compressor.GzipCompressor{}),
+			rs:   requestsender.New(http.DefaultClient),
 			ub:   metricurlbuilder.New(""),
 			want: &jsonMetricsUploader{
-				rs:              requestsender.New(http.DefaultClient, nil, "", compressor.GzipCompressor{}),
+				rs:              requestsender.New(http.DefaultClient),
 				ub:              metricurlbuilder.New(""),
 				repeatIntervals: []int{},
 			},
@@ -70,7 +65,7 @@ func Test_jsonMetricsUploader_execute(t *testing.T) {
 		{
 			name: "Test with Gauge Alloc: 0.1",
 			list: []dto.JSONMetrics{
-				{ID: metrics.Alloc, MType: metrics.Gauge, Value: pointer[float64](0.1)},
+				{ID: metrics.Alloc, MType: metrics.Gauge, Value: utils.Pointer[float64](0.1)},
 			},
 			wantErr: false,
 		},
@@ -138,7 +133,7 @@ func Test_jsonMetricsUploader_Process(t *testing.T) {
 					return &val
 				}()})
 				results <- v
-				time.Sleep(300 * time.Millisecond)
+				time.Sleep(100 * time.Millisecond)
 				close(results)
 				wg.Done()
 			}()
@@ -157,11 +152,11 @@ func Test_jsonMetricsUploader_send(t *testing.T) {
 	}{
 		{
 			name:   "Test with Gauge Alloc: 0.1",
-			metric: dto.JSONMetrics{ID: metrics.Alloc, MType: metrics.Gauge, Value: pointer[float64](0.1)},
+			metric: dto.JSONMetrics{ID: metrics.Alloc, MType: metrics.Gauge, Value: utils.Pointer[float64](0.1)},
 			checkFunc: func(url string, ct string, data []byte) error {
 				assert.Equal(t, "http://host/update", url)
 				assert.Equal(t, contenttypes.ApplicationJSON, ct)
-				expectedData := jsonEncode(dto.JSONMetrics{ID: metrics.Alloc, MType: metrics.Gauge, Value: pointer[float64](0.1)})
+				expectedData := jsonEncode(dto.JSONMetrics{ID: metrics.Alloc, MType: metrics.Gauge, Value: utils.Pointer[float64](0.1)})
 				assert.Equal(t, expectedData, data)
 				return nil
 			},
@@ -201,13 +196,13 @@ func Test_jsonMetricsUploader_sendMany(t *testing.T) {
 		{
 			name: "Test with Gauge Alloc: 0.1",
 			list: []dto.JSONMetrics{
-				{ID: metrics.Alloc, MType: metrics.Gauge, Value: pointer[float64](0.1)},
+				{ID: metrics.Alloc, MType: metrics.Gauge, Value: utils.Pointer[float64](0.1)},
 			},
 			checkFunc: func(url string, ct string, data []byte) error {
 				assert.Equal(t, "http://host/updates", url)
 				assert.Equal(t, contenttypes.ApplicationJSON, ct)
 				expectedData := jsonEncode([]dto.JSONMetrics{
-					{ID: metrics.Alloc, MType: metrics.Gauge, Value: pointer[float64](0.1)},
+					{ID: metrics.Alloc, MType: metrics.Gauge, Value: utils.Pointer[float64](0.1)},
 				})
 				assert.Equal(t, expectedData, data)
 				return nil

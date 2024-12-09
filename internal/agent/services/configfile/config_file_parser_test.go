@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/config"
+	"github.com/AndrXxX/go-metrics-collector/internal/services/utils"
 	"github.com/AndrXxX/go-metrics-collector/internal/types/jsontime"
 )
 
@@ -105,9 +106,6 @@ func TestConfigFileParser_Parse(t *testing.T) {
 }
 
 func Test_convertDurationToInt(t *testing.T) {
-	pointer := func(v int64) *int64 {
-		return &v
-	}
 	tests := []struct {
 		name     string
 		duration jsontime.Duration
@@ -120,12 +118,12 @@ func Test_convertDurationToInt(t *testing.T) {
 		{
 			name:     "Test with 1s",
 			duration: jsontime.Duration{Duration: 1 * time.Second},
-			want:     pointer(1),
+			want:     utils.Pointer[int64](1),
 		},
 		{
 			name:     "Test with 100ms",
 			duration: jsontime.Duration{Duration: 100 * time.Millisecond},
-			want:     pointer(0),
+			want:     utils.Pointer[int64](0),
 		},
 	}
 	for _, tt := range tests {

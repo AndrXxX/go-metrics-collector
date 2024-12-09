@@ -8,6 +8,7 @@ import (
 
 type envConfig struct {
 	Addr           string `env:"ADDRESS"`
+	GRPCAddr       string `env:"GRPC_ADDRESS"`
 	ReportInterval int64  `env:"REPORT_INTERVAL"`
 	PollInterval   int64  `env:"POLL_INTERVAL"`
 	Key            string `env:"KEY"`
@@ -22,6 +23,7 @@ type envParser struct {
 func (p envParser) Parse(c *config.Config) error {
 	cfg := envConfig{
 		Addr:           c.Common.Host,
+		GRPCAddr:       c.Common.GRPCHost,
 		Key:            c.Common.Key,
 		CryptoKey:      c.Common.CryptoKey,
 		RateLimit:      c.Common.RateLimit,
@@ -33,6 +35,7 @@ func (p envParser) Parse(c *config.Config) error {
 		return err
 	}
 	c.Common.Host = cfg.Addr
+	c.Common.GRPCHost = cfg.GRPCAddr
 	c.Common.Key = cfg.Key
 	c.Common.CryptoKey = cfg.CryptoKey
 	c.Common.RateLimit = cfg.RateLimit

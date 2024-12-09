@@ -3,6 +3,7 @@ package config
 // Config конфигурация сервера
 type Config struct {
 	Host            string `valid:"minstringlength(3)"`
+	GRPCHost        string
 	LogLevel        string `valid:"in(debug|info|warn|error|fatal)"`
 	StoreInterval   int64  `valid:"range(1|999)"`
 	RepeatIntervals []int
@@ -11,4 +12,5 @@ type Config struct {
 	DatabaseDSN     string
 	Key             string
 	CryptoKey       string
+	TrustedSubnet   string
 }

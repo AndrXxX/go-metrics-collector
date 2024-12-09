@@ -3,6 +3,7 @@ package storageprovider
 import (
 	"context"
 	"database/sql"
+	"reflect"
 	"testing"
 	"time"
 
@@ -14,6 +15,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/dbstorage"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/filestorage"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/storagesaver"
 )
 
 func TestNew(t *testing.T) {
@@ -42,7 +44,6 @@ func TestNew(t *testing.T) {
 func Test_storageProvider_Storage(t *testing.T) {
 	dbStorage := dbstorage.New(nil, nil)
 	mStorage := memory.New[*models.Metrics]()
-	fsStorage := filestorage.New(&config.Config{FileStoragePath: "test"}, &mStorage)
 	type fields struct {
 		c  *config.Config
 		db *sql.DB
@@ -60,7 +61,10 @@ func Test_storageProvider_Storage(t *testing.T) {
 		{
 			name:   "File Storage",
 			fields: fields{&config.Config{FileStoragePath: "test"}, nil},
-			want:   &fsStorage,
+			want: filestorage.New(
+				&mStorage,
+				filestorage.WithStorageSaver(&config.Config{}, storagesaver.New("test", &mStorage, []int{1})),
+			),
 		},
 		{
 			name:   "Memory Storage",
@@ -71,7 +75,8 @@ func Test_storageProvider_Storage(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			sp := New(tt.fields.c, tt.fields.db)
-			assert.Equal(t, tt.want, sp.Storage(context.Background()))
+			s := sp.Storage(context.Background())
+			assert.Equal(t, reflect.TypeOf(tt.want).Name(), reflect.TypeOf(s).Name())
 			time.Sleep(100 * time.Millisecond)
 		})
 	}

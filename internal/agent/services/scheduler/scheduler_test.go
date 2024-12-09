@@ -72,8 +72,8 @@ func TestNewIntervalScheduler(t *testing.T) {
 func Test_intervalScheduler_Run(t *testing.T) {
 	tests := []struct {
 		name       string
-		processors []processor
-		collectors []collector
+		processors []Processor
+		collectors []Collector
 		running    bool
 		shutdown   bool
 		wantErr    bool
@@ -85,8 +85,8 @@ func Test_intervalScheduler_Run(t *testing.T) {
 		},
 		{
 			name:       "Test with 1 collector and 1 processor",
-			collectors: []collector{&executor{err: fmt.Errorf("test error")}},
-			processors: []processor{&executor{}},
+			collectors: []Collector{&executor{err: fmt.Errorf("test error")}},
+			processors: []Processor{&executor{}},
 			shutdown:   true,
 			wantErr:    false,
 		},

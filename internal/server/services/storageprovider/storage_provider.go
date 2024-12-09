@@ -11,6 +11,7 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/dbstorage"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/filestorage"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/repositories/memory"
+	"github.com/AndrXxX/go-metrics-collector/internal/server/services/storagesaver"
 	"github.com/AndrXxX/go-metrics-collector/internal/server/tasks/savestoragetask"
 )
 
@@ -32,10 +33,10 @@ func (sp *storageProvider) Storage(ctx context.Context) interfaces.MetricsStorag
 	}
 	ms := memory.New[*models.Metrics]()
 	if sp.c.FileStoragePath != "" {
-		s := filestorage.New(sp.c, &ms)
-		sst := savestoragetask.New(time.Duration(sp.c.StoreInterval)*time.Second, &s)
+		s := filestorage.New(&ms, filestorage.WithStorageSaver(sp.c, storagesaver.New(sp.c.FileStoragePath, &ms, sp.c.RepeatIntervals)))
+		sst := savestoragetask.New(time.Duration(sp.c.StoreInterval)*time.Second, s)
 		go sst.Execute(ctx)
-		return &s
+		return s
 	}
 	return &ms
 }

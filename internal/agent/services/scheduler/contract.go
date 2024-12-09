@@ -4,10 +4,10 @@ import (
 	"github.com/AndrXxX/go-metrics-collector/internal/agent/dto"
 )
 
-type collector interface {
+type Collector interface {
 	Collect(chan<- dto.MetricsDto) error
 }
 
-type processor interface {
+type Processor interface {
 	Process(<-chan dto.MetricsDto) error
 }
