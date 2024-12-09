@@ -38,13 +38,13 @@ func TestNewJSONUploader(t *testing.T) {
 			want: &jsonMetricsUploader{
 				rs:              requestsender.New(http.DefaultClient),
 				ub:              metricurlbuilder.New(""),
-				repeatIntervals: []int{},
+				repeatIntervals: []time.Duration{},
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, NewJSONUploader(tt.rs, tt.ub, []int{}))
+			assert.Equal(t, tt.want, NewJSONUploader(tt.rs, tt.ub, []time.Duration{}))
 		})
 	}
 }
@@ -83,7 +83,7 @@ func Test_jsonMetricsUploader_execute(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			rs := testSender{checkFunc: tt.checkFunc}
-			c := NewJSONUploader(rs, metricurlbuilder.New("host"), []int{})
+			c := NewJSONUploader(rs, metricurlbuilder.New("host"), []time.Duration{})
 			result := dto.NewMetricsDto()
 			for _, v := range tt.list {
 				result.Set(v)
@@ -174,7 +174,7 @@ func Test_jsonMetricsUploader_send(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			rs := testSender{checkFunc: tt.checkFunc}
-			c := NewJSONUploader(rs, metricurlbuilder.New("host"), []int{1})
+			c := NewJSONUploader(rs, metricurlbuilder.New("host"), []time.Duration{50 * time.Millisecond})
 			assert.Equal(t, tt.wantErr, c.send(tt.metric) != nil)
 		})
 	}
@@ -240,7 +240,7 @@ func Test_jsonMetricsUploader_sendMany(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			rs := testSender{checkFunc: tt.checkFunc}
-			c := NewJSONUploader(rs, metricurlbuilder.New("host"), []int{1})
+			c := NewJSONUploader(rs, metricurlbuilder.New("host"), []time.Duration{50 * time.Millisecond})
 			assert.Equal(t, tt.wantErr, c.sendMany(tt.list) != nil)
 		})
 	}

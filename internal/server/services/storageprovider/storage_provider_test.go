@@ -63,7 +63,7 @@ func Test_storageProvider_Storage(t *testing.T) {
 			fields: fields{&config.Config{FileStoragePath: "test"}, nil},
 			want: filestorage.New(
 				&mStorage,
-				filestorage.WithStorageSaver(&config.Config{}, storagesaver.New("test", &mStorage, []int{1})),
+				filestorage.WithStorageSaver(&config.Config{}, storagesaver.New("test", &mStorage, []time.Duration{100 * time.Millisecond})),
 			),
 		},
 		{

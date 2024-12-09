@@ -2,6 +2,7 @@ package agent
 
 import (
 	"bytes"
+	"time"
 
 	"go.uber.org/zap"
 
@@ -30,6 +31,10 @@ func WithHTTPMetricsUploader(hg hashGenerator, cp clientProvider) Option {
 			requestsender.WithXRealIP(a.c.Common.Host),
 		)
 		ub := metricurlbuilder.New(a.c.Common.Host)
-		a.processors.Add(metricsuploader.NewJSONUploader(rs, ub, a.c.Intervals.RepeatIntervals))
+		ri := make([]time.Duration, len(a.c.Intervals.RepeatIntervals))
+		for i, interval := range a.c.Intervals.RepeatIntervals {
+			ri[i] = time.Duration(interval) * time.Second
+		}
+		a.processors.Add(metricsuploader.NewJSONUploader(rs, ub, ri))
 	}
 }

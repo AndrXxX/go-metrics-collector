@@ -19,7 +19,7 @@ const permission = 0666
 type storageSaver struct {
 	path string
 	s    storage[*models.Metrics]
-	ri   []int
+	ri   []time.Duration
 }
 
 // Save сохраняет данные из хранилища в файл
@@ -75,7 +75,7 @@ func (ss *storageSaver) openFile(name string, flag int) (*os.File, error) {
 		return file, nil
 	}
 	for _, repeatInterval := range ss.ri {
-		time.Sleep(time.Duration(repeatInterval) * time.Second)
+		time.Sleep(repeatInterval)
 		file, oErr := os.OpenFile(name, flag, permission)
 		return file, oErr
 	}
@@ -83,6 +83,6 @@ func (ss *storageSaver) openFile(name string, flag int) (*os.File, error) {
 }
 
 // New возвращает сервис для сохранения/восстановления хранилища в/из файла
-func New(path string, s storage[*models.Metrics], repeatIntervals []int) *storageSaver {
+func New(path string, s storage[*models.Metrics], repeatIntervals []time.Duration) *storageSaver {
 	return &storageSaver{path, s, repeatIntervals}
 }
