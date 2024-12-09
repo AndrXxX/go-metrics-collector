@@ -13,7 +13,7 @@ import (
 type jsonMetricsUploader struct {
 	rs              requestSender
 	ub              urlBuilder
-	repeatIntervals []int
+	repeatIntervals []time.Duration
 }
 
 func (c *jsonMetricsUploader) execute(result dto.MetricsDto) error {
@@ -62,7 +62,7 @@ func (c *jsonMetricsUploader) sendMany(l []dto.JSONMetrics) error {
 		return nil
 	}
 	for _, repeatInterval := range c.repeatIntervals {
-		time.Sleep(time.Duration(repeatInterval) * time.Second)
+		time.Sleep(repeatInterval)
 		err = c.rs.Post(url, contenttypes.ApplicationJSON, encoded)
 		if err == nil {
 			return nil
@@ -72,6 +72,6 @@ func (c *jsonMetricsUploader) sendMany(l []dto.JSONMetrics) error {
 }
 
 // NewJSONUploader возвращает сервис jsonMetricsUploader для загрузки метрик в формате JSON
-func NewJSONUploader(rs requestSender, ub urlBuilder, repeatIntervals []int) *jsonMetricsUploader {
+func NewJSONUploader(rs requestSender, ub urlBuilder, repeatIntervals []time.Duration) *jsonMetricsUploader {
 	return &jsonMetricsUploader{rs, ub, repeatIntervals}
 }
